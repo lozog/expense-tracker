@@ -17,6 +17,8 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 
 import kotlinx.android.synthetic.main.activity_main.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +31,11 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
+
+        // Set default value of expenseDate input as today's date
+        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val expenseDate = findViewById<EditText>(R.id.expenseDate)
+        expenseDate.setText(todayDate)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -58,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         var expenseDate = findViewById<EditText>(R.id.expenseDate)
 
         // TODO: validate that these have values
-        // Date will default to TODAY
+        // TODO: categories should be a dropdown
 
         val url = getString(R.string.google_form_url) +
                 "?" +
@@ -81,7 +88,9 @@ class MainActivity : AppCompatActivity() {
                 // Display the first 500 characters of the response string.
                 Log.d("MAIN_ACTIVITY", "Response is: $response")
 
-                // TODO: clear form
+                expenseItem.setText("")
+                expenseCategory.setText("")
+                expenseAmount.setText("")
             },
             Response.ErrorListener {
                 Log.d("MAIN_ACTIVITY", "It didn't work: $it")
