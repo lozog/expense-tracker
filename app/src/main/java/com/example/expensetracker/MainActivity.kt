@@ -10,11 +10,10 @@ import android.view.View
 import android.widget.EditText
 
 import com.android.volley.Request
-import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.gson.JsonParser
 
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
@@ -91,6 +90,11 @@ class MainActivity : AppCompatActivity() {
                 expenseItem.setText("")
                 expenseCategory.setText("")
                 expenseAmount.setText("")
+
+                val jsonResponse = JsonParser().parse(response).asJsonObject
+
+                Snackbar.make(view, "Added as row ${jsonResponse["row"]}", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
             },
             Response.ErrorListener {
                 Log.d("MAIN_ACTIVITY", "It didn't work: $it")
