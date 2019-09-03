@@ -23,6 +23,10 @@ import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.view.inputmethod.InputMethodManager
 
 class MainActivity : AppCompatActivity() {
+    lateinit var expenseItem: EditText
+    lateinit var expenseCategory: EditText
+    lateinit var expenseAmount: EditText
+    lateinit var expenseDate: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,26 +76,7 @@ class MainActivity : AppCompatActivity() {
         // Instantiate the RequestQueue
         val queue = Volley.newRequestQueue(this)
 
-        var expenseItem = findViewById<EditText>(R.id.expenseItem)
-        var expenseCategory = findViewById<EditText>(R.id.expenseCategory)
-        var expenseAmount = findViewById<EditText>(R.id.expenseAmount)
-        var expenseDate = findViewById<EditText>(R.id.expenseDate)
-
-        // TODO: validate that these have values
-        // TODO: categories should be a dropdown
-
-        val url = getString(R.string.google_form_url) +
-                "?" +
-                "Date=" +
-                expenseDate.text +
-                "&Item=" +
-                expenseItem.text +
-                "&Category=" +
-                expenseCategory.text +
-                "&Amount=" +
-                expenseAmount.text +
-                "&Notes=" +
-                "&Split="
+        val url = buildFormUrl(view)
 
         Log.d("MAIN_ACTIVITY", "URL is: $url")
 
@@ -117,5 +102,30 @@ class MainActivity : AppCompatActivity() {
         // Add the request to the RequestQueue.
         queue.add(stringRequest)
 
+    }
+
+    fun buildFormUrl(view: View): String {
+        expenseItem = findViewById<EditText>(R.id.expenseItem)
+        expenseCategory = findViewById<EditText>(R.id.expenseCategory)
+        expenseAmount = findViewById<EditText>(R.id.expenseAmount)
+        expenseDate = findViewById<EditText>(R.id.expenseDate)
+
+        // TODO: validate that these have values
+        // TODO: categories should be a dropdown
+
+        val url = getString(R.string.google_form_url) +
+                "?" +
+                "Date=" +
+                expenseDate.text +
+                "&Item=" +
+                expenseItem.text +
+                "&Category=" +
+                expenseCategory.text +
+                "&Amount=" +
+                expenseAmount.text +
+                "&Notes=" +
+                "&Split="
+
+        return url
     }
 }
