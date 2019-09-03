@@ -35,7 +35,7 @@
         android:layout_marginRight="16dp"
         android:ems="10"
         android:hint="@string/expense_amount"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/expenseItem" />
