@@ -1,5 +1,6 @@
 package com.example.expensetracker
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
@@ -18,6 +19,8 @@ import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
+import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
+import android.view.inputmethod.InputMethodManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +56,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun hideKeyboard() {
+        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+        inputManager.hideSoftInputFromWindow(
+            currentFocus!!.windowToken,
+            HIDE_NOT_ALWAYS
+        )
+    }
+
     fun submitExpense(view: View) {
+        hideKeyboard()
+
         // when button is pressed, call sheets api and send data
         // Instantiate the RequestQueue
         val queue = Volley.newRequestQueue(this)
