@@ -64,17 +64,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun hideKeyboard() {
+    private fun hideKeyboard(view: View) {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
         inputManager.hideSoftInputFromWindow(
-            currentFocus!!.windowToken,
+            view.windowToken,
             HIDE_NOT_ALWAYS
         )
     }
 
     fun submitExpense(view: View) {
-        hideKeyboard()
+        hideKeyboard(view)
+
+        if (!validateInput()) {
+            Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+
+            return
+        }
 
         // when button is pressed, call sheets api and send data
         // Instantiate the RequestQueue
@@ -126,5 +133,31 @@ class MainActivity : AppCompatActivity() {
                 "&Split="
 
         return url
+    }
+
+    private fun validateInput(): Boolean {
+        var isValid = true
+
+        if (expenseItem.text.isBlank()) {
+            expenseItem.error = "Item cannot be blank"
+            isValid = false
+        }
+
+        if (expenseAmount.text.isBlank()) {
+            expenseAmount.error = "Amount cannot be blank"
+            isValid = false
+        }
+
+        if (expenseCategory.text.isBlank()) {
+            expenseCategory.error = "Category cannot be blank"
+            isValid = false
+        }
+
+        if (expenseDate.text.isBlank()) {
+            expenseDate.error = "Date cannot be blank"
+            isValid = false
+        }
+
+        return isValid
     }
 }
