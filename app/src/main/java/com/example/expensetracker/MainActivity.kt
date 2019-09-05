@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
 
 import com.android.volley.Request
 import com.android.volley.Response
@@ -21,22 +20,26 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.view.inputmethod.InputMethodManager
+import android.widget.*
+import android.widget.TextView
 
-class MainActivity : AppCompatActivity() {
-    lateinit var expenseItem: EditText
-    lateinit var expenseCategory: EditText
-    lateinit var expenseAmount: EditText
-    lateinit var expenseDate: EditText
+class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+    private lateinit var expenseItem: EditText
+    private lateinit var expenseCategory: Spinner
+    private lateinit var expenseAmount: EditText
+    private lateinit var expenseDate: EditText
+
+    private var expenseCategoryValue: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        expenseItem = findViewById<EditText>(R.id.expenseItem)
-        expenseCategory = findViewById<EditText>(R.id.expenseCategory)
-        expenseAmount = findViewById<EditText>(R.id.expenseAmount)
-        expenseDate = findViewById<EditText>(R.id.expenseDate)
+        expenseItem = findViewById(R.id.expenseItem)
+        expenseCategory = findViewById(R.id.expenseCategory)
+        expenseAmount = findViewById(R.id.expenseAmount)
+        expenseDate = findViewById(R.id.expenseDate)
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -46,6 +49,20 @@ class MainActivity : AppCompatActivity() {
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         expenseDate.setText(todayDate)
+
+        // Set up the categories dropdown
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.categories_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            expenseCategory.adapter = adapter
+        }
+
+        expenseCategory.onItemSelectedListener = this
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -98,16 +115,20 @@ class MainActivity : AppCompatActivity() {
                 Log.d("MAIN_ACTIVITY", "Response is: $response")
 
                 expenseItem.setText("")
-                expenseCategory.setText("")
                 expenseAmount.setText("")
 
                 val jsonResponse = JsonParser().parse(response).asJsonObject
 
                 Snackbar.make(view, "Added as row ${jsonResponse["row"]}", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
+
+                expenseCategoryValue = ""
             },
             Response.ErrorListener {
                 Log.d("MAIN_ACTIVITY", "It didn't work: $it")
+                Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                expenseCategoryValue = ""
             })
 
         // Add the request to the RequestQueue.
@@ -119,20 +140,18 @@ class MainActivity : AppCompatActivity() {
         // TODO: validate that these have values
         // TODO: categories should be a dropdown
 
-        val url = getString(R.string.google_form_url) +
+        return getString(R.string.google_form_url) +
                 "?" +
                 "Date=" +
                 expenseDate.text +
                 "&Item=" +
                 expenseItem.text +
                 "&Category=" +
-                expenseCategory.text +
+                expenseCategoryValue +
                 "&Amount=" +
                 expenseAmount.text +
                 "&Notes=" +
                 "&Split="
-
-        return url
     }
 
     private fun validateInput(): Boolean {
@@ -148,8 +167,8 @@ class MainActivity : AppCompatActivity() {
             isValid = false
         }
 
-        if (expenseCategory.text.isBlank()) {
-            expenseCategory.error = "Category cannot be blank"
+        if (expenseCategoryValue.isBlank()) {
+            (expenseCategory.selectedView as TextView).error = "Category cannot be blank"
             isValid = false
         }
 
@@ -159,5 +178,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         return isValid
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
+        expenseCategoryValue = parent.getItemAtPosition(pos).toString()
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>) {
+        // Another interface callback
     }
 }

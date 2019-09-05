@@ -40,7 +40,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/expenseItem" />
 
-    <EditText
+    <Spinner
         android:id="@+id/expenseCategory"
         android:layout_width="270dp"
         android:layout_height="45dp"

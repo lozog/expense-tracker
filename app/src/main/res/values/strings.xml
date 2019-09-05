@@ -6,4 +6,18 @@
     <string name="expense_category">Category</string>
     <string name="expense_date">Date</string>
     <string name="button_expense_submit">Submit</string>
+
+    <string-array name="categories_array">
+        <item>Groceries</item>
+        <item>Dining Out</item>
+        <item>Drinks</item>
+        <item>Material Items</item>
+        <item>Entertainment</item>
+        <item>Transit</item>
+        <item>Personal/Medical</item>
+        <item>Gifts</item>
+        <item>Travel</item>
+        <item>Miscellaneous</item>
+        <item>Film</item>
+    </string-array>
 </resources>
