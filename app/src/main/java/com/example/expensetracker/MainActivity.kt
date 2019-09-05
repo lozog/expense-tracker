@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        expenseItem = findViewById<EditText>(R.id.expenseItem)
+        expenseCategory = findViewById<EditText>(R.id.expenseCategory)
+        expenseAmount = findViewById<EditText>(R.id.expenseAmount)
+        expenseDate = findViewById<EditText>(R.id.expenseDate)
+
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
@@ -40,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val expenseDate = findViewById<EditText>(R.id.expenseDate)
         expenseDate.setText(todayDate)
     }
 
@@ -104,12 +108,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun buildFormUrl(view: View): String {
-        expenseItem = findViewById<EditText>(R.id.expenseItem)
-        expenseCategory = findViewById<EditText>(R.id.expenseCategory)
-        expenseAmount = findViewById<EditText>(R.id.expenseAmount)
-        expenseDate = findViewById<EditText>(R.id.expenseDate)
-
+    private fun buildFormUrl(view: View): String {
         // TODO: validate that these have values
         // TODO: categories should be a dropdown
 
