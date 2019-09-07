@@ -22,4 +22,12 @@
     </string-array>
     <string name="summary_widget_text">Press update</string>
     <string name="add_widget">Add widget</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Google API URLs</string>
+
+    <!-- Google URL Preferences -->
+    <string name="google_form_url_pref_label">Google Form URL</string>
+    <string name="google_sheets_url_pref_label">Google Sheets URL</string>
 </resources>

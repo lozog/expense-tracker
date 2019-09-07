@@ -1,6 +1,7 @@
 package com.example.expensetracker
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
@@ -22,6 +23,7 @@ import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.TextView
+import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var expenseItem: EditText
@@ -76,7 +78,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                this.startActivity(Intent(this, SettingsActivity::class.java))
+                return true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -104,7 +110,14 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Instantiate the RequestQueue
         val queue = Volley.newRequestQueue(this)
 
-        val url = buildFormUrl(view)
+        val url = buildFormUrl()
+
+        if (url == "") {
+            Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+
+            return
+        }
 
         Log.d("MAIN_ACTIVITY", "URL is: $url")
 
@@ -122,13 +135,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 Snackbar.make(view, "Added as row ${jsonResponse["row"]}", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
 
-                expenseCategoryValue = ""
             },
             Response.ErrorListener {
                 Log.d("MAIN_ACTIVITY", "It didn't work: $it")
                 Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
-                expenseCategoryValue = ""
             })
 
         // Add the request to the RequestQueue.
@@ -136,11 +147,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     }
 
-    private fun buildFormUrl(view: View): String {
-        // TODO: validate that these have values
-        // TODO: categories should be a dropdown
+    private fun buildFormUrl(): String {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val baseUrl = sharedPreferences.getString("google_form_url", "")
 
-        return getString(R.string.google_form_url) +
+        if (baseUrl == "") {
+            return ""
+        }
+
+        return baseUrl +
                 "?" +
                 "Date=" +
                 expenseDate.text +

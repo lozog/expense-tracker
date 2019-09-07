@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.preference.PreferenceManager
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.VolleyError
@@ -81,7 +82,8 @@ class SummaryWidget : AppWidgetProvider() {
         // Instantiate the RequestQueue
         val queue = Volley.newRequestQueue(context)
 
-        val url = context.getString(R.string.google_sheets_url)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val url = sharedPreferences.getString("google_sheets_url", "")
 
         // Request a string response from the provided URL
         val stringRequest = StringRequest(
