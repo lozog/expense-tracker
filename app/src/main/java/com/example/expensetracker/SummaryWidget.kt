@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.preference.PreferenceManager
@@ -39,18 +40,37 @@ class SummaryWidget : AppWidgetProvider() {
     ) {
         // Perform this loop procedure for each App Widget that belongs to this provider
         appWidgetIds.forEach { appWidgetId ->
+            val intent = Intent(context, ListWidgetService::class.java).apply {
+                // Add the app widget ID to the intent extras.
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
+            }
+
+
             // Get the layout for the SummaryWidget and attach an on-click listener
             // to the button
             val views: RemoteViews = RemoteViews(
                 context.packageName,
                 R.layout.summary_widget
             ).apply {
+                // Set up the RemoteViews object to use a RemoteViews adapter.
+                // This adapter connects
+                // to a RemoteViewsService  through the specified intent.
+                // This is how you populate the data.
+                setRemoteAdapter(R.id.summary_list, intent)
+
+                // The empty view is displayed when the collection has no items.
+                // It should be in the same layout used to instantiate the RemoteViews
+                // object above.
+                setEmptyView(R.id.summary_list, R.id.empty_view)
+
                 setOnClickPendingIntent(R.id.update_button, getPendingSelfIntent(context, ACTION_UPDATE));
             }
 
             // Tell the AppWidgetManager to perform an update on the current app widget
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
 
     override fun onEnabled(context: Context) {
@@ -107,8 +127,8 @@ class SummaryWidget : AppWidgetProvider() {
                         .toTypedArray()
                     categories.add(rowArr[col])
                     col = monthCol
+                    Log.d(LOG, rowArr[0])
                     amounts.add(rowArr[col])
-                    //                            Log.d(LOG, rowArr[col]);
                 }
 
                 updateUI(context)
@@ -126,7 +146,7 @@ class SummaryWidget : AppWidgetProvider() {
 
         val thisWidget = ComponentName(
             context,
-            SummaryWidget::class.java!!
+            SummaryWidget::class.java
         )
         val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
 
@@ -139,7 +159,7 @@ class SummaryWidget : AppWidgetProvider() {
 
             // set the text
             remoteViews.setTextViewText(
-                R.id.summary_text,
+                R.id.summary_list,
                 amounts.toString()
             )
 

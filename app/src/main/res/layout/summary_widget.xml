@@ -3,17 +3,31 @@
     android:layout_height="match_parent"
     android:padding="@dimen/widget_margin">
 
-    <TextView
-        android:id="@+id/summary_text"
+<!--    <TextView-->
+<!--        android:id="@+id/summary_text"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_centerVertical="true"-->
+<!--        android:layout_margin="8dp"-->
+<!--        android:contentDescription="Summary widget"-->
+<!--        android:text="Press Update"-->
+<!--        android:textColor="#ffffff"-->
+<!--        android:textSize="12sp" />-->
+    <ListView
+        android:id="@+id/summary_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="8dp"
-        android:contentDescription="Summary widget"
-        android:text="Press Update"
+        android:textColor="#ffffff" />
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
         android:textColor="#ffffff"
-        android:textSize="12sp" />
+        android:textStyle="bold"
+        android:text="Press Update"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/update_button"
