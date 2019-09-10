@@ -64,6 +64,8 @@ class SummaryWidget : AppWidgetProvider() {
                 // object above.
                 setEmptyView(R.id.summary_list, R.id.empty_view)
 
+                Log.d(LOG, "onUpdate")
+
                 setOnClickPendingIntent(R.id.update_button, getPendingSelfIntent(context, ACTION_UPDATE));
             }
 
@@ -86,9 +88,13 @@ class SummaryWidget : AppWidgetProvider() {
 
         Log.d(LOG, "onReceive " + intent.action!!)
 
-        if (ACTION_UPDATE == intent.action) {
-            callSheetsAPI(context)
-        }
+        val mgr = AppWidgetManager.getInstance(context)
+        val cn = ComponentName(context, SummaryWidget::class.java)
+        mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.summary_list)
+
+//        if (ACTION_UPDATE == intent.action) {
+//            callSheetsAPI(context)
+//        }
     }
 
     private fun getPendingSelfIntent(context: Context, action: String): PendingIntent {

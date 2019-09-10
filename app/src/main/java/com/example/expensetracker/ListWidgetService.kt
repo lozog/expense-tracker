@@ -5,6 +5,7 @@ import android.content.Intent
 import android.widget.RemoteViewsService
 import android.widget.RemoteViews
 import android.appwidget.AppWidgetManager
+import android.util.Log
 
 private const val REMOTE_VIEW_COUNT: Int = 10
 
@@ -19,6 +20,7 @@ class ListRemoteViewsFactory(
     intent: Intent
 ) : RemoteViewsService.RemoteViewsFactory {
 
+    private val LOG = "SUMMARY_WIDGET"
     private lateinit var expenseItems: List<ExpenseItem>
     private var mAppWidgetId: Int = intent.getIntExtra(
         AppWidgetManager.EXTRA_APPWIDGET_ID,
@@ -26,6 +28,7 @@ class ListRemoteViewsFactory(
     )
 
     override fun onCreate() {
+        // put some default items into expenseItems
         expenseItems = List(REMOTE_VIEW_COUNT) { index -> ExpenseItem("$index!") }
     }
 
@@ -48,6 +51,7 @@ class ListRemoteViewsFactory(
 
     override fun onDataSetChanged() {
         // TODO
+        Log.d(LOG, "onDataSetChanged")
     }
 
     override fun hasStableIds(): Boolean {
