@@ -1,229 +1,246 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="@dimen/widget_margin">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/summary_groceries_label"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Groceries"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/summary_dining_out_label"
+            <TextView
+                android:id="@+id/summary_groceries_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Groceries"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_dining_out_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Dining Out"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_drinks_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Drinks"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_material_items_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Material Items"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_entertainment_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Entertainment"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_transit_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Transit"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_personal_medical_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Personal/Medical"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_gifts_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Gifts"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_travel_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Travel"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_miscellaneous_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Misc"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_film_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Film"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Dining Out"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/summary_drinks_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Drinks"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_groceries"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Groceries"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_material_items_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Material Items"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_dining_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Dining Out"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_entertainment_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Entertainment"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_drinks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Drinks"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_transit_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Transit"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_material_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Material Items"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_personal_medical_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Personal/Medical"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_entertainment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Entertainment"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_gifts_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Gifts"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_transit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Transit"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_travel_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Travel"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_personal_medical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Personal/Medical"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_miscellaneous_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Misc"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_gifts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Gifts"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/summary_film_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Film"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/summary_travel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Travel"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
 
+            <TextView
+                android:id="@+id/summary_miscellaneous"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Misc"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/summary_film"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Film"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/summary_groceries"
+        <Button
+            android:id="@+id/update_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Groceries"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
+            android:layout_marginEnd="11dp"
+            android:layout_marginRight="11dp"
+            android:layout_marginBottom="10dp"
+            android:text="Update" />
 
         <TextView
-            android:id="@+id/summary_dining_out"
-            android:layout_width="wrap_content"
+            android:id="@+id/updated_at"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Dining Out"
+            android:text="Never Updated"
             android:textColor="#ffffff"
             android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_drinks"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Drinks"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_material_items"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Material Items"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_entertainment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Entertainment"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_transit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Transit"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_personal_medical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Personal/Medical"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_gifts"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Gifts"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_travel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Travel"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_miscellaneous"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Misc"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/summary_film"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Film"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
-
     </LinearLayout>
-
-
-    <Button
-        android:id="@+id/update_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="11dp"
-        android:layout_marginRight="11dp"
-        android:layout_marginBottom="10dp"
-        android:text="Update" />
-
 </LinearLayout>

@@ -13,6 +13,7 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -119,7 +120,7 @@ class SummaryWidget : AppWidgetProvider() {
                     categories.add(rowArr[col])
                     col = monthCol
                     amounts.add(rowArr[col])
-                    //                            Log.d(LOG, rowArr[col]);
+//                    Log.d(LOG, rowArr[col]);
                 }
 
                 updateUI(context)
@@ -148,7 +149,7 @@ class SummaryWidget : AppWidgetProvider() {
                 R.layout.summary_widget
             )
 
-            Log.d(LOG, amounts.toString())
+//            Log.d(LOG, amounts.toString())
 
             categoryIds.forEachIndexed {index, categoryId ->
                 // set the text
@@ -160,8 +161,20 @@ class SummaryWidget : AppWidgetProvider() {
 //                Log.d(LOG, (index+2).toString())
             }
 
+            remoteViews.setTextViewText(
+                R.id.updated_at,
+                "Updated at " + getLocalizedDateTimeString()
+            )
+
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
+    }
+
+    private fun getLocalizedDateTimeString(): String {
+        val formatter = SimpleDateFormat("kk:mm", Locale.getDefault())
+        val currentDateTime = Calendar.getInstance().time
+
+        return formatter.format(currentDateTime)
     }
 }
 
