@@ -6,13 +6,11 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.preference.PreferenceManager
 import com.android.volley.Request
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import java.util.*
@@ -25,12 +23,25 @@ class SummaryWidget : AppWidgetProvider() {
     private val LOG = "SUMMARY_WIDGET"
     private val ACTION_UPDATE = "action.UPDATE"
 
+    private val categoryIds = listOf(
+        R.id.summary_groceries,
+        R.id.summary_dining_out,
+        R.id.summary_drinks,
+        R.id.summary_material_items,
+        R.id.summary_entertainment,
+        R.id.summary_transit,
+        R.id.summary_personal_medical,
+        R.id.summary_gifts,
+        R.id.summary_travel,
+        R.id.summary_miscellaneous,
+        R.id.summary_film
+    )
+
     private lateinit var results: Array<String>
     private var numCols: Int = 0
     private var numRows: Int = 0
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
-
 
     override fun onUpdate(
         context: Context,
@@ -126,7 +137,7 @@ class SummaryWidget : AppWidgetProvider() {
 
         val thisWidget = ComponentName(
             context,
-            SummaryWidget::class.java!!
+            SummaryWidget::class.java
         )
         val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
 
@@ -137,11 +148,17 @@ class SummaryWidget : AppWidgetProvider() {
                 R.layout.summary_widget
             )
 
-            // set the text
-            remoteViews.setTextViewText(
-                R.id.summary_text,
-                amounts.toString()
-            )
+            Log.d(LOG, amounts.toString())
+
+            categoryIds.forEachIndexed {index, categoryId ->
+                // set the text
+                remoteViews.setTextViewText(
+                    categoryId,
+                    amounts[index+2]
+                )
+//                Log.d(LOG, amounts[index+2])
+//                Log.d(LOG, (index+2).toString())
+            }
 
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
