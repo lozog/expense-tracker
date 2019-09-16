@@ -24,6 +24,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.TextView
 import androidx.preference.PreferenceManager
+import com.android.volley.DefaultRetryPolicy
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var expenseItem: EditText
@@ -141,6 +142,16 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
             })
+
+        val mRetryPolicy = DefaultRetryPolicy(
+            DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+            0,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+
+        stringRequest.setRetryPolicy(
+            mRetryPolicy
+        )
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest)
