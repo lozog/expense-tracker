@@ -1,4 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:background="#000000"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -226,14 +228,18 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
+        <ImageButton
             android:id="@+id/update_button"
-            android:layout_width="wrap_content"
+            android:layout_width="25dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="11dp"
             android:layout_marginRight="11dp"
             android:layout_marginBottom="10dp"
-            android:text="Update" />
+            android:adjustViewBounds="true"
+            android:background="#00FFFFFF"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_refresh"
+            android:tint="#FFFFFF" />
 
         <TextView
             android:id="@+id/updated_at"

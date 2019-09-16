@@ -76,8 +76,6 @@ class SummaryWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
-        Log.d(LOG, "onReceive " + intent.action!!)
-
         if (ACTION_UPDATE == intent.action) {
             callSheetsAPI(context)
         }
@@ -151,14 +149,14 @@ class SummaryWidget : AppWidgetProvider() {
 
 //            Log.d(LOG, amounts.toString())
 
+            // set the text for each of the hard-coded categories
             categoryIds.forEachIndexed {index, categoryId ->
-                // set the text
                 remoteViews.setTextViewText(
                     categoryId,
                     amounts[index+2]
                 )
-//                Log.d(LOG, amounts[index+2])
 //                Log.d(LOG, (index+2).toString())
+//                Log.d(LOG, amounts[index+2])
             }
 
             remoteViews.setTextViewText(
