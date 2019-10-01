@@ -100,6 +100,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     fun submitExpense(view: View) {
         hideKeyboard(view)
 
+        val submitButton = findViewById<Button>(R.id.expenseSubmitButton)
+        submitButton.text = "Submitting..."
+
         if (!validateInput()) {
             Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
@@ -133,25 +136,37 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                 val jsonResponse = JsonParser().parse(response).asJsonObject
 
-                Snackbar.make(view, "Added as row ${jsonResponse["row"]}", Snackbar.LENGTH_LONG)
+                val statusText = "Added as row ${jsonResponse["row"]}"
+
+                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
 
+                val statusTextView = findViewById<TextView>(R.id.statusText)
+                statusTextView.text = statusText
+
+                submitButton.text = getString(R.string.button_expense_submit)
             },
             Response.ErrorListener {
-                Log.d("MAIN_ACTIVITY", "It didn't work: $it")
+                val statusText = "It didn't work: $it"
+
+                Log.d("MAIN_ACTIVITY", statusText)
+
                 Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
+
+                val statusTextView = findViewById<TextView>(R.id.statusText)
+                statusTextView.text = statusText
+
+                submitButton.text = getString(R.string.button_expense_submit)
             })
 
         val mRetryPolicy = DefaultRetryPolicy(
-            DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+            30 * 1000,
             0,
             DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
 
-        stringRequest.setRetryPolicy(
-            mRetryPolicy
-        )
+        stringRequest.retryPolicy = mRetryPolicy
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest)
