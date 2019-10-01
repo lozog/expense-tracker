@@ -44,11 +44,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         expenseAmount = findViewById(R.id.expenseAmount)
         expenseDate = findViewById(R.id.expenseDate)
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         expenseDate.setText(todayDate)
