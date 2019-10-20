@@ -38,11 +38,26 @@ class SummaryWidget : AppWidgetProvider() {
         R.id.summary_film
     )
 
+    private val categoryPercentageIds = listOf(
+        R.id.summary_groceries_percentage,
+        R.id.summary_dining_out_percentage,
+        R.id.summary_drinks_percentage,
+        R.id.summary_material_items_percentage,
+        R.id.summary_entertainment_percentage,
+        R.id.summary_transit_percentage,
+        R.id.summary_personal_medical_percentage,
+        R.id.summary_gifts_percentage,
+        R.id.summary_travel_percentage,
+        R.id.summary_miscellaneous_percentage,
+        R.id.summary_film_percentage
+    )
+
     private lateinit var results: Array<String>
     private var numCols: Int = 0
     private var numRows: Int = 0
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
+    private var percentages = ArrayList<String>()
 
     override fun onUpdate(
         context: Context,
@@ -76,6 +91,8 @@ class SummaryWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
+//        Log.d(LOG, "button pressed")
+
         if (ACTION_UPDATE == intent.action) {
             callSheetsAPI(context)
         }
@@ -108,6 +125,7 @@ class SummaryWidget : AppWidgetProvider() {
 
                 categories.clear()
                 amounts.clear()
+                percentages.clear()
                 val cal = Calendar.getInstance()
                 val monthCol = cal.get(Calendar.MONTH) + 2 // add offset of 2 (Jan = col 2)
 
@@ -118,7 +136,17 @@ class SummaryWidget : AppWidgetProvider() {
                     categories.add(rowArr[col])
                     col = monthCol
                     amounts.add(rowArr[col])
-//                    Log.d(LOG, rowArr[col]);
+                    if (row > 1) {
+                        val monthlyTargetAmount = rowArr[1].replace("$", "").toDouble()
+                        val currentAmount = rowArr[col].replace("$", "").toDouble()
+                        var percentageRemaining = "${String.format("%.1f", getPercentage(currentAmount, monthlyTargetAmount))}%"
+                        percentages.add(percentageRemaining)
+
+//                        val percentageRemaining = 0
+//                        Log.d(LOG, "$currentAmount / $monthlyTargetAmount = $percentageRemaining")
+                    }
+
+//                    Log.d(LOG, (rowArr[1].toInt() / rowArr[col].toInt()).toString())
                 }
 
                 updateUI(context)
@@ -159,6 +187,16 @@ class SummaryWidget : AppWidgetProvider() {
 //                Log.d(LOG, amounts[index+2])
             }
 
+//            Log.d(LOG, percentages.toString())
+
+            // set the text for each of the hard-coded percentages
+            categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
+                remoteViews.setTextViewText(
+                    categoryPercentageId,
+                    percentages[index]
+                )
+            }
+
             remoteViews.setTextViewText(
                 R.id.updated_at,
                 "Updated at " + getLocalizedDateTimeString()
@@ -173,6 +211,14 @@ class SummaryWidget : AppWidgetProvider() {
         val currentDateTime = Calendar.getInstance().time
 
         return formatter.format(currentDateTime)
+    }
+
+    private fun getPercentage(quotient: Double, divisor: Double): Double {
+        if (divisor.toInt() == 0) {
+            return 0.toDouble()
+        }
+
+        return (quotient / divisor) * 100
     }
 }
 
