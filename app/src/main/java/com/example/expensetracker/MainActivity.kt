@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var expenseAmount: EditText
     private lateinit var expenseAmountOthers: EditText
     private lateinit var expenseDate: EditText
+    private lateinit var expenseNotes: EditText
 
     private var expenseCategoryValue: String = ""
 
@@ -45,6 +46,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         expenseAmount = findViewById(R.id.expenseAmount)
         expenseAmountOthers = findViewById(R.id.expenseAmountOthers)
         expenseDate = findViewById(R.id.expenseDate)
+        expenseNotes = findViewById(R.id.expenseNotes)
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -131,6 +133,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 expenseItem.setText("")
                 expenseAmount.setText("")
                 expenseAmountOthers.setText("")
+                expenseNotes.setText("")
 
                 val jsonResponse = JsonParser().parse(response).asJsonObject
 
@@ -199,7 +202,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 expenseAmountOthers.text +
                 "&Total=" +
                 total +
-                "&Notes="
+                "&Notes=" +
+                expenseNotes.text
     }
 
     private fun validateInput(): Boolean {

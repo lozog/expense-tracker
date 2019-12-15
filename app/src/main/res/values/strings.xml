@@ -6,6 +6,7 @@
     <string name="expense_amount_others">Amount (others)</string>
     <string name="expense_category">Category</string>
     <string name="expense_date">Date</string>
+    <string name="expense_notes">Notes</string>
     <string name="button_expense_submit">Submit</string>
 
     <string-array name="categories_array">
