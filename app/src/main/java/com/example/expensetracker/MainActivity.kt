@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var expenseItem: EditText
     private lateinit var expenseCategory: Spinner
     private lateinit var expenseAmount: EditText
+    private lateinit var expenseAmountOthers: EditText
     private lateinit var expenseDate: EditText
 
     private var expenseCategoryValue: String = ""
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         expenseItem = findViewById(R.id.expenseItem)
         expenseCategory = findViewById(R.id.expenseCategory)
         expenseAmount = findViewById(R.id.expenseAmount)
+        expenseAmountOthers = findViewById(R.id.expenseAmountOthers)
         expenseDate = findViewById(R.id.expenseDate)
 
         // Set default value of expenseDate input as today's date
@@ -128,6 +130,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                 expenseItem.setText("")
                 expenseAmount.setText("")
+                expenseAmountOthers.setText("")
 
                 val jsonResponse = JsonParser().parse(response).asJsonObject
 
@@ -176,6 +179,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             return ""
         }
 
+        val expenseAmountOthersString = expenseAmountOthers.text.toString()
+        val expenseAmountOthersDouble = if (expenseAmountOthersString == "") 0.0 else expenseAmountOthersString.toDouble()
+//        Log.d("MAIN_ACTIVITY", expenseAmountOthersDouble.toString())
+
+        val total = (expenseAmount.text.toString().toDouble() - expenseAmountOthersDouble).toString()
+
         return baseUrl +
                 "?" +
                 "Date=" +
@@ -186,8 +195,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 expenseCategoryValue +
                 "&Amount=" +
                 expenseAmount.text +
-                "&Notes=" +
-                "&Split="
+                "&Split=" +
+                expenseAmountOthers.text +
+                "&Total=" +
+                total +
+                "&Notes="
     }
 
     private fun validateInput(): Boolean {

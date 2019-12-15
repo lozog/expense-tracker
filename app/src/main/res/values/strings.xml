@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="expense_item">Item</string>
     <string name="expense_amount">Amount</string>
+    <string name="expense_amount_others">Amount (others)</string>
     <string name="expense_category">Category</string>
     <string name="expense_date">Date</string>
     <string name="button_expense_submit">Submit</string>
