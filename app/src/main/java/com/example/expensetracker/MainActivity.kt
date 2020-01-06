@@ -113,14 +113,24 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Instantiate the RequestQueue
         val queue = Volley.newRequestQueue(this)
 
-        val url = buildFormUrl()
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val baseUrl = sharedPreferences.getString("google_form_url", "")
+        val currency = sharedPreferences.getString("currency", "")
 
-        if (url == "") {
+        if (baseUrl == null || baseUrl == "") {
             Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
 
             return
+        } else if (currency == null || currency == "") {
+            Snackbar.make(view, "You must set a default currency", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+
+            return
         }
+
+        val url = buildFormUrl(baseUrl, currency)
+
 
         Log.d("MAIN_ACTIVITY", "URL is: $url")
 
@@ -134,6 +144,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 expenseAmount.setText("")
                 expenseAmountOthers.setText("")
                 expenseNotes.setText("")
+
+                // TODO: response still might be an error
 
                 val jsonResponse = JsonParser().parse(response).asJsonObject
 
@@ -174,10 +186,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     }
 
-    private fun buildFormUrl(): String {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val baseUrl = sharedPreferences.getString("google_form_url", "")
-
+    private fun buildFormUrl(baseUrl: String, currency: String): String {
         if (baseUrl == "") {
             return ""
         }
@@ -203,7 +212,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 "&Total=" +
                 total +
                 "&Notes=" +
-                expenseNotes.text
+                expenseNotes.text +
+                "&Currency=" +
+                currency
     }
 
     private fun validateInput(): Boolean {

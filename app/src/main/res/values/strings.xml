@@ -32,4 +32,8 @@
     <!-- Google URL Preferences -->
     <string name="google_form_url_pref_label">Google Form URL</string>
     <string name="google_sheets_url_pref_label">Google Sheets URL</string>
+
+    <!-- Other preferences -->
+    <string name="currency_pref_label">Currency</string>
+
 </resources>
