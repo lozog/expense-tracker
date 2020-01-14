@@ -113,26 +113,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Instantiate the RequestQueue
         val queue = Volley.newRequestQueue(this)
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val baseUrl = sharedPreferences.getString("google_form_url", "")
-        val currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
-        val exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
-
-        if (baseUrl == null || baseUrl == "") {
-            Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-
-            return
-        }
-
-        if (currency == null || exchangeRate == null) {
-            Snackbar.make(view, "Set a currency and exchange rate", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-
-            return
-        }
-
-        val url = buildFormUrl(baseUrl, currency, exchangeRate)
+        val url = buildFormUrl(this, view)
 
 
         Log.d("MAIN_ACTIVITY", "URL is: $url")
@@ -189,8 +170,23 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     }
 
-    private fun buildFormUrl(baseUrl: String, currency: String, exchangeRate: String): String {
-        if (baseUrl == "") {
+    private fun buildFormUrl(context: Context, view: View): String {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val baseUrl = sharedPreferences.getString("google_form_url", "")
+        val currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
+        val exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
+
+        if (baseUrl == null || baseUrl == "") {
+            Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+
+            return ""
+        }
+
+        if (currency == null || exchangeRate == null) {
+            Snackbar.make(view, "Set a currency and exchange rate", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+
             return ""
         }
 
