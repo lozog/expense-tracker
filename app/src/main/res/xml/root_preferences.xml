@@ -1,6 +1,7 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="@string/messages_header">
+    <PreferenceCategory app:title="@string/google_api_prefs_header">
 
         <EditTextPreference
             app:key="google_form_url"
@@ -11,10 +12,21 @@
             app:key="google_sheets_url"
             app:title="@string/google_sheets_url_pref_label"
             app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/currency_prefs_header">
 
         <EditTextPreference
             app:key="currency"
             app:title="@string/currency_pref_label"
+            app:useSimpleSummaryProvider="true" />
+
+        <!-- inputType to enforce numeric values is not working -->
+        <EditTextPreference
+            app:key="exchange_rate"
+            app:title="@string/exchange_rate_pref_label"
+            android:inputType="numberDecimal"
+            android:digits="0123456789."
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 </PreferenceScreen>

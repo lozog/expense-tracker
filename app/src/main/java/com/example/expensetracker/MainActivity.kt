@@ -115,21 +115,24 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val baseUrl = sharedPreferences.getString("google_form_url", "")
-        val currency = sharedPreferences.getString("currency", "")
+        val currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
+        val exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
 
         if (baseUrl == null || baseUrl == "") {
             Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
 
             return
-        } else if (currency == null || currency == "") {
-            Snackbar.make(view, "You must set a default currency", Snackbar.LENGTH_LONG)
+        }
+
+        if (currency == null || exchangeRate == null) {
+            Snackbar.make(view, "Set a currency and exchange rate", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
 
             return
         }
 
-        val url = buildFormUrl(baseUrl, currency)
+        val url = buildFormUrl(baseUrl, currency, exchangeRate)
 
 
         Log.d("MAIN_ACTIVITY", "URL is: $url")
@@ -186,16 +189,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     }
 
-    private fun buildFormUrl(baseUrl: String, currency: String): String {
+    private fun buildFormUrl(baseUrl: String, currency: String, exchangeRate: String): String {
         if (baseUrl == "") {
             return ""
         }
-
-        val expenseAmountOthersString = expenseAmountOthers.text.toString()
-        val expenseAmountOthersDouble = if (expenseAmountOthersString == "") 0.0 else expenseAmountOthersString.toDouble()
-//        Log.d("MAIN_ACTIVITY", expenseAmountOthersDouble.toString())
-
-        val total = (expenseAmount.text.toString().toDouble() - expenseAmountOthersDouble).toString()
 
         return baseUrl +
                 "?" +
@@ -209,12 +206,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 expenseAmount.text +
                 "&Split=" +
                 expenseAmountOthers.text +
-                "&Total=" +
-                total +
                 "&Notes=" +
                 expenseNotes.text +
                 "&Currency=" +
-                currency
+                currency +
+                "&Exchange=" +
+                exchangeRate
     }
 
     private fun validateInput(): Boolean {
