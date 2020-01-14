@@ -13,18 +13,30 @@
 
     <!-- Categories spinner options -->
     <string-array name="categories_array">
-        <item>Groceries</item>
-        <item>Dining Out</item>
-        <item>Drinks</item>
-        <item>Material Items</item>
-        <item>Entertainment</item>
-        <item>Transit</item>
-        <item>Personal/Medical</item>
-        <item>Gifts</item>
-        <item>Travel</item>
-        <item>Miscellaneous</item>
-        <item>Film</item>
+        <item>@string/category_label_groceries</item>
+        <item>@string/category_label_dining_out</item>
+        <item>@string/category_label_drinks</item>
+        <item>@string/category_label_material_items</item>
+        <item>@string/category_label_entertainment</item>
+        <item>@string/category_label_transit</item>
+        <item>@string/category_label_personal_medical</item>
+        <item>@string/category_label_gifts</item>
+        <item>@string/category_label_travel</item>
+        <item>@string/category_label_misc</item>
+        <item>@string/category_label_film</item>
     </string-array>
+
+    <string name="category_label_groceries">Groceries</string>
+    <string name="category_label_dining_out">Dining Out</string>
+    <string name="category_label_drinks">Drinks</string>
+    <string name="category_label_material_items">Material Items</string>
+    <string name="category_label_entertainment">Entertainment</string>
+    <string name="category_label_transit">Transit</string>
+    <string name="category_label_personal_medical">Personal/Medical</string>
+    <string name="category_label_gifts">Gifts</string>
+    <string name="category_label_travel">Travel</string>
+    <string name="category_label_misc">Miscellaneous</string>
+    <string name="category_label_film">Film</string>
 
     <!-- Settings activity link label -->
     <string name="title_activity_settings">Settings</string>

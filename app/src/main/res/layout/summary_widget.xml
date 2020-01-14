@@ -21,7 +21,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Groceries"
+                android:text="@string/category_label_groceries"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Dining Out"
+                android:text="@string/category_label_dining_out"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -39,7 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Drinks"
+                android:text="@string/category_label_drinks"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Material Items"
+                android:text="@string/category_label_material_items"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -57,7 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Entertainment"
+                android:text="@string/category_label_entertainment"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -66,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Transit"
+                android:text="@string/category_label_transit"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -75,7 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Personal/Medical"
+                android:text="@string/category_label_personal_medical"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Gifts"
+                android:text="@string/category_label_gifts"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -93,7 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Travel"
+                android:text="@string/category_label_travel"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -102,7 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Misc"
+                android:text="@string/category_label_misc"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -111,7 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Film"
+                android:text="@string/category_label_film"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -127,7 +127,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Groceries"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -136,7 +135,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Dining Out"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -145,7 +143,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Drinks"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -154,7 +151,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Material Items"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -163,7 +159,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Entertainment"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -172,7 +167,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Transit"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -181,7 +175,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Personal/Medical"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -190,7 +183,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Gifts"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -199,7 +191,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Travel"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -208,7 +199,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Misc"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -217,7 +207,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Film"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -232,7 +221,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Groceries"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -241,7 +229,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Dining Out"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -250,7 +237,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Drinks"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -259,7 +245,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Material Items"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -268,7 +253,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Entertainment"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -277,7 +261,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Transit"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -286,7 +269,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Personal/Medical"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -295,7 +277,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Gifts"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -304,7 +285,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Travel"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -313,7 +293,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Misc"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -322,7 +301,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Film"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
         </LinearLayout>
