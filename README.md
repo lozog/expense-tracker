@@ -12,7 +12,7 @@ Expense Tracker is an Android app that lets you input expense items to a Google 
 
 ### 2. Set up the Script
 2a. Go to `Tools > Script Editor`.  
-2b. Copy the contents of `sheetScript.gs` in there. (You may need to run setup() once (`Run > Run function > setup`))  
+2b. Copy the contents of `Code.gs` in there. (You may need to run setup() once (`Run > Run function > setup`))  
 2c. Go to `Publish > Deploy as web app > Current web app URL` and get the link. This will be the *`Google Script URL`*.  
 2d. Change "exec" to "dev" if you want it to run the latest, unpublished changes
 
