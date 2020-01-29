@@ -9,6 +9,8 @@
     <string name="expense_category">Category</string>
     <string name="expense_date">Date</string>
     <string name="expense_notes">Notes</string>
+    <string name="currency_label">Currency</string>
+    <string name="currency_exchange_rate">Exchange Rate</string>
     <string name="button_expense_submit">Submit</string>
 
     <!-- Categories spinner options -->

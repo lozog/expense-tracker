@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var expenseAmountOthers: EditText
     private lateinit var expenseDate: EditText
     private lateinit var expenseNotes: EditText
+    private lateinit var currencyLabel: EditText
+    private lateinit var currencyExchangeRate: EditText
 
     private var expenseCategoryValue: String = ""
 
@@ -47,6 +49,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         expenseAmountOthers = findViewById(R.id.expenseAmountOthers)
         expenseDate = findViewById(R.id.expenseDate)
         expenseNotes = findViewById(R.id.expenseNotes)
+        currencyLabel = findViewById(R.id.currencyLabel)
+        currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -128,6 +132,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 expenseAmount.setText("")
                 expenseAmountOthers.setText("")
                 expenseNotes.setText("")
+                currencyLabel.setText("")
+                currencyExchangeRate.setText("")
 
                 // TODO: response still might be an error
 
@@ -173,14 +179,23 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun buildFormUrl(context: Context, view: View): String {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val baseUrl = sharedPreferences.getString("google_form_url", "")
-        val currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
-        val exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
 
         if (baseUrl == null || baseUrl == "") {
             Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
 
             return ""
+        }
+
+        var currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
+        var exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
+
+        val currencyLabelText = currencyLabel.text.toString()
+        val currencyExchangeRateText = currencyExchangeRate.text.toString()
+
+        if (currencyLabelText != "" && currencyExchangeRateText != "") {
+            currency = currencyLabelText
+            exchangeRate = currencyExchangeRateText
         }
 
         if (currency == null || exchangeRate == null) {
