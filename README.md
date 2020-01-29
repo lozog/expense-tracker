@@ -5,7 +5,7 @@ Expense Tracker is an Android app that lets you input expense items to a Google 
 ## Setup
 
 ### 1. Set up the Google Sheet
-1a. Make a clone of the Google Sheet budget template *[TODO: publish a blank copy of the tempalte]*  
+1a. Make a clone of the Google Sheet budget template *[TODO: publish a blank copy of the template]*  
 1b. Go to the `File > Publish to the web` dialog.  
 1c. Choose the `Form Responses` sheet usage Tab-separated values (.tsv). The link will be the *`Google Form URL`*.  
 1d. Click `Publish`.
