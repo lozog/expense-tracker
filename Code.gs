@@ -1,5 +1,5 @@
-// Modified from original found here: https://medium.com/@dmccoy/how-to-submit-an-html-form-to-google-sheets-without-google-forms-b833952cc175
-// They got it from: http://mashe.hawksey.info/2014/07/google-sheets-as-a-database-insert-with-apps-script-using-postget-methods-with-ajax-example/
+// medium article: https://medium.com/@dmccoy/how-to-submit-an-html-form-to-google-sheets-without-google-forms-b833952cc175
+// original from: http://mashe.hawksey.info/2014/07/google-sheets-as-a-database-insert-with-apps-script-using-postget-methods-with-ajax-example/
 // original gist: https://gist.github.com/willpatera/ee41ae374d3c9839c2d6
 
 // HOW TO:
@@ -42,6 +42,8 @@ function handleResponse(e) {
     for (i in headers){
       if (headers[i] == "Timestamp"){ // special case if you include a 'Timestamp' column
         row.push(new Date());
+      } else if (headers[i] == "Total") { // special case for "total" column
+        row.push("=($D" + nextRow + " - $E" + nextRow + ")*$I" + nextRow)
       } else { // else use header name to get data
         row.push(e.parameter[headers[i]]);
       }
