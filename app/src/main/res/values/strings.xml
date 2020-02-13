@@ -26,6 +26,7 @@
         <item>@string/category_label_travel</item>
         <item>@string/category_label_misc</item>
         <item>@string/category_label_film</item>
+        <item>@string/category_label_other_income</item>
     </string-array>
 
     <string name="category_label_groceries">Groceries</string>
@@ -39,6 +40,7 @@
     <string name="category_label_travel">Travel</string>
     <string name="category_label_misc">Miscellaneous</string>
     <string name="category_label_film">Film</string>
+    <string name="category_label_other_income">Other Income</string>
 
     <!-- Settings activity link label -->
     <string name="title_activity_settings">Settings</string>
