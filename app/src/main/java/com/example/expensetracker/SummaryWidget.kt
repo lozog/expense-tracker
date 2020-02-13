@@ -116,6 +116,8 @@ class SummaryWidget : AppWidgetProvider() {
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             Response.Listener { response ->
+//                Log.d(LOG, "got a response")
+
                 results =
                     response.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 numRows = results.size - 1 // TODO: I added a "total" count so -1 for that
@@ -137,8 +139,8 @@ class SummaryWidget : AppWidgetProvider() {
                     col = monthCol
                     amounts.add(rowArr[col])
                     if (row > 1) {
-                        val monthlyTargetAmount = rowArr[1].replace("$", "").toDouble()
-                        val currentAmount = rowArr[col].replace("$", "").toDouble()
+                        val monthlyTargetAmount = stringToDouble(rowArr[1])
+                        val currentAmount = stringToDouble(rowArr[col])
                         var percentageRemaining = "${String.format("%.1f", getPercentage(currentAmount, monthlyTargetAmount))}%"
                         percentages.add(percentageRemaining)
 
@@ -219,6 +221,10 @@ class SummaryWidget : AppWidgetProvider() {
         }
 
         return (quotient / divisor) * 100
+    }
+
+    private fun stringToDouble(string_in: String): Double {
+        return string_in.replace("[^\\d-.]+".toRegex(), "").toDouble()
     }
 }
 
