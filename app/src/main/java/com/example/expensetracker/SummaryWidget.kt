@@ -209,7 +209,7 @@ class SummaryWidget : AppWidgetProvider() {
     }
 
     private fun getLocalizedDateTimeString(): String {
-        val formatter = SimpleDateFormat("kk:mm", Locale.getDefault())
+        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
         val currentDateTime = Calendar.getInstance().time
 
         return formatter.format(currentDateTime)
