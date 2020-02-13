@@ -120,9 +120,9 @@ class SummaryWidget : AppWidgetProvider() {
 
                 results =
                     response.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                numRows = results.size - 1 // TODO: I added a "total" count so -1 for that
+                numRows = 12 + 1 // 12 months + 1 header row
                 numCols =
-                    results[0].split("\t".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
+                    results[0].split("\t".toRegex()).dropLastWhile{ it.isEmpty() }.toTypedArray()
                         .size
 
                 categories.clear()
@@ -133,7 +133,7 @@ class SummaryWidget : AppWidgetProvider() {
 
                 for (row in 0 until numRows) {
                     var col = 0 // category
-                    val rowArr = results[row].split("\t".toRegex()).dropLastWhile({ it.isEmpty() })
+                    val rowArr = results[row].split("\t".toRegex()).dropLastWhile{ it.isEmpty() }
                         .toTypedArray()
                     categories.add(rowArr[col])
                     col = monthCol
@@ -144,10 +144,8 @@ class SummaryWidget : AppWidgetProvider() {
                         var percentageRemaining = "${String.format("%.1f", getPercentage(currentAmount, monthlyTargetAmount))}%"
                         percentages.add(percentageRemaining)
 
-//                        val percentageRemaining = 0
 //                        Log.d(LOG, "$currentAmount / $monthlyTargetAmount = $percentageRemaining")
                     }
-
 //                    Log.d(LOG, (rowArr[1].toInt() / rowArr[col].toInt()).toString())
                 }
 
