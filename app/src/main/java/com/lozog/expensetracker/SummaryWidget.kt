@@ -1,4 +1,4 @@
-package com.example.expensetracker
+package com.lozog.expensetracker
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

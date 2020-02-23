@@ -1,4 +1,4 @@
-package com.example.expensetracker
+package com.lozog.expensetracker
 
 import org.junit.Test
 

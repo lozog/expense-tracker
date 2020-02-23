@@ -1,4 +1,4 @@
-package com.example.expensetracker
+package com.lozog.expensetracker
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
