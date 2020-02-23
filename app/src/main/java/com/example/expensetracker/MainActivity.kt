@@ -196,8 +196,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val currencyLabelText = currencyLabel.text.toString()
         val currencyExchangeRateText = currencyExchangeRate.text.toString()
 
-        if (currencyLabelText != "" && currencyExchangeRateText != "") {
+        if (currencyLabelText != "") {
             currency = currencyLabelText
+        }
+
+        if (currencyExchangeRateText != "") {
             exchangeRate = currencyExchangeRateText
         }
 
