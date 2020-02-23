@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 submitButton.text = getString(R.string.button_expense_submit)
             },
             Response.ErrorListener {
-                val statusText = "It didn't work: $it"
+                val statusText = "$it"
 
                 Log.d(TAG, statusText)
 
@@ -181,7 +181,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest)
-
     }
 
     private fun buildFormUrl(context: Context, view: View): String {
