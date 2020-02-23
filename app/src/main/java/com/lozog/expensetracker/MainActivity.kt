@@ -123,6 +123,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val url = buildFormUrl(this, view)
 
+        if (url == "") {
+            Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            return
+        }
 
         Log.d(TAG, "URL is: $url")
 
@@ -184,9 +189,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val baseUrl = sharedPreferences.getString("google_form_url", "")
 
         if (baseUrl == null || baseUrl == "") {
-            Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-
             return ""
         }
 
