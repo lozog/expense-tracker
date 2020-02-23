@@ -25,8 +25,8 @@ import android.widget.*
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import com.android.volley.DefaultRetryPolicy
-
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+
     private lateinit var expenseItem: EditText
     private lateinit var expenseCategory: Spinner
     private lateinit var expenseAmount: EditText
@@ -37,6 +37,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var currencyExchangeRate: EditText
 
     private var expenseCategoryValue: String = ""
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,13 +124,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val url = buildFormUrl(this, view)
 
 
-        Log.d("MAIN_ACTIVITY", "URL is: $url")
+        Log.d(TAG, "URL is: $url")
 
         // Request a string response from the provided URL.
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
-                // Display the first 500 characters of the response string.
-                Log.d("MAIN_ACTIVITY", "Response is: $response")
+                Log.d(TAG, "Response is: $response")
 
                 expenseItem.setText("")
                 expenseAmount.setText("")
@@ -152,7 +155,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             Response.ErrorListener {
                 val statusText = "It didn't work: $it"
 
-                Log.d("MAIN_ACTIVITY", statusText)
+                Log.d(TAG, statusText)
 
                 Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()

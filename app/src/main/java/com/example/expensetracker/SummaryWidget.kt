@@ -20,10 +20,6 @@ import java.util.*
  * Implementation of App Widget functionality.
  */
 class SummaryWidget : AppWidgetProvider() {
-
-    private val LOG = "SUMMARY_WIDGET"
-    private val ACTION_UPDATE = "action.UPDATE"
-
     private val categoryIds = listOf(
         R.id.summary_groceries,
         R.id.summary_dining_out,
@@ -59,6 +55,11 @@ class SummaryWidget : AppWidgetProvider() {
     private var amounts = ArrayList<String>()
     private var percentages = ArrayList<String>()
 
+    companion object {
+        private const val TAG = "SummaryWidget"
+        private const val ACTION_UPDATE = "action.UPDATE"
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -80,18 +81,10 @@ class SummaryWidget : AppWidgetProvider() {
         }
     }
 
-    override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
-    }
-
-    override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
-    }
-
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
-//        Log.d(LOG, "button pressed")
+//        Log.d(TAG, "button pressed")
 
         if (ACTION_UPDATE == intent.action) {
             callSheetsAPI(context)
@@ -116,7 +109,7 @@ class SummaryWidget : AppWidgetProvider() {
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             Response.Listener { response ->
-//                Log.d(LOG, "got a response")
+//                Log.d(TAG, "got a response")
 
                 results =
                     response.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -141,16 +134,19 @@ class SummaryWidget : AppWidgetProvider() {
                     if (row > 1) {
                         val monthlyTargetAmount = stringToDouble(rowArr[1])
                         val currentAmount = stringToDouble(rowArr[col])
-                        var percentageRemaining = "${String.format("%.1f", getPercentage(currentAmount, monthlyTargetAmount))}%"
+                        val percentageRemaining = "${String.format("%.1f", getPercentage(currentAmount, monthlyTargetAmount))}%"
                         percentages.add(percentageRemaining)
 
-//                        Log.d(LOG, "$currentAmount / $monthlyTargetAmount = $percentageRemaining")
+//                        Log.d(TAG, "$currentAmount / $monthlyTargetAmount = $percentageRemaining")
                     }
-//                    Log.d(LOG, (rowArr[1].toInt() / rowArr[col].toInt()).toString())
+//                    Log.d(TAG, (rowArr[1].toInt() / rowArr[col].toInt()).toString())
                 }
 
                 updateUI(context)
-            }, Response.ErrorListener { error -> Log.e(LOG, error.toString()) })
+            }, Response.ErrorListener {
+                // TODO: update UI to say update failed
+                error -> Log.e(TAG, error.toString())
+            })
 
         // add the request to the RequestQueue
         queue.add(stringRequest)
@@ -175,7 +171,7 @@ class SummaryWidget : AppWidgetProvider() {
                 R.layout.summary_widget
             )
 
-//            Log.d(LOG, amounts.toString())
+//            Log.d(TAG, amounts.toString())
 
             // set the text for each of the hard-coded categories
             categoryIds.forEachIndexed {index, categoryId ->
@@ -183,11 +179,11 @@ class SummaryWidget : AppWidgetProvider() {
                     categoryId,
                     amounts[index+2]
                 )
-//                Log.d(LOG, (index+2).toString())
-//                Log.d(LOG, amounts[index+2])
+//                Log.d(TAG, (index+2).toString())
+//                Log.d(TAG, amounts[index+2])
             }
 
-//            Log.d(LOG, percentages.toString())
+//            Log.d(TAG, percentages.toString())
 
             // set the text for each of the hard-coded percentages
             categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
