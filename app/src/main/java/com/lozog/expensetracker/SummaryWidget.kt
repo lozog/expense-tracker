@@ -56,7 +56,7 @@ class SummaryWidget : AppWidgetProvider() {
     private var percentages = ArrayList<String>()
 
     companion object {
-        private const val TAG = "SummaryWidget"
+        private const val TAG = "SUMMARY_WIDGET"
         private const val ACTION_UPDATE = "action.UPDATE"
     }
 

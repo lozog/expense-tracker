@@ -4,9 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.widget.*
@@ -25,6 +23,13 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.JsonFactory
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.sheets.v4.Sheets
+import com.google.api.services.sheets.v4.SheetsScopes
+import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
@@ -44,11 +49,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private var RC_SIGN_IN: Int = 0
+    private lateinit var googleAccount: GoogleSignInAccount
 
     private var expenseCategoryValue: String = ""
 
     companion object {
-        private const val TAG = "MainActivity"
+        private const val TAG = "MAIN_ACTIVITY"
+
+        private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
+        private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,7 +122,16 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
-        val account = GoogleSignIn.getLastSignedInAccount(this)
+        val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
+
+        if (account != null) {
+            googleAccount = account
+
+            // remove Google Sign-in button from view if already signed in
+//            val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
+//            val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
+//            contentMainLayout.removeView(signInButton)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -129,17 +147,48 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-    try {
-        val account = completedTask.getResult(ApiException::class.java)
+        try {
+            val account: GoogleSignInAccount? = completedTask.getResult(ApiException::class.java)
 
-        // Signed in successfully, show authenticated UI.
-        Log.d(TAG, "we signed in!")
-    } catch (e: ApiException) {
-        // The ApiException status code indicates the detailed failure reason.
-        // Please refer to the GoogleSignInStatusCodes class reference for more information.
-        Log.d(TAG, "signInResult:failed code=" + e.statusCode)
+            account ?: return
+
+            // Signed in successfully
+            googleAccount = account
+            Log.d(TAG, "signed into account: " + googleAccount.email)
+
+            val httpTransport = NetHttpTransport()
+
+            val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
+            credential.selectedAccount = googleAccount.account
+
+            val service = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
+                .setApplicationName(getString(R.string.app_name))
+                .build()
+            testSheet(service)
+        } catch (e: ApiException) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.d(TAG, "signInResult:failed code=" + e.statusCode)
+        }
     }
-}
+
+    private fun testSheet(service: Sheets) {
+//        var spreadsheet = Spreadsheet()
+//            .setProperties(
+//                SpreadsheetProperties()
+//                    .setTitle("CreateNewSpreadsheet")
+//            )
+//
+//        spreadsheet = service.spreadsheets().create(spreadsheet).execute()
+//        Log.d(TAG, "ID: ${spreadsheet.spreadsheetId}")
+
+        // TODO: the following line causes an IllegalStateException because it's being called from the UI thread, I think
+        // so I need to refactor it into a background task maybe?
+//        val spreadsheet: Spreadsheet = service.spreadsheets().get("1KcUmWhrTFRe4cb0JBr7G1jJMHFKvu-PcFdhVv9AuNwo").execute()
+//        Log.d(TAG, spreadsheet.toString())
+//        Log.d(TAG, "IDK")
+
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
