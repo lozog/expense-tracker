@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     } catch (e: ApiException) {
         // The ApiException status code indicates the detailed failure reason.
         // Please refer to the GoogleSignInStatusCodes class reference for more information.
-        Log.w(TAG, "signInResult:failed code=" + e.statusCode)
+        Log.d(TAG, "signInResult:failed code=" + e.statusCode)
     }
 }
 
