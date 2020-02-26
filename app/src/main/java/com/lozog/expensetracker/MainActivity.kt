@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.preference.PreferenceManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -129,9 +130,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             getSheetService()
 
             // remove Google Sign-in button from view if already signed in
-//            val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-//            val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
-//            contentMainLayout.removeView(signInButton)
+            val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
+            val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
+            contentMainLayout.removeView(signInButton)
         }
     }
 
