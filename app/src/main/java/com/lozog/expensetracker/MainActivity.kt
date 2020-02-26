@@ -145,9 +145,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             // a listener.
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
-        } else if (requestCode == RC_REQUEST_AUTHORIZATION) {
-//            addExpenseRowToSheet()
         }
+//        else if (requestCode == RC_REQUEST_AUTHORIZATION) {}
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
@@ -180,6 +179,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun addExpenseRowToSheet(
+        spreadsheetId: String,
+        sheetName: String,
         expenseDate: String,
         expenseItem: String,
         expenseCategoryValue: String,
@@ -193,28 +194,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             try {
                 Log.d(TAG, "addExpenseRowToSheet thread")
 
-                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-                val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-                val range = sharedPreferences.getString("google_sheet_name", null)
-
-                if (spreadsheetId == null) {
-                    // TODO: handle this case
-                }
-
-                if (range == null) {
-                    // TODO: handle this case
-                }
-
-                // How the input data should be interpreted.
                 val valueInputOption = "USER_ENTERED"
-
-                // How the input data should be inserted.
                 val insertDataOption = "INSERT_ROWS"
 
-                val nextRow = spreadsheetService.spreadsheets().values().get(spreadsheetId, range).execute().getValues().size + 1
-
+                val nextRow = spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
                 val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
-                Log.d(TAG, expenseTotal)
 
                 val rowData = mutableListOf(mutableListOf(
                     expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
@@ -222,7 +206,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 val requestBody = ValueRange()
                 requestBody.setValues(rowData as List<MutableList<Any>>?)
 
-                val request = spreadsheetService.spreadsheets().values().append(spreadsheetId, range, requestBody)
+                val request = spreadsheetService.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
                 request.valueInputOption = valueInputOption
                 request.insertDataOption = insertDataOption
 
@@ -279,37 +263,56 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         if (!validateInput()) {
             Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
-
             submitButton.text = getString(R.string.button_expense_submit)
-
             return
         }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        var currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
-        var exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val sheetName = sharedPreferences.getString("google_sheet_name", null)
 
-        val currencyLabelText = currencyLabel.text.toString()
-        val currencyExchangeRateText = currencyExchangeRate.text.toString()
-
-        if (currencyLabelText != "") {
-            currency = currencyLabelText
+        if (spreadsheetId == null) {
+            Snackbar.make(view, "Set a spreedsheet Id", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            return
         }
 
-        if (currencyExchangeRateText != "") {
-            exchangeRate = currencyExchangeRateText
+        if (sheetName == null) {
+            Snackbar.make(view, "Set a data sheet name", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            return
         }
 
-        if (currency == null || exchangeRate == null) {
-//            Snackbar.make(view, "Set a currency and exchange rate", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
-//
-//            return ""
-            currency = "CAD"
-            exchangeRate = "1"
+        var currency = currencyLabel.text.toString()
+        var exchangeRate = currencyExchangeRate.text.toString()
+
+        if (currency == "") {
+            val defaultCurrency = sharedPreferences.getString("currency", getString(R.string.default_currency))
+
+            if (defaultCurrency == null) {
+                Snackbar.make(view, "Set a currency", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                return
+            }
+
+            currency = defaultCurrency
+        }
+
+        if (exchangeRate == "") {
+            val defaultExchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
+
+            if (defaultExchangeRate == null) {
+                Snackbar.make(view, "Set a currency", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                return
+            }
+
+            exchangeRate = defaultExchangeRate
         }
 
         addExpenseRowToSheet(
+            spreadsheetId,
+            sheetName,
             expenseDate.text.toString(),
             expenseItem.text.toString(),
             expenseCategoryValue,
@@ -329,7 +332,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         currencyLabel.setText("")
         currencyExchangeRate.setText("")
 
-        val statusText = "Added as row TODO"
+        val statusText = "TODO - finish this statustext"
 
         Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
             .setAction("Action", null).show()
