@@ -10,11 +10,6 @@ import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import com.android.volley.DefaultRetryPolicy
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -24,15 +19,15 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
-import com.google.api.services.sheets.v4.model.Spreadsheet
+import com.google.api.services.sheets.v4.model.AppendValuesResponse
+import com.google.api.services.sheets.v4.model.ValueRange
 import com.google.gson.JsonParser
-import com.google.gson.JsonSyntaxException
-import com.google.gson.stream.MalformedJsonException
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -50,8 +45,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var currencyExchangeRate: EditText
 
     private lateinit var mGoogleSignInClient: GoogleSignInClient
-    private var RC_SIGN_IN: Int = 0
+    private val RC_SIGN_IN: Int = 0
+    private val RC_REQUEST_AUTHORIZATION: Int = 1
     private lateinit var googleAccount: GoogleSignInAccount
+
+    private lateinit var spreadsheetService: Sheets
 
     private var expenseCategoryValue: String = ""
 
@@ -59,7 +57,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         private const val TAG = "MAIN_ACTIVITY"
 
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
-        private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY)
+        private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,6 +126,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         if (account != null) {
             googleAccount = account
+            getSheetService()
 
             // remove Google Sign-in button from view if already signed in
 //            val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
@@ -145,6 +144,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             // a listener.
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
+        } else if (requestCode == RC_REQUEST_AUTHORIZATION) {
+//            addExpenseRowToSheet()
         }
     }
 
@@ -158,15 +159,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             googleAccount = account
             Log.d(TAG, "signed into account: " + googleAccount.email)
 
-            val httpTransport = NetHttpTransport()
-
-            val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
-            credential.selectedAccount = googleAccount.account
-
-            val service = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(getString(R.string.app_name))
-                .build()
-            testSheet(service)
+            getSheetService()
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -174,22 +167,64 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    private fun testSheet(service: Sheets) {
-//        var spreadsheet = Spreadsheet()
-//            .setProperties(
-//                SpreadsheetProperties()
-//                    .setTitle("CreateNewSpreadsheet")
-//            )
-//
-//        spreadsheet = service.spreadsheets().create(spreadsheet).execute()
-//        Log.d(TAG, "ID: ${spreadsheet.spreadsheetId}")
+    private fun getSheetService() {
+        val httpTransport = NetHttpTransport()
 
-        // TODO: the following line causes an IllegalStateException because it's being called from the UI thread, I think
-        // so I need to refactor it into a background task maybe?
-//        val spreadsheet: Spreadsheet = service.spreadsheets().get("1KcUmWhrTFRe4cb0JBr7G1jJMHFKvu-PcFdhVv9AuNwo").execute()
-//        Log.d(TAG, spreadsheet.toString())
-//        Log.d(TAG, "IDK")
+        val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
+        credential.selectedAccount = googleAccount.account
 
+        spreadsheetService = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
+            .setApplicationName(getString(R.string.app_name))
+            .build()
+    }
+
+    private fun addExpenseRowToSheet(expenseDate: String, expenseItem: String, expenseCategoryValue: String, expenseAmount: String, expenseAmountOthers: String, expenseNotes: String, currency: String, exchangeRate: String) {
+        val threadLambda = Thread{
+            try {
+                Log.d(TAG, "addExpenseRowToSheet thread")
+
+                // The ID of the spreadsheet to update.
+                val spreadsheetId = "" // TODO: put in a setting
+
+                // The A1 notation of a range to search for a logical table of data.
+                // Values will be appended after the last row of the table.
+
+                val range = "" // TODO: put in a setting
+
+                // How the input data should be interpreted.
+                val valueInputOption = "USER_ENTERED"
+
+                // How the input data should be inserted.
+                val insertDataOption = "INSERT_ROWS"
+
+                val nextRow = spreadsheetService.spreadsheets().values().get(spreadsheetId, range).execute().getValues().size + 1
+
+                val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
+                Log.d(TAG, expenseTotal)
+
+                val rowData = mutableListOf(mutableListOf(
+                    expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
+                ))
+                val requestBody = ValueRange()
+                requestBody.setValues(rowData as List<MutableList<Any>>?)
+
+                val request = spreadsheetService.spreadsheets().values().append(spreadsheetId, range, requestBody)
+                request.valueInputOption = valueInputOption
+                request.insertDataOption = insertDataOption
+
+                val response: AppendValuesResponse = request.execute()
+
+                // TODO: read response
+//                val jsonResponse = JsonParser().parse(response).asJsonObject
+//                val statusText = "Added as row ${jsonResponse["row"]}"
+
+                Log.d(TAG, response.toString())
+            } catch (e: UserRecoverableAuthIOException) {
+                startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+            }
+
+        }
+        threadLambda.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -231,95 +266,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
 
+            submitButton.text = getString(R.string.button_expense_submit)
+
             return
         }
 
-        // when button is pressed, call sheets api and send data
-        // Instantiate the RequestQueue
-        val queue = Volley.newRequestQueue(this)
-
-        val url = buildFormUrl(this, view)
-
-        if (url == "") {
-            Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            return
-        }
-
-        Log.d(TAG, "URL is: $url")
-
-        // Request a string response from the provided URL.
-        val stringRequest = StringRequest(Request.Method.GET, url,
-            Response.Listener<String> { response ->
-                Log.d(TAG, "Response is: $response")
-
-                expenseItem.setText("")
-                expenseAmount.setText("")
-                expenseAmountOthers.setText("")
-                expenseNotes.setText("")
-                currencyLabel.setText("")
-                currencyExchangeRate.setText("")
-
-                try {
-                    val jsonResponse = JsonParser().parse(response).asJsonObject
-
-                    val statusText = "Added as row ${jsonResponse["row"]}"
-
-                    Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show()
-
-                    val statusTextView = findViewById<TextView>(R.id.statusText)
-                    statusTextView.text = statusText
-
-                    submitButton.text = getString(R.string.button_expense_submit)
-                } catch (e: JsonSyntaxException) {
-                    Log.d(TAG, "JSON exception from google script")
-                    val statusText = "Error calling google script"
-
-                    Log.d(TAG, statusText)
-
-                    Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show()
-
-                    val statusTextView = findViewById<TextView>(R.id.statusText)
-                    statusTextView.text = statusText
-
-                    submitButton.text = getString(R.string.button_expense_submit)
-                }
-            },
-            Response.ErrorListener {
-                val statusText = "$it"
-
-                Log.d(TAG, statusText)
-
-                Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-
-                val statusTextView = findViewById<TextView>(R.id.statusText)
-                statusTextView.text = statusText
-
-                submitButton.text = getString(R.string.button_expense_submit)
-            })
-
-        val mRetryPolicy = DefaultRetryPolicy(
-            30 * 1000,
-            0,
-            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-        )
-
-        stringRequest.retryPolicy = mRetryPolicy
-
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest)
-    }
-
-    private fun buildFormUrl(context: Context, view: View): String {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val baseUrl = sharedPreferences.getString("google_form_url", "")
-
-        if (baseUrl == null || baseUrl == "") {
-            return ""
-        }
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
         var currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
         var exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
@@ -336,30 +288,43 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         if (currency == null || exchangeRate == null) {
-            Snackbar.make(view, "Set a currency and exchange rate", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-
-            return ""
+//            Snackbar.make(view, "Set a currency and exchange rate", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+//
+//            return ""
+            currency = "CAD"
+            exchangeRate = "1"
         }
 
-        return baseUrl +
-                "?" +
-                "Date=" +
-                expenseDate.text +
-                "&Item=" +
-                expenseItem.text +
-                "&Category=" +
-                expenseCategoryValue +
-                "&Amount=" +
-                expenseAmount.text +
-                "&Split=" +
-                expenseAmountOthers.text +
-                "&Notes=" +
-                expenseNotes.text +
-                "&Currency=" +
-                currency +
-                "&Exchange=" +
-                exchangeRate
+        addExpenseRowToSheet(
+            expenseDate.text.toString(),
+            expenseItem.text.toString(),
+            expenseCategoryValue,
+            expenseAmount.text.toString(),
+            expenseAmountOthers.text.toString(),
+            expenseNotes.text.toString(),
+            currency,
+            exchangeRate
+        )
+
+        // TODO: check if success or not
+
+        expenseItem.setText("")
+        expenseAmount.setText("")
+        expenseAmountOthers.setText("")
+        expenseNotes.setText("")
+        currencyLabel.setText("")
+        currencyExchangeRate.setText("")
+
+        val statusText = "Added as row TODO"
+
+        Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+            .setAction("Action", null).show()
+
+        val statusTextView = findViewById<TextView>(R.id.statusText)
+        statusTextView.text = statusText
+
+        submitButton.text = getString(R.string.button_expense_submit)
     }
 
     private fun validateInput(): Boolean {
