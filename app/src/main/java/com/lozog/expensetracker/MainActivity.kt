@@ -31,6 +31,8 @@ import com.google.android.material.snackbar.Snackbar
 //import com.google.api.services.sheets.v4.SheetsScopes
 //import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.google.gson.JsonParser
+import com.google.gson.JsonSyntaxException
+import com.google.gson.stream.MalformedJsonException
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -258,19 +260,32 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 currencyLabel.setText("")
                 currencyExchangeRate.setText("")
 
-                // TODO: response still might be an error
+                try {
+                    val jsonResponse = JsonParser().parse(response).asJsonObject
 
-                val jsonResponse = JsonParser().parse(response).asJsonObject
+                    val statusText = "Added as row ${jsonResponse["row"]}"
 
-                val statusText = "Added as row ${jsonResponse["row"]}"
+                    Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show()
 
-                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+                    val statusTextView = findViewById<TextView>(R.id.statusText)
+                    statusTextView.text = statusText
 
-                val statusTextView = findViewById<TextView>(R.id.statusText)
-                statusTextView.text = statusText
+                    submitButton.text = getString(R.string.button_expense_submit)
+                } catch (e: JsonSyntaxException) {
+                    Log.d(TAG, "JSON exception from google script")
+                    val statusText = "Error calling google script"
 
-                submitButton.text = getString(R.string.button_expense_submit)
+                    Log.d(TAG, statusText)
+
+                    Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show()
+
+                    val statusTextView = findViewById<TextView>(R.id.statusText)
+                    statusTextView.text = statusText
+
+                    submitButton.text = getString(R.string.button_expense_submit)
+                }
             },
             Response.ErrorListener {
                 val statusText = "$it"
