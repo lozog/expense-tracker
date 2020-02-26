@@ -4,8 +4,13 @@
     <PreferenceCategory app:title="@string/google_api_prefs_header">
 
         <EditTextPreference
-            app:key="google_form_url"
-            app:title="@string/google_form_url_pref_label"
+            app:key="google_spreadsheet_id"
+            app:title="@string/google_spreadsheet_id_pref_label"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="google_sheet_name"
+            app:title="@string/google_sheet_name_pref_label"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference

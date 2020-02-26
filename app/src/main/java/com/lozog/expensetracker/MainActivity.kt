@@ -179,18 +179,31 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             .build()
     }
 
-    private fun addExpenseRowToSheet(expenseDate: String, expenseItem: String, expenseCategoryValue: String, expenseAmount: String, expenseAmountOthers: String, expenseNotes: String, currency: String, exchangeRate: String) {
+    private fun addExpenseRowToSheet(
+        expenseDate: String,
+        expenseItem: String,
+        expenseCategoryValue: String,
+        expenseAmount: String,
+        expenseAmountOthers: String,
+        expenseNotes: String,
+        currency: String,
+        exchangeRate: String
+    ) {
         val threadLambda = Thread{
             try {
                 Log.d(TAG, "addExpenseRowToSheet thread")
 
-                // The ID of the spreadsheet to update.
-                val spreadsheetId = "" // TODO: put in a setting
+                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+                val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+                val range = sharedPreferences.getString("google_sheet_name", null)
 
-                // The A1 notation of a range to search for a logical table of data.
-                // Values will be appended after the last row of the table.
+                if (spreadsheetId == null) {
+                    // TODO: handle this case
+                }
 
-                val range = "" // TODO: put in a setting
+                if (range == null) {
+                    // TODO: handle this case
+                }
 
                 // How the input data should be interpreted.
                 val valueInputOption = "USER_ENTERED"
@@ -261,7 +274,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         hideKeyboard(view)
 
         val submitButton = findViewById<Button>(R.id.expenseSubmitButton)
-        submitButton.text = "Submitting..."
+        submitButton.text = getString(R.string.button_expense_submitting)
 
         if (!validateInput()) {
             Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
@@ -273,7 +286,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-
         var currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
         var exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
 

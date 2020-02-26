@@ -13,6 +13,8 @@
     <string name="currency_exchange_rate">Exchange Rate</string>
     <string name="button_expense_submit">Submit</string>
 
+    <string name="button_expense_submitting">Submitting...</string>
+
     <!-- Categories spinner options -->
     <string-array name="categories_array">
         <item>@string/category_label_groceries</item>
@@ -50,7 +52,8 @@
     <string name="currency_prefs_header">Currency Defaults</string>
 
     <!-- Google URL Preferences -->
-    <string name="google_form_url_pref_label">Google Form URL</string>
+    <string name="google_spreadsheet_id_pref_label">Google Spreadsheet Id</string>
+    <string name="google_sheet_name_pref_label">Data Sheet Name</string>
     <string name="google_sheets_url_pref_label">Google Sheets URL</string>
 
     <!-- Other preferences -->
