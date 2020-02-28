@@ -30,6 +30,7 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
 import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -60,6 +61,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
     }
+
+    private val parentJob = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -178,7 +182,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             .build()
     }
 
-    private fun addExpenseRowToSheet(
+    private fun addExpenseRowToSheetAsync(
         spreadsheetId: String,
         sheetName: String,
         expenseDate: String,
@@ -189,40 +193,34 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         expenseNotes: String,
         currency: String,
         exchangeRate: String
-    ) {
-        val threadLambda = Thread{
-            try {
-                Log.d(TAG, "addExpenseRowToSheet thread")
+    ): Deferred<AppendValuesResponse> = coroutineScope.async (Dispatchers.IO) {
+        var nextRow = 0;
 
-                val valueInputOption = "USER_ENTERED"
-                val insertDataOption = "INSERT_ROWS"
-
-                val nextRow = spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
-                val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
-
-                val rowData = mutableListOf(mutableListOf(
-                    expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
-                ))
-                val requestBody = ValueRange()
-                requestBody.setValues(rowData as List<MutableList<Any>>?)
-
-                val request = spreadsheetService.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
-                request.valueInputOption = valueInputOption
-                request.insertDataOption = insertDataOption
-
-                val response: AppendValuesResponse = request.execute()
-
-                // TODO: read response
-//                val jsonResponse = JsonParser().parse(response).asJsonObject
-//                val statusText = "Added as row ${jsonResponse["row"]}"
-
-                Log.d(TAG, response.toString())
-            } catch (e: UserRecoverableAuthIOException) {
-                startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
-            }
-
+        try {
+            nextRow = spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
+        } catch (e: UserRecoverableAuthIOException) {
+            startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+            // TODO: what happens if we get to this point? will it cancel the rest of the fn?
         }
-        threadLambda.start()
+
+        Log.d(TAG, "addExpenseRowToSheetAsync")
+
+        val valueInputOption = "USER_ENTERED"
+        val insertDataOption = "INSERT_ROWS"
+
+        val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
+
+        val rowData = mutableListOf(mutableListOf(
+            expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
+        ))
+        val requestBody = ValueRange()
+        requestBody.setValues(rowData as List<MutableList<Any>>?)
+
+        val request = spreadsheetService.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
+        request.valueInputOption = valueInputOption
+        request.insertDataOption = insertDataOption
+
+        return@async request.execute()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -272,7 +270,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val sheetName = sharedPreferences.getString("google_sheet_name", null)
 
         if (spreadsheetId == null) {
-            Snackbar.make(view, "Set a spreedsheet Id", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, "Set a spreadsheet Id", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
             return
         }
@@ -310,37 +308,38 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             exchangeRate = defaultExchangeRate
         }
 
-        addExpenseRowToSheet(
-            spreadsheetId,
-            sheetName,
-            expenseDate.text.toString(),
-            expenseItem.text.toString(),
-            expenseCategoryValue,
-            expenseAmount.text.toString(),
-            expenseAmountOthers.text.toString(),
-            expenseNotes.text.toString(),
-            currency,
-            exchangeRate
-        )
+        coroutineScope.launch (Dispatchers.Main) {
+            val appendResponse = addExpenseRowToSheetAsync(
+                spreadsheetId,
+                sheetName,
+                expenseDate.text.toString(),
+                expenseItem.text.toString(),
+                expenseCategoryValue,
+                expenseAmount.text.toString(),
+                expenseAmountOthers.text.toString(),
+                expenseNotes.text.toString(),
+                currency,
+                exchangeRate
+            ).await()
 
-        // TODO: check if success or not
+            expenseItem.setText("")
+            expenseAmount.setText("")
+            expenseAmountOthers.setText("")
+            expenseNotes.setText("")
+            currencyLabel.setText("")
+            currencyExchangeRate.setText("")
 
-        expenseItem.setText("")
-        expenseAmount.setText("")
-        expenseAmountOthers.setText("")
-        expenseNotes.setText("")
-        currencyLabel.setText("")
-        currencyExchangeRate.setText("")
+            val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
+            val statusText = "Updated range: $updatedRange"
 
-        val statusText = "TODO - finish this statustext"
+            Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
 
-        Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show()
+            val statusTextView = findViewById<TextView>(R.id.statusText)
+            statusTextView.text = statusText
 
-        val statusTextView = findViewById<TextView>(R.id.statusText)
-        statusTextView.text = statusText
-
-        submitButton.text = getString(R.string.button_expense_submit)
+            submitButton.text = getString(R.string.button_expense_submit)
+        }
     }
 
     private fun validateInput(): Boolean {
