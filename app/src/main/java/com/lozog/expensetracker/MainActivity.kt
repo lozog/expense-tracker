@@ -50,9 +50,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     /********** GOOGLE SIGN-IN **********/
     private lateinit var mGoogleSignInClient: GoogleSignInClient
-    private lateinit var googleAccount: GoogleSignInAccount
-
-    private lateinit var spreadsheetService: Sheets
+    private lateinit var googleSheetsInterface: GoogleSheetsInterface
 
     companion object {
         private const val TAG = "MAIN_ACTIVITY"
@@ -191,27 +189,25 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun onSignInSuccess(account: GoogleSignInAccount) {
-        googleAccount = account
+//        googleSheetsInterface.googleAccount = account
 
-        Log.d(TAG, "signed into account: " + googleAccount.email)
+        Log.d(TAG, "signed into account: " + account.email)
 
-        getSheetService()
+        val httpTransport = NetHttpTransport()
+        val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
+        credential.selectedAccount = account.account
+
+        // get sheet service object
+        val sheetService: Sheets = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
+            .setApplicationName(getString(R.string.app_name))
+            .build()
+
+        googleSheetsInterface = GoogleSheetsInterface(account, sheetService)
 
         // remove Google Sign-in button from view if already signed in
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
         val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
         contentMainLayout.removeView(signInButton)
-    }
-
-    private fun getSheetService() {
-        val httpTransport = NetHttpTransport()
-
-        val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
-        credential.selectedAccount = googleAccount.account
-
-        spreadsheetService = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
-            .setApplicationName(getString(R.string.app_name))
-            .build()
     }
 
     /********** GOOGLE SHEETS METHODS **********/
@@ -231,7 +227,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         var nextRow = 0;
 
         try {
-            nextRow = spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
+            // TODO: is it possible to let this throw and have the caller catch it?
+            nextRow = googleSheetsInterface.spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
         } catch (e: UserRecoverableAuthIOException) {
             startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
             // TODO: what happens if we get to this point? will it cancel the rest of the fn?
@@ -250,7 +247,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val requestBody = ValueRange()
         requestBody.setValues(rowData as List<MutableList<Any>>?)
 
-        val request = spreadsheetService.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
+        val request = googleSheetsInterface.spreadsheetService.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
         request.valueInputOption = valueInputOption
         request.insertDataOption = insertDataOption
 
