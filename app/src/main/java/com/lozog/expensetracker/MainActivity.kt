@@ -30,6 +30,7 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -224,21 +225,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         currency: String,
         exchangeRate: String
     ): Deferred<AppendValuesResponse> = coroutineScope.async (Dispatchers.IO) {
-        var nextRow = 0;
-
-        try {
-            // TODO: is it possible to let this throw and have the caller catch it?
-            nextRow = googleSheetsInterface.spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
-        } catch (e: UserRecoverableAuthIOException) {
-            startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
-            // TODO: what happens if we get to this point? will it cancel the rest of the fn?
-        }
-
         Log.d(TAG, "addExpenseRowToSheetAsync")
 
         val valueInputOption = "USER_ENTERED"
         val insertDataOption = "INSERT_ROWS"
 
+        val nextRow = googleSheetsInterface.spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
         val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
 
         val rowData = mutableListOf(mutableListOf(
@@ -350,35 +342,43 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         coroutineScope.launch (Dispatchers.Main) {
-            val appendResponse = addExpenseRowToSheetAsync(
-                spreadsheetId,
-                sheetName,
-                expenseDate.text.toString(),
-                expenseItem.text.toString(),
-                expenseCategoryValue,
-                expenseAmount.text.toString(),
-                expenseAmountOthers.text.toString(),
-                expenseNotes.text.toString(),
-                currency,
-                exchangeRate
-            ).await()
+            var statusText: String
 
-            expenseItem.setText("")
-            expenseAmount.setText("")
-            expenseAmountOthers.setText("")
-            expenseNotes.setText("")
-            currencyLabel.setText("")
-            currencyExchangeRate.setText("")
+            try {
+                val appendResponse = addExpenseRowToSheetAsync(
+                    spreadsheetId,
+                    sheetName,
+                    expenseDate.text.toString(),
+                    expenseItem.text.toString(),
+                    expenseCategoryValue,
+                    expenseAmount.text.toString(),
+                    expenseAmountOthers.text.toString(),
+                    expenseNotes.text.toString(),
+                    currency,
+                    exchangeRate
+                ).await()
 
-            val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
-            val statusText = "Updated range: $updatedRange"
+                expenseItem.setText("")
+                expenseAmount.setText("")
+                expenseAmountOthers.setText("")
+                expenseNotes.setText("")
+                currencyLabel.setText("")
+                currencyExchangeRate.setText("")
+
+                val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
+                statusText = "Updated range: $updatedRange"
+            } catch (e: UserRecoverableAuthIOException) {
+                startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+                statusText = "Need more permissions"
+            } catch (e: IOException) {
+                statusText = "Network error: Could not connect to Google"
+            }
 
             Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
 
             val statusTextView = findViewById<TextView>(R.id.statusText)
             statusTextView.text = statusText
-
             submitButton.text = getString(R.string.button_expense_submit)
         }
     }
