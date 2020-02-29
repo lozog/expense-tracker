@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     /********** GOOGLE SIGN-IN **********/
     private lateinit var mGoogleSignInClient: GoogleSignInClient
-    private lateinit var googleSheetsInterface: GoogleSheetsInterface
 
     companion object {
         private const val TAG = "MAIN_ACTIVITY"
@@ -126,6 +125,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
+        // TODO: just check GoogleSheetsInterface.googleAccount != null?
         val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
 
         if (account != null) {
@@ -203,7 +203,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             .setApplicationName(getString(R.string.app_name))
             .build()
 
-        googleSheetsInterface = GoogleSheetsInterface(account, sheetService)
+        GoogleSheetsInterface.googleAccount = account
+        GoogleSheetsInterface.spreadsheetService = sheetService
 
         // remove Google Sign-in button from view if already signed in
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
@@ -230,7 +231,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val valueInputOption = "USER_ENTERED"
         val insertDataOption = "INSERT_ROWS"
 
-        val nextRow = googleSheetsInterface.spreadsheetService.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
+        val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
         val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
 
         val rowData = mutableListOf(mutableListOf(
@@ -239,7 +240,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val requestBody = ValueRange()
         requestBody.setValues(rowData as List<MutableList<Any>>?)
 
-        val request = googleSheetsInterface.spreadsheetService.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
+        val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
         request.valueInputOption = valueInputOption
         request.insertDataOption = insertDataOption
 

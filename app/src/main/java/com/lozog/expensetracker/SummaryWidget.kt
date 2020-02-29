@@ -13,6 +13,10 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.services.sheets.v4.model.BatchGetValuesResponse
+import kotlinx.coroutines.*
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -48,9 +52,6 @@ class SummaryWidget : AppWidgetProvider() {
         R.id.summary_film_percentage
     )
 
-    private lateinit var results: Array<String>
-    private var numCols: Int = 0
-    private var numRows: Int = 0
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
     private var percentages = ArrayList<String>()
@@ -59,6 +60,11 @@ class SummaryWidget : AppWidgetProvider() {
         private const val TAG = "SUMMARY_WIDGET"
         private const val ACTION_UPDATE = "action.UPDATE"
     }
+
+    private val parentJob = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
+
+    /********** OVERRIDE METHODS **********/
 
     override fun onUpdate(
         context: Context,
@@ -73,7 +79,7 @@ class SummaryWidget : AppWidgetProvider() {
                 context.packageName,
                 R.layout.summary_widget
             ).apply {
-                setOnClickPendingIntent(R.id.update_button, getPendingSelfIntent(context, ACTION_UPDATE));
+                setOnClickPendingIntent(R.id.update_button, getPendingSelfIntent(context));
             }
 
             // Tell the AppWidgetManager to perform an update on the current app widget
@@ -87,69 +93,70 @@ class SummaryWidget : AppWidgetProvider() {
 //        Log.d(TAG, "button pressed")
 
         if (ACTION_UPDATE == intent.action) {
-            callSheetsAPI(context)
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+
+            spreadsheetId ?: return // TODO: inform the user they need to set the spreadsheet id
+
+            coroutineScope.launch(Dispatchers.Main)  {
+                try {
+                    val response = spreadsheetId.let { getMonthlyCategoryAmountsAsync(it).await() }
+
+                    val categoriesFromSheet = response.valueRanges[0]["values"] as List<List<String>>
+                    val targetsFromSheet = response.valueRanges[1]["values"] as List<List<String>>
+                    val valuesFromSheet = response.valueRanges[2]["values"] as List<List<String>>
+                    Log.d(TAG, response.toString())
+//                    Log.d(TAG, categoriesFromSheet.toString())
+                    Log.d(TAG, targetsFromSheet.toString())
+                    Log.d(TAG, valuesFromSheet.toString())
+
+                    categoriesFromSheet[0].forEach { category ->
+                        categories.add(category)
+                    }
+
+                    valuesFromSheet[0].forEach { value ->
+                        amounts.add(value)
+                    }
+
+                    targetsFromSheet[0].forEachIndexed { i, value ->
+                        val current = stringToDouble(valuesFromSheet[0][i])
+                        val monthlyTarget = stringToDouble(value)
+                        Log.d(TAG, "$current, $monthlyTarget")
+                        val percentageRemaining = "${String.format("%.1f", getPercentage(current, monthlyTarget))}%"
+                        percentages.add(percentageRemaining)
+                    }
+
+                    updateUI(context)
+                } catch (e: UserRecoverableAuthIOException) {
+//                    startActivityForResult(e.intent, MainActivity.RC_REQUEST_AUTHORIZATION)
+                    // TODO: handle this case
+                    Log.d(TAG, "Need more permissions")
+                } catch (e: IOException) {
+                    // TODO: update UI with error msg
+                    Log.d(TAG, "Network error: Could not connect to Google")
+                }
+            }
         }
     }
 
-    private fun getPendingSelfIntent(context: Context, action: String): PendingIntent {
-        val intent =
-            Intent(context, javaClass) // An intent directed at the current class (the "self").
-        intent.action = action
-        return PendingIntent.getBroadcast(context, 0, intent, 0)
-    }
+    private fun getMonthlyCategoryAmountsAsync(
+        spreadsheetId: String
+    ): Deferred<BatchGetValuesResponse> = coroutineScope.async (Dispatchers.IO) {
+        val categoryLabelsRange = "'Monthly Budget Items'!A3:A13"
+        val categoryTargetRange = "'Monthly Budget Items'!B3:B13"
+        val categoryValuesRange = "'Monthly Budget Items'!D3:D13" // TODO: calculate column of current month
 
-    private fun callSheetsAPI(context: Context) {
-        // Instantiate the RequestQueue
-        val queue = Volley.newRequestQueue(context)
+        if (GoogleSheetsInterface.spreadsheetService == null) {
+            Log.d(TAG, "spreedsheet service is null!")
+        } else {
+            Log.d(TAG, "spreedsheet service is defined!")
+        }
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val url = sharedPreferences.getString("google_sheets_url", "")
+        val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().batchGet(spreadsheetId)
+        request.ranges = mutableListOf(categoryLabelsRange, categoryTargetRange, categoryValuesRange) // this order is important - matches the order of the result
+        request.majorDimension = "COLUMNS"
 
-        // Request a string response from the provided URL
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener { response ->
-//                Log.d(TAG, "got a response")
-
-                results =
-                    response.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                numRows = 12 + 1 // 12 months + 1 header row
-                numCols =
-                    results[0].split("\t".toRegex()).dropLastWhile{ it.isEmpty() }.toTypedArray()
-                        .size
-
-                categories.clear()
-                amounts.clear()
-                percentages.clear()
-                val cal = Calendar.getInstance()
-                val monthCol = cal.get(Calendar.MONTH) + 2 // add offset of 2 (Jan = col 2)
-
-                for (row in 0 until numRows) {
-                    var col = 0 // category
-                    val rowArr = results[row].split("\t".toRegex()).dropLastWhile{ it.isEmpty() }
-                        .toTypedArray()
-                    categories.add(rowArr[col])
-                    col = monthCol
-                    amounts.add(rowArr[col])
-                    if (row > 1) {
-                        val monthlyTargetAmount = stringToDouble(rowArr[1])
-                        val currentAmount = stringToDouble(rowArr[col])
-                        val percentageRemaining = "${String.format("%.1f", getPercentage(currentAmount, monthlyTargetAmount))}%"
-                        percentages.add(percentageRemaining)
-
-//                        Log.d(TAG, "$currentAmount / $monthlyTargetAmount = $percentageRemaining")
-                    }
-//                    Log.d(TAG, (rowArr[1].toInt() / rowArr[col].toInt()).toString())
-                }
-
-                updateUI(context)
-            }, Response.ErrorListener {
-                // TODO: update UI to say update failed
-                error -> Log.e(TAG, error.toString())
-            })
-
-        // add the request to the RequestQueue
-        queue.add(stringRequest)
+        return@async request.execute()
     }
 
     private fun updateUI(context: Context) {
@@ -177,10 +184,10 @@ class SummaryWidget : AppWidgetProvider() {
             categoryIds.forEachIndexed {index, categoryId ->
                 remoteViews.setTextViewText(
                     categoryId,
-                    amounts[index+2]
+                    amounts[index]
                 )
-//                Log.d(TAG, (index+2).toString())
-//                Log.d(TAG, amounts[index+2])
+//                Log.d(TAG, (index).toString())
+//                Log.d(TAG, amounts[index])
             }
 
 //            Log.d(TAG, percentages.toString())
@@ -200,6 +207,15 @@ class SummaryWidget : AppWidgetProvider() {
 
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
+    }
+
+    /********** HELPER METHODS **********/
+
+    private fun getPendingSelfIntent(context: Context): PendingIntent {
+        val intent =
+            Intent(context, javaClass) // An intent directed at the current class (the "self").
+        intent.action = ACTION_UPDATE
+        return PendingIntent.getBroadcast(context, 0, intent, 0)
     }
 
     private fun getLocalizedDateTimeString(): String {
