@@ -28,7 +28,6 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
-import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -37,6 +36,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
+    /********** UI Widgets **********/
     private lateinit var expenseItem: EditText
     private lateinit var expenseCategory: Spinner
     private lateinit var expenseAmount: EditText
@@ -46,17 +46,19 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
 
+    private var expenseCategoryValue: String = ""
+
+    /********** GOOGLE SIGN-IN **********/
     private lateinit var mGoogleSignInClient: GoogleSignInClient
-    private val RC_SIGN_IN: Int = 0
-    private val RC_REQUEST_AUTHORIZATION: Int = 1
     private lateinit var googleAccount: GoogleSignInAccount
 
     private lateinit var spreadsheetService: Sheets
 
-    private var expenseCategoryValue: String = ""
-
     companion object {
         private const val TAG = "MAIN_ACTIVITY"
+
+        private const val RC_SIGN_IN: Int = 0
+        private const val RC_REQUEST_AUTHORIZATION: Int = 1
 
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
@@ -64,6 +66,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private val parentJob = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
+
+    /********** OVERRIDE METHODS **********/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,15 +115,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         signInButton.setOnClickListener{view ->
             when (view.id) {
                 R.id.sign_in_button -> {
-                    signIn()
+                    val signInIntent = mGoogleSignInClient.signInIntent
+                    startActivityForResult(signInIntent, RC_SIGN_IN)
                 }
             }
         }
-    }
-
-    private fun signIn() {
-        val signInIntent = mGoogleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
     override fun onStart() {
@@ -130,14 +130,16 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
 
         if (account != null) {
-            googleAccount = account
-            getSheetService()
-
-            // remove Google Sign-in button from view if already signed in
-            val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-            val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
-            contentMainLayout.removeView(signInButton)
+            onSignInSuccess(account)
         }
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
+        expenseCategoryValue = parent.getItemAtPosition(pos).toString()
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>) {
+        // Another interface callback
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -153,22 +155,52 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 //        else if (requestCode == RC_REQUEST_AUTHORIZATION) {}
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                this.startActivity(Intent(this, SettingsActivity::class.java))
+                return true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    /********** GOOGLE SIGN-IN METHODS **********/
+
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account: GoogleSignInAccount? = completedTask.getResult(ApiException::class.java)
-
             account ?: return
 
-            // Signed in successfully
-            googleAccount = account
-            Log.d(TAG, "signed into account: " + googleAccount.email)
-
-            getSheetService()
+            onSignInSuccess(account)
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.d(TAG, "signInResult:failed code=" + e.statusCode)
+            Log.d(TAG, "signInResult: failed. code=" + e.statusCode)
         }
+    }
+
+    private fun onSignInSuccess(account: GoogleSignInAccount) {
+        googleAccount = account
+
+        Log.d(TAG, "signed into account: " + googleAccount.email)
+
+        getSheetService()
+
+        // remove Google Sign-in button from view if already signed in
+        val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
+        val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
+        contentMainLayout.removeView(signInButton)
     }
 
     private fun getSheetService() {
@@ -181,6 +213,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             .setApplicationName(getString(R.string.app_name))
             .build()
     }
+
+    /********** GOOGLE SHEETS METHODS **********/
 
     private fun addExpenseRowToSheetAsync(
         spreadsheetId: String,
@@ -223,25 +257,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return@async request.execute()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                this.startActivity(Intent(this, SettingsActivity::class.java))
-                return true
-            }
-
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+    /********** HELPER METHODS **********/
 
     private fun hideKeyboard(view: View) {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -251,6 +267,34 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             HIDE_NOT_ALWAYS
         )
     }
+
+    private fun validateInput(): Boolean {
+        var isValid = true
+
+        if (expenseItem.text.isBlank()) {
+            expenseItem.error = "Item cannot be blank"
+            isValid = false
+        }
+
+        if (expenseAmount.text.isBlank()) {
+            expenseAmount.error = "Amount cannot be blank"
+            isValid = false
+        }
+
+        if (expenseCategoryValue.isBlank()) {
+            (expenseCategory.selectedView as TextView).error = "Category cannot be blank"
+            isValid = false
+        }
+
+        if (expenseDate.text.isBlank()) {
+            expenseDate.error = "Date cannot be blank"
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    /********** PUBLIC METHODS **********/
 
     fun submitExpense(view: View) {
         hideKeyboard(view)
@@ -340,39 +384,5 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
             submitButton.text = getString(R.string.button_expense_submit)
         }
-    }
-
-    private fun validateInput(): Boolean {
-        var isValid = true
-
-        if (expenseItem.text.isBlank()) {
-            expenseItem.error = "Item cannot be blank"
-            isValid = false
-        }
-
-        if (expenseAmount.text.isBlank()) {
-            expenseAmount.error = "Amount cannot be blank"
-            isValid = false
-        }
-
-        if (expenseCategoryValue.isBlank()) {
-            (expenseCategory.selectedView as TextView).error = "Category cannot be blank"
-            isValid = false
-        }
-
-        if (expenseDate.text.isBlank()) {
-            expenseDate.error = "Date cannot be blank"
-            isValid = false
-        }
-
-        return isValid
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
-        expenseCategoryValue = parent.getItemAtPosition(pos).toString()
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>) {
-        // Another interface callback
     }
 }
