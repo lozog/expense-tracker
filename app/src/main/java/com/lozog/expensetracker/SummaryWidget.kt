@@ -95,13 +95,18 @@ class SummaryWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
-//        Log.d(TAG, "button pressed")
 
         if (ACTION_UPDATE == intent.action) {
+//            Log.d(TAG, "button pressed")
+            setWidgetStatus(context, "Updating...")
+
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
 
-            spreadsheetId ?: return // TODO: inform the user they need to set the spreadsheet id
+            if (spreadsheetId == null) {
+                setWidgetStatus(context, "Failed - set spreadsheet id")
+                return
+            }
 
             coroutineScope.launch(Dispatchers.Main)  {
                 try {
@@ -131,14 +136,16 @@ class SummaryWidget : AppWidgetProvider() {
                         percentages.add(percentageRemaining)
                     }
 
-                    updateUI(context)
+                    setWidgetValues(context)
                 } catch (e: UserRecoverableAuthIOException) {
-//                    startActivityForResult(e.intent, MainActivity.RC_REQUEST_AUTHORIZATION)
                     // TODO: handle this case
+//                    startActivityForResult(e.intent, MainActivity.RC_REQUEST_AUTHORIZATION)
+
                     Log.d(TAG, "Need more permissions")
+                    setWidgetStatus(context, "Failed - need permissions")
                 } catch (e: IOException) {
-                    // TODO: update UI with error msg
                     Log.d(TAG, "Network error: Could not connect to Google")
+                    setWidgetStatus(context, "Failed - no Google connection")
                 }
             }
         }
@@ -166,7 +173,7 @@ class SummaryWidget : AppWidgetProvider() {
         return@async request.execute()
     }
 
-    private fun updateUI(context: Context) {
+    private fun setWidgetValues(context: Context) {
         val appWidgetManager = AppWidgetManager.getInstance(
             context
                 .applicationContext
@@ -185,19 +192,13 @@ class SummaryWidget : AppWidgetProvider() {
                 R.layout.summary_widget
             )
 
-//            Log.d(TAG, amounts.toString())
-
             // set the text for each of the hard-coded categories
             categoryIds.forEachIndexed {index, categoryId ->
                 remoteViews.setTextViewText(
                     categoryId,
                     amounts[index]
                 )
-//                Log.d(TAG, (index).toString())
-//                Log.d(TAG, amounts[index])
             }
-
-//            Log.d(TAG, percentages.toString())
 
             // set the text for each of the hard-coded percentages
             categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
@@ -210,6 +211,34 @@ class SummaryWidget : AppWidgetProvider() {
             remoteViews.setTextViewText(
                 R.id.updated_at,
                 "Updated at " + getLocalizedDateTimeString()
+            )
+
+            appWidgetManager.updateAppWidget(widgetId, remoteViews)
+        }
+    }
+
+    private fun setWidgetStatus(context: Context, status: String) {
+        val appWidgetManager = AppWidgetManager.getInstance(
+            context
+                .applicationContext
+        )
+
+        val thisWidget = ComponentName(
+            context,
+            SummaryWidget::class.java
+        )
+        val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+
+        allWidgetIds.forEach { widgetId ->
+            val remoteViews = RemoteViews(
+                context
+                    .applicationContext.packageName,
+                R.layout.summary_widget
+            )
+
+            remoteViews.setTextViewText(
+                R.id.updated_at,
+                status
             )
 
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
