@@ -59,6 +59,11 @@ class SummaryWidget : AppWidgetProvider() {
     companion object {
         private const val TAG = "SUMMARY_WIDGET"
         private const val ACTION_UPDATE = "action.UPDATE"
+
+        // January -> column C, etc
+        private val MONTH_COLUMNS = listOf(
+            "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
+        )
     }
 
     private val parentJob = Job()
@@ -105,10 +110,10 @@ class SummaryWidget : AppWidgetProvider() {
                     val categoriesFromSheet = response.valueRanges[0]["values"] as List<List<String>>
                     val targetsFromSheet = response.valueRanges[1]["values"] as List<List<String>>
                     val valuesFromSheet = response.valueRanges[2]["values"] as List<List<String>>
-                    Log.d(TAG, response.toString())
+//                    Log.d(TAG, response.toString())
 //                    Log.d(TAG, categoriesFromSheet.toString())
-                    Log.d(TAG, targetsFromSheet.toString())
-                    Log.d(TAG, valuesFromSheet.toString())
+//                    Log.d(TAG, targetsFromSheet.toString())
+//                    Log.d(TAG, valuesFromSheet.toString())
 
                     categoriesFromSheet[0].forEach { category ->
                         categories.add(category)
@@ -121,7 +126,7 @@ class SummaryWidget : AppWidgetProvider() {
                     targetsFromSheet[0].forEachIndexed { i, value ->
                         val current = stringToDouble(valuesFromSheet[0][i])
                         val monthlyTarget = stringToDouble(value)
-                        Log.d(TAG, "$current, $monthlyTarget")
+//                        Log.d(TAG, "$current, $monthlyTarget")
                         val percentageRemaining = "${String.format("%.1f", getPercentage(current, monthlyTarget))}%"
                         percentages.add(percentageRemaining)
                     }
@@ -144,7 +149,9 @@ class SummaryWidget : AppWidgetProvider() {
     ): Deferred<BatchGetValuesResponse> = coroutineScope.async (Dispatchers.IO) {
         val categoryLabelsRange = "'Monthly Budget Items'!A3:A13"
         val categoryTargetRange = "'Monthly Budget Items'!B3:B13"
-        val categoryValuesRange = "'Monthly Budget Items'!D3:D13" // TODO: calculate column of current month
+
+        val curMonthColumn = MONTH_COLUMNS[Calendar.MONTH]
+        val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13"
 
         if (GoogleSheetsInterface.spreadsheetService == null) {
             Log.d(TAG, "spreedsheet service is null!")
