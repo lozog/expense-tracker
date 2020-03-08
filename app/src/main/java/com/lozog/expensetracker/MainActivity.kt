@@ -9,12 +9,8 @@ import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.preference.PreferenceManager
-import com.android.volley.DefaultRetryPolicy
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -23,23 +19,25 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
-//import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-//import com.google.api.client.http.javanet.NetHttpTransport
-//import com.google.api.client.json.JsonFactory
-//import com.google.api.client.json.jackson2.JacksonFactory
-//import com.google.api.services.sheets.v4.Sheets
-//import com.google.api.services.sheets.v4.SheetsScopes
-//import com.google.api.services.sheets.v4.model.Spreadsheet
-import com.google.gson.JsonParser
-import com.google.gson.JsonSyntaxException
-import com.google.gson.stream.MalformedJsonException
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.JsonFactory
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.sheets.v4.Sheets
+import com.google.api.services.sheets.v4.SheetsScopes
+import com.google.api.services.sheets.v4.model.AppendValuesResponse
+import com.google.api.services.sheets.v4.model.ValueRange
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
+    /********** UI Widgets **********/
     private lateinit var expenseItem: EditText
     private lateinit var expenseCategory: Spinner
     private lateinit var expenseAmount: EditText
@@ -49,18 +47,25 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
 
-    private lateinit var mGoogleSignInClient: GoogleSignInClient
-    private var RC_SIGN_IN: Int = 0
-    private lateinit var googleAccount: GoogleSignInAccount
-
     private var expenseCategoryValue: String = ""
+
+    /********** GOOGLE SIGN-IN **********/
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     companion object {
         private const val TAG = "MAIN_ACTIVITY"
-//
-//        private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
-//        private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY)
+
+        private const val RC_SIGN_IN: Int = 0
+        private const val RC_REQUEST_AUTHORIZATION: Int = 1
+
+        private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
+        private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
     }
+
+    private val parentJob = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
+
+    /********** OVERRIDE METHODS **********/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,103 +99,60 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         expenseCategory.onItemSelectedListener = this
 
-//        // Configure sign-in to request the user's ID, email address, and basic
-//        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-//        val gso =
-//            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                .requestEmail()
-//                .build()
-//
-//        // Build a GoogleSignInClient with the options specified by gso.
-//        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-//
-//        val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-//        signInButton.setOnClickListener{view ->
-//            when (view.id) {
-//                R.id.sign_in_button -> {
-//                    signIn()
-//                }
-//            }
-//        }
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        val gso =
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build()
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
+        signInButton.setOnClickListener{view ->
+            when (view.id) {
+                R.id.sign_in_button -> {
+                    val signInIntent = mGoogleSignInClient.signInIntent
+                    startActivityForResult(signInIntent, RC_SIGN_IN)
+                }
+            }
+        }
     }
 
-    private fun signIn() {
-        val signInIntent = mGoogleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
+    override fun onStart() {
+        super.onStart()
+
+        // Check for existing Google Sign In account, if the user is already signed in
+        // the GoogleSignInAccount will be non-null.
+        // TODO: just check GoogleSheetsInterface.googleAccount != null?
+        val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
+
+        if (account != null) {
+            onSignInSuccess(account)
+        }
     }
 
-//    override fun onStart() {
-//        super.onStart()
-//
-//        // Check for existing Google Sign In account, if the user is already signed in
-//        // the GoogleSignInAccount will be non-null.
-//        val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
-//
-//        if (account != null) {
-//            googleAccount = account
-//
-//            // remove Google Sign-in button from view if already signed in
-////            val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-////            val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
-////            contentMainLayout.removeView(signInButton)
-//        }
-//    }
-//
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//
-//        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-//        if (requestCode == RC_SIGN_IN) {
-//            // The Task returned from this call is always completed, no need to attach
-//            // a listener.
-//            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-//            handleSignInResult(task)
-//        }
-//    }
-//
-//    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-//        try {
-//            val account: GoogleSignInAccount? = completedTask.getResult(ApiException::class.java)
-//
-//            account ?: return
-//
-//            // Signed in successfully
-//            googleAccount = account
-//            Log.d(TAG, "signed into account: " + googleAccount.email)
-//
-//            val httpTransport = NetHttpTransport()
-//
-//            val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
-//            credential.selectedAccount = googleAccount.account
-//
-//            val service = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
-//                .setApplicationName(getString(R.string.app_name))
-//                .build()
-//            testSheet(service)
-//        } catch (e: ApiException) {
-//            // The ApiException status code indicates the detailed failure reason.
-//            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-//            Log.d(TAG, "signInResult:failed code=" + e.statusCode)
-//        }
-//    }
-//
-//    private fun testSheet(service: Sheets) {
-////        var spreadsheet = Spreadsheet()
-////            .setProperties(
-////                SpreadsheetProperties()
-////                    .setTitle("CreateNewSpreadsheet")
-////            )
-////
-////        spreadsheet = service.spreadsheets().create(spreadsheet).execute()
-////        Log.d(TAG, "ID: ${spreadsheet.spreadsheetId}")
-//
-//        // TODO: the following line causes an IllegalStateException because it's being called from the UI thread, I think
-//        // so I need to refactor it into a background task maybe?
-////        val spreadsheet: Spreadsheet = service.spreadsheets().get("1KcUmWhrTFRe4cb0JBr7G1jJMHFKvu-PcFdhVv9AuNwo").execute()
-////        Log.d(TAG, spreadsheet.toString())
-////        Log.d(TAG, "IDK")
-//
-//    }
+    override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
+        expenseCategoryValue = parent.getItemAtPosition(pos).toString()
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>) {
+        // Another interface callback
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+            handleSignInResult(task)
+        }
+//        else if (requestCode == RC_REQUEST_AUTHORIZATION) {}
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -212,6 +174,81 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
+    /********** GOOGLE SIGN-IN METHODS **********/
+
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+        try {
+            val account: GoogleSignInAccount? = completedTask.getResult(ApiException::class.java)
+            account ?: return
+
+            onSignInSuccess(account)
+        } catch (e: ApiException) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.d(TAG, "signInResult: failed. code=" + e.statusCode)
+        }
+    }
+
+    private fun onSignInSuccess(account: GoogleSignInAccount) {
+//        googleSheetsInterface.googleAccount = account
+
+        Log.d(TAG, "signed into account: " + account.email)
+
+        val httpTransport = NetHttpTransport()
+        val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
+        credential.selectedAccount = account.account
+
+        // get sheet service object
+        val sheetService: Sheets = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
+            .setApplicationName(getString(R.string.app_name))
+            .build()
+
+        GoogleSheetsInterface.googleAccount = account
+        GoogleSheetsInterface.spreadsheetService = sheetService
+
+        // remove Google Sign-in button from view if already signed in
+        val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
+        val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
+        contentMainLayout.removeView(signInButton)
+    }
+
+    /********** GOOGLE SHEETS METHODS **********/
+
+    private fun addExpenseRowToSheetAsync(
+        spreadsheetId: String,
+        sheetName: String,
+        expenseDate: String,
+        expenseItem: String,
+        expenseCategoryValue: String,
+        expenseAmount: String,
+        expenseAmountOthers: String,
+        expenseNotes: String,
+        currency: String,
+        exchangeRate: String
+    ): Deferred<AppendValuesResponse> = coroutineScope.async (Dispatchers.IO) {
+        Log.d(TAG, "addExpenseRowToSheetAsync")
+
+        val valueInputOption = "USER_ENTERED"
+        val insertDataOption = "INSERT_ROWS"
+
+        val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
+        val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
+
+        val rowData = mutableListOf(mutableListOf(
+            expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
+        ))
+        val requestBody = ValueRange()
+        requestBody.setValues(rowData as List<MutableList<Any>>?)
+
+        val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
+        request.valueInputOption = valueInputOption
+        request.insertDataOption = insertDataOption
+
+        return@async request.execute()
+    }
+
+    /********** HELPER METHODS **********/
+
     private fun hideKeyboard(view: View) {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
@@ -219,147 +256,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             view.windowToken,
             HIDE_NOT_ALWAYS
         )
-    }
-
-    fun submitExpense(view: View) {
-        hideKeyboard(view)
-
-        val submitButton = findViewById<Button>(R.id.expenseSubmitButton)
-        submitButton.text = "Submitting..."
-
-        if (!validateInput()) {
-            Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-
-            return
-        }
-
-        // when button is pressed, call sheets api and send data
-        // Instantiate the RequestQueue
-        val queue = Volley.newRequestQueue(this)
-
-        val url = buildFormUrl(this, view)
-
-        if (url == "") {
-            Snackbar.make(view, "You must set a Google Form URL", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            return
-        }
-
-        Log.d(TAG, "URL is: $url")
-
-        // Request a string response from the provided URL.
-        val stringRequest = StringRequest(Request.Method.GET, url,
-            Response.Listener<String> { response ->
-                Log.d(TAG, "Response is: $response")
-
-                expenseItem.setText("")
-                expenseAmount.setText("")
-                expenseAmountOthers.setText("")
-                expenseNotes.setText("")
-                currencyLabel.setText("")
-                currencyExchangeRate.setText("")
-
-                try {
-                    val jsonResponse = JsonParser().parse(response).asJsonObject
-
-                    val statusText = "Added as row ${jsonResponse["row"]}"
-
-                    Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show()
-
-                    val statusTextView = findViewById<TextView>(R.id.statusText)
-                    statusTextView.text = statusText
-
-                    submitButton.text = getString(R.string.button_expense_submit)
-                } catch (e: JsonSyntaxException) {
-                    Log.d(TAG, "JSON exception from google script")
-                    val statusText = "Error calling google script"
-
-                    Log.d(TAG, statusText)
-
-                    Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show()
-
-                    val statusTextView = findViewById<TextView>(R.id.statusText)
-                    statusTextView.text = statusText
-
-                    submitButton.text = getString(R.string.button_expense_submit)
-                }
-            },
-            Response.ErrorListener {
-                val statusText = "$it"
-
-                Log.d(TAG, statusText)
-
-                Snackbar.make(view, "Could not complete request", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-
-                val statusTextView = findViewById<TextView>(R.id.statusText)
-                statusTextView.text = statusText
-
-                submitButton.text = getString(R.string.button_expense_submit)
-            })
-
-        val mRetryPolicy = DefaultRetryPolicy(
-            30 * 1000,
-            0,
-            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-        )
-
-        stringRequest.retryPolicy = mRetryPolicy
-
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest)
-    }
-
-    private fun buildFormUrl(context: Context, view: View): String {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val baseUrl = sharedPreferences.getString("google_form_url", "")
-
-        if (baseUrl == null || baseUrl == "") {
-            return ""
-        }
-
-        var currency = sharedPreferences.getString("currency", getString(R.string.default_currency))
-        var exchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
-
-        val currencyLabelText = currencyLabel.text.toString()
-        val currencyExchangeRateText = currencyExchangeRate.text.toString()
-
-        if (currencyLabelText != "") {
-            currency = currencyLabelText
-        }
-
-        if (currencyExchangeRateText != "") {
-            exchangeRate = currencyExchangeRateText
-        }
-
-        if (currency == null || exchangeRate == null) {
-            Snackbar.make(view, "Set a currency and exchange rate", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-
-            return ""
-        }
-
-        return baseUrl +
-                "?" +
-                "Date=" +
-                expenseDate.text +
-                "&Item=" +
-                expenseItem.text +
-                "&Category=" +
-                expenseCategoryValue +
-                "&Amount=" +
-                expenseAmount.text +
-                "&Split=" +
-                expenseAmountOthers.text +
-                "&Notes=" +
-                expenseNotes.text +
-                "&Currency=" +
-                currency +
-                "&Exchange=" +
-                exchangeRate
     }
 
     private fun validateInput(): Boolean {
@@ -388,11 +284,103 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return isValid
     }
 
-    override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
-        expenseCategoryValue = parent.getItemAtPosition(pos).toString()
-    }
+    /********** PUBLIC METHODS **********/
 
-    override fun onNothingSelected(parent: AdapterView<*>) {
-        // Another interface callback
+    fun submitExpense(view: View) {
+        hideKeyboard(view)
+
+        val submitButton = findViewById<Button>(R.id.expenseSubmitButton)
+        submitButton.text = getString(R.string.button_expense_submitting)
+
+        if (!validateInput()) {
+            Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            submitButton.text = getString(R.string.button_expense_submit)
+            return
+        }
+
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val sheetName = sharedPreferences.getString("google_sheet_name", null)
+
+        if (spreadsheetId == null) {
+            Snackbar.make(view, "Set a spreadsheet Id", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            return
+        }
+
+        if (sheetName == null) {
+            Snackbar.make(view, "Set a data sheet name", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            return
+        }
+
+        var currency = currencyLabel.text.toString()
+        var exchangeRate = currencyExchangeRate.text.toString()
+
+        if (currency == "") {
+            val defaultCurrency = sharedPreferences.getString("currency", getString(R.string.default_currency))
+
+            if (defaultCurrency == null) {
+                Snackbar.make(view, "Set a currency", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                return
+            }
+
+            currency = defaultCurrency
+        }
+
+        if (exchangeRate == "") {
+            val defaultExchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
+
+            if (defaultExchangeRate == null) {
+                Snackbar.make(view, "Set a currency", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                return
+            }
+
+            exchangeRate = defaultExchangeRate
+        }
+
+        coroutineScope.launch (Dispatchers.Main) {
+            var statusText: String
+
+            try {
+                val appendResponse = addExpenseRowToSheetAsync(
+                    spreadsheetId,
+                    sheetName,
+                    expenseDate.text.toString(),
+                    expenseItem.text.toString(),
+                    expenseCategoryValue,
+                    expenseAmount.text.toString(),
+                    expenseAmountOthers.text.toString(),
+                    expenseNotes.text.toString(),
+                    currency,
+                    exchangeRate
+                ).await()
+
+                expenseItem.setText("")
+                expenseAmount.setText("")
+                expenseAmountOthers.setText("")
+                expenseNotes.setText("")
+                currencyLabel.setText("")
+                currencyExchangeRate.setText("")
+
+                val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
+                statusText = "Updated range: $updatedRange"
+            } catch (e: UserRecoverableAuthIOException) {
+                startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+                statusText = "Need more permissions"
+            } catch (e: IOException) {
+                statusText = "Network error: Could not connect to Google"
+            }
+
+            Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+
+            val statusTextView = findViewById<TextView>(R.id.statusText)
+            statusTextView.text = statusText
+            submitButton.text = getString(R.string.button_expense_submit)
+        }
     }
 }
