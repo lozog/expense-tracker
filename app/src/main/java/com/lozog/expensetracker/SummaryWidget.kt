@@ -55,6 +55,7 @@ class SummaryWidget : AppWidgetProvider() {
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
     private var percentages = ArrayList<String>()
+    private var widgetStatus: String = "Never updated"
 
     companion object {
         private const val TAG = "SUMMARY_WIDGET"
@@ -98,13 +99,15 @@ class SummaryWidget : AppWidgetProvider() {
 
         if (ACTION_UPDATE == intent.action) {
 //            Log.d(TAG, "button pressed")
-            setWidgetStatus(context, "Updating...")
+            widgetStatus = "Updating..."
+            updateWidget(context, ::setWidgetStatus)
 
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
 
             if (spreadsheetId == null) {
-                setWidgetStatus(context, "Failed - set spreadsheet id")
+                widgetStatus = "Failed - set spreadsheet id"
+                updateWidget(context, ::setWidgetStatus)
                 return
             }
 
@@ -136,16 +139,18 @@ class SummaryWidget : AppWidgetProvider() {
                         percentages.add(percentageRemaining)
                     }
 
-                    setWidgetValues(context)
+                    updateWidget(context, ::setWidgetValues)
                 } catch (e: UserRecoverableAuthIOException) {
                     // TODO: handle this case
 //                    startActivityForResult(e.intent, MainActivity.RC_REQUEST_AUTHORIZATION)
 
                     Log.d(TAG, "Need more permissions")
-                    setWidgetStatus(context, "Failed - need permissions")
+                    widgetStatus = "Failed - need permissions"
+                    updateWidget(context, ::setWidgetStatus)
                 } catch (e: IOException) {
                     Log.d(TAG, "Network error: Could not connect to Google")
-                    setWidgetStatus(context, "Failed - no Google connection")
+                    widgetStatus = "Failed - no Google connection"
+                    updateWidget(context, ::setWidgetStatus)
                 }
             }
         }
@@ -173,51 +178,37 @@ class SummaryWidget : AppWidgetProvider() {
         return@async request.execute()
     }
 
-    private fun setWidgetValues(context: Context) {
-        val appWidgetManager = AppWidgetManager.getInstance(
-            context
-                .applicationContext
-        )
-
-        val thisWidget = ComponentName(
-            context,
-            SummaryWidget::class.java
-        )
-        val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
-
-        allWidgetIds.forEach { widgetId ->
-            val remoteViews = RemoteViews(
-                context
-                    .applicationContext.packageName,
-                R.layout.summary_widget
-            )
-
-            // set the text for each of the hard-coded categories
-            categoryIds.forEachIndexed {index, categoryId ->
-                remoteViews.setTextViewText(
-                    categoryId,
-                    amounts[index]
-                )
-            }
-
-            // set the text for each of the hard-coded percentages
-            categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
-                remoteViews.setTextViewText(
-                    categoryPercentageId,
-                    percentages[index]
-                )
-            }
-
+    private fun setWidgetValues(remoteViews: RemoteViews) {
+        // set the text for each of the hard-coded categories
+        categoryIds.forEachIndexed {index, categoryId ->
             remoteViews.setTextViewText(
-                R.id.updated_at,
-                "Updated at " + getLocalizedDateTimeString()
+                categoryId,
+                amounts[index]
             )
-
-            appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
+
+        // set the text for each of the hard-coded percentages
+        categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
+            remoteViews.setTextViewText(
+                categoryPercentageId,
+                percentages[index]
+            )
+        }
+
+        remoteViews.setTextViewText(
+            R.id.updated_at,
+            "Updated at " + getLocalizedDateTimeString()
+        )
     }
 
-    private fun setWidgetStatus(context: Context, status: String) {
+    private fun setWidgetStatus(remoteViews: RemoteViews) {
+        remoteViews.setTextViewText(
+            R.id.updated_at,
+            widgetStatus
+        )
+    }
+
+    private fun updateWidget(context: Context, updateUIElements: (remoteViews: RemoteViews) -> Unit) {
         val appWidgetManager = AppWidgetManager.getInstance(
             context
                 .applicationContext
@@ -236,10 +227,7 @@ class SummaryWidget : AppWidgetProvider() {
                 R.layout.summary_widget
             )
 
-            remoteViews.setTextViewText(
-                R.id.updated_at,
-                status
-            )
+            updateUIElements(remoteViews)
 
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
