@@ -13,7 +13,8 @@
     <string name="currency_exchange_rate">Exchange Rate</string>
     <string name="button_expense_submit">Submit</string>
 
-    <string name="button_expense_submitting">Submitting...</string>
+    <string name="button_expense_submitting">Submitting…</string>
+    <string name="status_no_internet">"No internet connection - saved request for later"</string>
 
     <!-- Categories spinner options -->
     <string-array name="categories_array">
@@ -55,9 +56,12 @@
     <string name="google_spreadsheet_id_pref_label">Google Spreadsheet Id</string>
     <string name="google_sheet_name_pref_label">Data Sheet Name</string>
 
-    <!-- Other preferences -->
+    <!-- Defaults preferences -->
     <string name="currency_pref_label">Currency</string>
     <string name="exchange_rate_pref_label">Exchange Rate</string>
+
+    <!-- Request Queue preferences -->
+    <string name="request_queue_pref_key">request_queue_pref</string>
 
     <!-- Defaults -->
     <string name="default_currency">CAD</string>

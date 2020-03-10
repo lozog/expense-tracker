@@ -62,6 +62,7 @@ class SummaryWidget : AppWidgetProvider() {
         private const val ACTION_UPDATE = "action.UPDATE"
 
         // January -> column C, etc
+        // TODO: this sucks, make it better
         private val MONTH_COLUMNS = listOf(
             "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
         )
@@ -166,9 +167,8 @@ class SummaryWidget : AppWidgetProvider() {
         val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13"
 
         if (GoogleSheetsInterface.spreadsheetService == null) {
+            // TODO: handle this case
             Log.d(TAG, "spreedsheet service is null!")
-        } else {
-            Log.d(TAG, "spreedsheet service is defined!")
         }
 
         val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().batchGet(spreadsheetId)

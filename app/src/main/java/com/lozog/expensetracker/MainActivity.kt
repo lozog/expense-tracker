@@ -2,6 +2,9 @@ package com.lozog.expensetracker
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -11,6 +14,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.preference.PreferenceManager
+import androidx.room.Room
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -30,6 +34,7 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -52,6 +57,14 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     /********** GOOGLE SIGN-IN **********/
     private lateinit var mGoogleSignInClient: GoogleSignInClient
 
+    /********** ROOM DB **********/
+    private lateinit var addRowRequestDB: AddRowRequestDB
+    private lateinit var networkReceiver: NetworkReceiver
+
+    /********** CONCURRENCY **********/
+    private val parentJob = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
+
     companion object {
         private const val TAG = "MAIN_ACTIVITY"
 
@@ -61,9 +74,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
     }
-
-    private val parentJob = Job()
-    private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
 
     /********** OVERRIDE METHODS **********/
 
@@ -118,6 +128,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 }
             }
         }
+
+        addRowRequestDB = Room.databaseBuilder(
+            applicationContext,
+            AddRowRequestDB::class.java, "add-row-request-db"
+        ).build()
+
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        networkReceiver = NetworkReceiver()
+        registerReceiver(networkReceiver, filter)
     }
 
     override fun onStart() {
@@ -131,6 +150,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         if (account != null) {
             onSignInSuccess(account)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Unregisters BroadcastReceiver when app is destroyed.
+        this.unregisterReceiver(networkReceiver)
     }
 
     override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
@@ -284,11 +310,41 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return isValid
     }
 
+    private fun isInternetConnected(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        return activeNetwork?.isConnectedOrConnecting == true
+    }
+
+    // TODO: refactor these into a generic wrapper method
+    private fun insertRowIntoDBAsync(
+        addRowRequest: AddRowRequest
+    ): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
+        Log.d(TAG, "insertRowIntoDBAsync")
+
+        addRowRequestDB.addRowRequestDao().insert(addRowRequest)
+
+        return@async addRowRequestDB.addRowRequestDao().getAll()
+    }
+
+    private fun getAllRowsAsync(): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
+        Log.d(TAG, "getAllRowsAsync")
+
+        return@async addRowRequestDB.addRowRequestDao().getAll()
+    }
+
+    private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.async (Dispatchers.IO) {
+        Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
+
+        addRowRequestDB.addRowRequestDao().delete(addRowRequest)
+    }
+
     /********** PUBLIC METHODS **********/
 
     fun submitExpense(view: View) {
         hideKeyboard(view)
 
+        // TODO: move these to class fields
         val submitButton = findViewById<Button>(R.id.expenseSubmitButton)
         submitButton.text = getString(R.string.button_expense_submitting)
 
@@ -342,11 +398,55 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             exchangeRate = defaultExchangeRate
         }
 
-        coroutineScope.launch (Dispatchers.Main) {
-            var statusText: String
+        if (isInternetConnected(this)) {
+//            Log.d(TAG, "there is an internet connection!")
+            coroutineScope.launch (Dispatchers.Main) {
+                var statusText: String
 
-            try {
-                val appendResponse = addExpenseRowToSheetAsync(
+                try {
+                    val appendResponse = addExpenseRowToSheetAsync(
+                        spreadsheetId,
+                        sheetName,
+                        expenseDate.text.toString(),
+                        expenseItem.text.toString(),
+                        expenseCategoryValue,
+                        expenseAmount.text.toString(),
+                        expenseAmountOthers.text.toString(),
+                        expenseNotes.text.toString(),
+                        currency,
+                        exchangeRate
+                    ).await()
+
+                    // TODO: refactor clearing inputs into method
+                    expenseItem.setText("")
+                    expenseAmount.setText("")
+                    expenseAmountOthers.setText("")
+                    expenseNotes.setText("")
+                    currencyLabel.setText("")
+                    currencyExchangeRate.setText("")
+
+                    val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
+                    statusText = "Updated range: $updatedRange"
+                } catch (e: UserRecoverableAuthIOException) {
+                    startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+                    statusText = "Need more permissions"
+                } catch (e: IOException) {
+                    statusText = "Network error: Could not connect to Google"
+                }
+
+                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+
+                val statusTextView = findViewById<TextView>(R.id.statusText)
+                statusTextView.text = statusText
+                submitButton.text = getString(R.string.button_expense_submit)
+            }
+        } else {
+//            Log.d(TAG, "no internet connection!")
+
+            coroutineScope.launch (Dispatchers.Main) {
+                val addRowRequest = AddRowRequest(
+                    0,
                     spreadsheetId,
                     sheetName,
                     expenseDate.text.toString(),
@@ -357,8 +457,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     expenseNotes.text.toString(),
                     currency,
                     exchangeRate
-                ).await()
+                )
 
+                val res = insertRowIntoDBAsync(addRowRequest).await()
+
+                // TODO: refactor into method
                 expenseItem.setText("")
                 expenseAmount.setText("")
                 expenseAmountOthers.setText("")
@@ -366,21 +469,40 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 currencyLabel.setText("")
                 currencyExchangeRate.setText("")
 
-                val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
-                statusText = "Updated range: $updatedRange"
-            } catch (e: UserRecoverableAuthIOException) {
-                startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
-                statusText = "Need more permissions"
-            } catch (e: IOException) {
-                statusText = "Network error: Could not connect to Google"
+                val statusTextView = findViewById<TextView>(R.id.statusText)
+                statusTextView.text = getString(R.string.status_no_internet)
+                submitButton.text = getString(R.string.button_expense_submit)
             }
+        }
+    }
 
-            Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+    fun sendQueuedRequests() {
+        coroutineScope.launch (Dispatchers.Main) {
+            val queuedRequests = getAllRowsAsync().await()
 
-            val statusTextView = findViewById<TextView>(R.id.statusText)
-            statusTextView.text = statusText
-            submitButton.text = getString(R.string.button_expense_submit)
+            queuedRequests.forEach { addRowRequest ->
+                try {
+                    addExpenseRowToSheetAsync(
+                        addRowRequest.spreadsheetId,
+                        addRowRequest.sheetName,
+                        addRowRequest.expenseDate,
+                        addRowRequest.expenseItem,
+                        addRowRequest.expenseCategoryValue,
+                        addRowRequest.expenseAmount,
+                        addRowRequest.expenseAmountOthers,
+                        addRowRequest.expenseNotes,
+                        addRowRequest.currency,
+                        addRowRequest.exchangeRate
+                    ).await()
+
+                    deleteRowAsync(addRowRequest)
+                } catch (e: UserRecoverableAuthIOException) {
+                    startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+                    Log.d(TAG,  "Need more permissions")
+                } catch (e: IOException) {
+                    Log.d(TAG,  "Network error: Could not connect to Google")
+                }
+            }
         }
     }
 }
