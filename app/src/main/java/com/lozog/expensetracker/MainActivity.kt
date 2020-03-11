@@ -51,6 +51,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var expenseNotes: EditText
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
+    private lateinit var signInButton: SignInButton
+    private lateinit var submitButton: Button
+    private lateinit var statusTextView: TextView
 
     private var expenseCategoryValue: String = ""
 
@@ -82,6 +85,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        // find UI elements
         expenseItem = findViewById(R.id.expenseItem)
         expenseCategory = findViewById(R.id.expenseCategory)
         expenseAmount = findViewById(R.id.expenseAmount)
@@ -90,6 +94,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         expenseNotes = findViewById(R.id.expenseNotes)
         currencyLabel = findViewById(R.id.currencyLabel)
         currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
+        signInButton = findViewById(R.id.sign_in_button)
+        submitButton = findViewById(R.id.expenseSubmitButton)
+        statusTextView = findViewById(R.id.statusText)
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -119,7 +126,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
         signInButton.setOnClickListener{view ->
             when (view.id) {
                 R.id.sign_in_button -> {
@@ -353,8 +359,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     fun submitExpense(view: View) {
         hideKeyboard(view)
 
-        // TODO: move these to class fields
-        val submitButton = findViewById<Button>(R.id.expenseSubmitButton)
         submitButton.text = getString(R.string.button_expense_submitting)
 
         if (!validateInput()) {
@@ -440,7 +444,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
 
-                val statusTextView = findViewById<TextView>(R.id.statusText)
                 statusTextView.text = statusText
                 submitButton.text = getString(R.string.button_expense_submit)
             }
@@ -466,7 +469,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                 clearInputs()
 
-                val statusTextView = findViewById<TextView>(R.id.statusText)
                 statusTextView.text = getString(R.string.status_no_internet)
                 submitButton.text = getString(R.string.button_expense_submit)
             }
