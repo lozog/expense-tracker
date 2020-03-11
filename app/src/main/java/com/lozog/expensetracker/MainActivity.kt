@@ -158,6 +158,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        sendQueuedRequests()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
@@ -316,8 +322,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return isValid
     }
 
-    private fun isInternetConnected(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private fun isInternetConnected(): Boolean {
+        val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
         return activeNetwork?.isConnectedOrConnecting == true
     }
@@ -334,7 +340,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun insertRowIntoDBAsync(
         addRowRequest: AddRowRequest
     ): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-//        Log.d(TAG, "insertRowIntoDBAsync")
+        Log.d(TAG, "insertRowIntoDBAsync")
 
         addRowRequestDB.addRowRequestDao().insert(addRowRequest)
 
@@ -342,13 +348,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun getAllRowsAsync(): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-//        Log.d(TAG, "getAllRowsAsync")
+        Log.d(TAG, "getAllRowsAsync")
 
         return@async addRowRequestDB.addRowRequestDao().getAll()
     }
 
     private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.launch (Dispatchers.IO) {
-//        Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
+        Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
 
         addRowRequestDB.addRowRequestDao().delete(addRowRequest)
     }
@@ -410,7 +416,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             exchangeRate = defaultExchangeRate
         }
 
-        if (isInternetConnected(this)) {
+        if (isInternetConnected()) {
 //            Log.d(TAG, "there is an internet connection!")
             coroutineScope.launch (Dispatchers.Main) {
                 var statusText: String
@@ -475,6 +481,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     fun sendQueuedRequests() {
+        if (!isInternetConnected()) {
+            return
+        }
+
+        Log.d(TAG, "sending queued requests")
+
         coroutineScope.launch (Dispatchers.Main) {
             val queuedRequests = getAllRowsAsync().await()
 
