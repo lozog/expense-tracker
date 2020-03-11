@@ -13,8 +13,24 @@
     <string name="currency_exchange_rate">Exchange Rate</string>
     <string name="button_expense_submit">Submit</string>
 
+    <!-- Button text -->
     <string name="button_expense_submitting">Submitting…</string>
-    <string name="status_no_internet">"No internet connection - saved request for later"</string>
+
+    <!-- Status messages -->
+    <string name="status_no_internet">No internet connection - saved request for later</string>
+    <string name="status_updated_range">Updated range: %1$s</string>
+    <string name="status_need_permission">Error: App needs Google permission</string>
+    <string name="status_no_google_connection">Error: Couldn\'t connect to Google</string>
+
+    <!-- Form validation -->
+    <string name="form_no_item">Item cannot be blank</string>
+    <string name="form_no_amount">Amount cannot be blank</string>
+    <string name="form_no_category">Category cannot be blank</string>
+    <string name="form_no_date">Date cannot be blank</string>
+    <string name="form_no_spreadsheet_id">Set a spreadsheet Id</string>
+    <string name="form_no_sheet_name">Set a data sheet name</string>
+    <string name="form_no_currency">Set a currency</string>
+    <string name="form_no_exchange_rate">Set an exchange rate</string>
 
     <!-- Categories spinner options -->
     <string-array name="categories_array">

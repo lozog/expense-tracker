@@ -34,7 +34,6 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -73,6 +72,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private const val RC_SIGN_IN: Int = 0
         private const val RC_REQUEST_AUTHORIZATION: Int = 1
+
+        private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
+        private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
 
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
@@ -176,7 +178,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(parent: AdapterView<*>) {
-        // Another interface callback
+        expenseCategoryValue = ""
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -223,7 +225,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.d(TAG, "signInResult: failed. code=" + e.statusCode)
+            Log.d(TAG, "signInResult: failed. code: ${e.statusCode}")
         }
     }
 
@@ -266,9 +268,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     ): Deferred<AppendValuesResponse> = coroutineScope.async (Dispatchers.IO) {
         Log.d(TAG, "addExpenseRowToSheetAsync")
 
-        val valueInputOption = "USER_ENTERED"
-        val insertDataOption = "INSERT_ROWS"
-
         val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
         val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
 
@@ -276,11 +275,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
         ))
         val requestBody = ValueRange()
-        requestBody.setValues(rowData as List<MutableList<Any>>?)
+        requestBody.setValues(rowData as MutableList<MutableList<Any>>?)
 
         val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
-        request.valueInputOption = valueInputOption
-        request.insertDataOption = insertDataOption
+        request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
+        request.insertDataOption = SHEETS_INSERT_DATA_OPTION
 
         return@async request.execute()
     }
@@ -300,22 +299,22 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         var isValid = true
 
         if (expenseItem.text.isBlank()) {
-            expenseItem.error = "Item cannot be blank"
+            expenseItem.error = getString(R.string.form_no_item)
             isValid = false
         }
 
         if (expenseAmount.text.isBlank()) {
-            expenseAmount.error = "Amount cannot be blank"
+            expenseAmount.error = getString(R.string.form_no_amount)
             isValid = false
         }
 
         if (expenseCategoryValue.isBlank()) {
-            (expenseCategory.selectedView as TextView).error = "Category cannot be blank"
+            (expenseCategory.selectedView as TextView).error = getString(R.string.form_no_category)
             isValid = false
         }
 
         if (expenseDate.text.isBlank()) {
-            expenseDate.error = "Date cannot be blank"
+            expenseDate.error = getString(R.string.form_no_date)
             isValid = false
         }
 
@@ -367,8 +366,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         submitButton.text = getString(R.string.button_expense_submitting)
 
         if (!validateInput()) {
-            Snackbar.make(view, "Could not send request", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
             submitButton.text = getString(R.string.button_expense_submit)
             return
         }
@@ -378,13 +375,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val sheetName = sharedPreferences.getString("google_sheet_name", null)
 
         if (spreadsheetId == null) {
-            Snackbar.make(view, "Set a spreadsheet Id", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
             return
         }
 
         if (sheetName == null) {
-            Snackbar.make(view, "Set a data sheet name", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, getString(R.string.form_no_sheet_name), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
             return
         }
@@ -396,7 +393,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val defaultCurrency = sharedPreferences.getString("currency", getString(R.string.default_currency))
 
             if (defaultCurrency == null) {
-                Snackbar.make(view, "Set a currency", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, getString(R.string.form_no_currency), Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
                 return
             }
@@ -408,7 +405,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val defaultExchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
 
             if (defaultExchangeRate == null) {
-                Snackbar.make(view, "Set a currency", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, getString(R.string.form_no_exchange_rate), Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
                 return
             }
@@ -438,12 +435,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     clearInputs()
 
                     val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
-                    statusText = "Updated range: $updatedRange"
+                    statusText = getString(R.string.status_updated_range, updatedRange)
                 } catch (e: UserRecoverableAuthIOException) {
                     startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
-                    statusText = "Need more permissions"
+                    statusText = getString(R.string.status_need_permission)
                 } catch (e: IOException) {
-                    statusText = "Network error: Could not connect to Google"
+                    statusText = getString(R.string.status_no_google_connection)
                 }
 
                 Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
@@ -508,9 +505,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     deleteRowAsync(addRowRequest)
                 } catch (e: UserRecoverableAuthIOException) {
                     startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
-                    Log.d(TAG,  "Need more permissions")
+                    Log.d(TAG,  getString(R.string.status_need_permission))
                 } catch (e: IOException) {
-                    Log.d(TAG,  "Network error: Could not connect to Google")
+                    Log.d(TAG,  getString(R.string.status_no_google_connection))
                 }
             }
         }
