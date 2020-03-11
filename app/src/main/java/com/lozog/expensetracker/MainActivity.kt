@@ -316,6 +316,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return activeNetwork?.isConnectedOrConnecting == true
     }
 
+    private fun clearInputs() {
+        expenseItem.setText("")
+        expenseAmount.setText("")
+        expenseAmountOthers.setText("")
+        expenseNotes.setText("")
+        currencyLabel.setText("")
+        currencyExchangeRate.setText("")
+    }
+
     // TODO: refactor these into a generic wrapper method
     private fun insertRowIntoDBAsync(
         addRowRequest: AddRowRequest
@@ -333,7 +342,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return@async addRowRequestDB.addRowRequestDao().getAll()
     }
 
-    private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.async (Dispatchers.IO) {
+    private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.launch (Dispatchers.IO) {
         Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
 
         addRowRequestDB.addRowRequestDao().delete(addRowRequest)
@@ -417,13 +426,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                         exchangeRate
                     ).await()
 
-                    // TODO: refactor clearing inputs into method
-                    expenseItem.setText("")
-                    expenseAmount.setText("")
-                    expenseAmountOthers.setText("")
-                    expenseNotes.setText("")
-                    currencyLabel.setText("")
-                    currencyExchangeRate.setText("")
+                    clearInputs()
 
                     val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
                     statusText = "Updated range: $updatedRange"
@@ -459,15 +462,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     exchangeRate
                 )
 
-                val res = insertRowIntoDBAsync(addRowRequest).await()
+                insertRowIntoDBAsync(addRowRequest).await()
 
-                // TODO: refactor into method
-                expenseItem.setText("")
-                expenseAmount.setText("")
-                expenseAmountOthers.setText("")
-                expenseNotes.setText("")
-                currencyLabel.setText("")
-                currencyExchangeRate.setText("")
+                clearInputs()
 
                 val statusTextView = findViewById<TextView>(R.id.statusText)
                 statusTextView.text = getString(R.string.status_no_internet)
