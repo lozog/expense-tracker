@@ -331,11 +331,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         currencyExchangeRate.setText("")
     }
 
-    // TODO: refactor these into a generic wrapper method
     private fun insertRowIntoDBAsync(
         addRowRequest: AddRowRequest
     ): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-        Log.d(TAG, "insertRowIntoDBAsync")
+//        Log.d(TAG, "insertRowIntoDBAsync")
 
         addRowRequestDB.addRowRequestDao().insert(addRowRequest)
 
@@ -343,13 +342,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun getAllRowsAsync(): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-        Log.d(TAG, "getAllRowsAsync")
+//        Log.d(TAG, "getAllRowsAsync")
 
         return@async addRowRequestDB.addRowRequestDao().getAll()
     }
 
     private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.launch (Dispatchers.IO) {
-        Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
+//        Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
 
         addRowRequestDB.addRowRequestDao().delete(addRowRequest)
     }
