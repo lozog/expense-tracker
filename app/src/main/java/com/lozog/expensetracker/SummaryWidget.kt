@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.preference.PreferenceManager
@@ -107,7 +108,7 @@ class SummaryWidget : AppWidgetProvider() {
             val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
 
             if (spreadsheetId == null) {
-                widgetStatus = "Failed - set spreadsheet id"
+                widgetStatus = context.getString(R.string.form_no_spreadsheet_id)
                 updateWidget(context, ::setWidgetStatus)
                 return
             }
@@ -145,12 +146,16 @@ class SummaryWidget : AppWidgetProvider() {
                     // TODO: handle this case
 //                    startActivityForResult(e.intent, MainActivity.RC_REQUEST_AUTHORIZATION)
 
-                    Log.d(TAG, "Need more permissions")
-                    widgetStatus = "Failed - need permissions"
+                    Log.d(TAG, context.getString(R.string.status_need_permission))
+                    widgetStatus = context.getString(R.string.status_need_permission)
                     updateWidget(context, ::setWidgetStatus)
                 } catch (e: IOException) {
-                    Log.d(TAG, "Network error: Could not connect to Google")
-                    widgetStatus = "Failed - no Google connection"
+                    Log.d(TAG, context.getString(R.string.status_no_google_connection))
+                    widgetStatus = context.getString(R.string.status_no_google_connection)
+                    updateWidget(context, ::setWidgetStatus)
+                } catch (e: Exception) {
+                    Log.d(TAG, e.message.toString())
+                    widgetStatus = e.message.toString()
                     updateWidget(context, ::setWidgetStatus)
                 }
             }
@@ -167,8 +172,7 @@ class SummaryWidget : AppWidgetProvider() {
         val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13"
 
         if (GoogleSheetsInterface.spreadsheetService == null) {
-            // TODO: handle this case
-            Log.d(TAG, "spreedsheet service is null!")
+            throw Exception("spreadsheet service is null")
         }
 
         val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().batchGet(spreadsheetId)
