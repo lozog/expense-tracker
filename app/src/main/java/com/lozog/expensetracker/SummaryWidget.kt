@@ -62,6 +62,8 @@ class SummaryWidget : AppWidgetProvider() {
         private const val TAG = "SUMMARY_WIDGET"
         private const val ACTION_UPDATE = "action.UPDATE"
 
+        private const val SHEETS_MAJOR_DIMENSION = "COLUMNS"
+
         // January -> column C, etc
         // TODO: this sucks, make it better
         private val MONTH_COLUMNS = listOf(
@@ -177,7 +179,7 @@ class SummaryWidget : AppWidgetProvider() {
 
         val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().batchGet(spreadsheetId)
         request.ranges = mutableListOf(categoryLabelsRange, categoryTargetRange, categoryValuesRange) // this order is important - matches the order of the result
-        request.majorDimension = "COLUMNS"
+        request.majorDimension = SHEETS_MAJOR_DIMENSION
 
         return@async request.execute()
     }
