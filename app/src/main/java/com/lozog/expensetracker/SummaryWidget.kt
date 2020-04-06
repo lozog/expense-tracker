@@ -102,7 +102,7 @@ class SummaryWidget : AppWidgetProvider() {
 
 
         if (ACTION_UPDATE == intent.action) {
-//            Log.d(TAG, "button pressed")
+            Log.d(TAG, "button pressed")
             widgetStatus = "Updating..."
             updateWidget(context, ::setWidgetStatus)
 
@@ -170,7 +170,9 @@ class SummaryWidget : AppWidgetProvider() {
         val categoryLabelsRange = "'Monthly Budget Items'!A3:A13"
         val categoryTargetRange = "'Monthly Budget Items'!B3:B13"
 
-        val curMonthColumn = MONTH_COLUMNS[Calendar.MONTH]
+        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
+
+        Log.d(TAG, "month: ${Calendar.getInstance().get(Calendar.MONTH)}}")
         val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13"
 
         if (GoogleSheetsInterface.spreadsheetService == null) {
