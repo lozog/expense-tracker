@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        // find UI elements
+        // UI element handles
         expenseItem = findViewById(R.id.expenseItem)
         expenseCategory = findViewById(R.id.expenseCategory)
         expenseAmount = findViewById(R.id.expenseAmount)
@@ -104,17 +104,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         expenseDate.setText(todayDate)
 
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val userCategories = sharedPreferences.getString("categories", getString(R.string.default_categories))!!.split(",")
+
         // Set up the categories dropdown
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.categories_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner
-            expenseCategory.adapter = adapter
-        }
+        val categoriesAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, userCategories)
+        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        expenseCategory.adapter = categoriesAdapter
 
         expenseCategory.onItemSelectedListener = this
 

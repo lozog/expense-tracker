@@ -67,6 +67,7 @@
     <!-- Preference Titles -->
     <string name="google_api_prefs_header">Google Sheets Settings</string>
     <string name="currency_prefs_header">Currency Defaults</string>
+    <string name="categories_prefs_header">Expense Categories</string>
 
     <!-- Google Sheets Preferences -->
     <string name="google_spreadsheet_id_pref_label">Google Spreadsheet Id</string>
@@ -76,11 +77,15 @@
     <string name="currency_pref_label">Currency</string>
     <string name="exchange_rate_pref_label">Exchange Rate</string>
 
+    <!-- Categories preferences -->
+    <string name="categories_list_pref_label">Expense Categories (comma-separated)</string>
+
     <!-- Request Queue preferences -->
     <string name="request_queue_pref_key">request_queue_pref</string>
 
     <!-- Defaults -->
     <string name="default_currency">CAD</string>
     <string name="default_exchange_rate">1</string>
+    <string name="default_categories">Extra,Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film</string>
 
 </resources>

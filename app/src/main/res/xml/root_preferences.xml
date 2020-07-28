@@ -1,8 +1,14 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="@string/google_api_prefs_header">
+    <PreferenceCategory app:title="@string/categories_prefs_header">
+        <EditTextPreference
+            app:key="categories"
+            app:title="@string/categories_list_pref_label"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/google_api_prefs_header">
         <EditTextPreference
             app:key="google_spreadsheet_id"
             app:title="@string/google_spreadsheet_id_pref_label"
@@ -15,7 +21,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/currency_prefs_header">
-
         <EditTextPreference
             app:key="currency"
             app:title="@string/currency_pref_label"
