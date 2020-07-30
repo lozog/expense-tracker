@@ -6,20 +6,18 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.util.Log
 import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.preference.PreferenceManager
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse
+import com.google.common.reflect.Reflection.getPackageName
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 /**
  * Implementation of App Widget functionality.
@@ -172,7 +170,7 @@ class SummaryWidget : AppWidgetProvider() {
         val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
 
         Log.d(TAG, "month: ${Calendar.getInstance().get(Calendar.MONTH)}}")
-        val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13"
+        val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13" // TODO: I'm using rows 3-13 - remove this hardcoding
 
         if (GoogleSheetsInterface.spreadsheetService == null) {
             throw Exception("spreadsheet service is null")
@@ -185,21 +183,25 @@ class SummaryWidget : AppWidgetProvider() {
         return@async request.execute()
     }
 
-    private fun setWidgetValues(remoteViews: RemoteViews) {
-        // set the text for each of the hard-coded categories
+    private fun setWidgetValues(remoteViews: RemoteViews, context: Context) {
+        remoteViews.removeAllViews(R.id.summary_labels)
+        // set the text for each of the categories
+        categories.forEach { category ->
+            // https://stackoverflow.com/questions/9266710/adding-textviews-to-home-screen-widget-programmatically
+            val textView = RemoteViews(context.packageName, R.layout.summary_widget_textview)
+            textView.setTextViewText(R.id.widget_textview, category)
+            remoteViews.addView(R.id.summary_labels, textView)
+        }
+
+        // TODO: remove hardcoding for amounts and percentages
+        
         categoryIds.forEachIndexed {index, categoryId ->
-            remoteViews.setTextViewText(
-                categoryId,
-                amounts[index]
-            )
+            remoteViews.setTextViewText(categoryId, amounts[index])
         }
 
         // set the text for each of the hard-coded percentages
         categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
-            remoteViews.setTextViewText(
-                categoryPercentageId,
-                percentages[index]
-            )
+            remoteViews.setTextViewText(categoryPercentageId, percentages[index])
         }
 
         remoteViews.setTextViewText(
@@ -208,14 +210,14 @@ class SummaryWidget : AppWidgetProvider() {
         )
     }
 
-    private fun setWidgetStatus(remoteViews: RemoteViews) {
+    private fun setWidgetStatus(remoteViews: RemoteViews, context: Context) {
         remoteViews.setTextViewText(
             R.id.updated_at,
             widgetStatus
         )
     }
 
-    private fun updateWidget(context: Context, updateUIElements: (remoteViews: RemoteViews) -> Unit) {
+    private fun updateWidget(context: Context, updateUIElements: (remoteViews: RemoteViews, context: Context) -> Unit) {
         val appWidgetManager = AppWidgetManager.getInstance(
             context
                 .applicationContext
@@ -234,7 +236,7 @@ class SummaryWidget : AppWidgetProvider() {
                 R.layout.summary_widget
             )
 
-            updateUIElements(remoteViews)
+            updateUIElements(remoteViews, context)
 
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
