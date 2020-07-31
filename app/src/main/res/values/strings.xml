@@ -35,6 +35,8 @@
 
     <!-- Widget -->
     <string name="widget_status_never_updated">Never Updated</string>
+    <string name="widget_status_updating">Updating…</string>
+    <string name="widget_status_updated">Updated at %1$s</string>
 
     <!-- Settings activity link label -->
     <string name="title_activity_settings">Settings</string>

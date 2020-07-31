@@ -8,11 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.TextView
 import androidx.preference.PreferenceManager
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse
-import com.google.common.reflect.Reflection.getPackageName
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -26,8 +24,8 @@ class SummaryWidget : AppWidgetProvider() {
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
     private var percentages = ArrayList<String>()
-    private var widgetStatus: String = "Never updated" // TODO: replace with string resource
-    private var summarySheetName: String? = "" // TODO: replace with string resource
+    private var widgetStatus: String = ""
+    private var summarySheetName: String? = ""
 
     companion object {
         private const val TAG = "SUMMARY_WIDGET"
@@ -76,7 +74,7 @@ class SummaryWidget : AppWidgetProvider() {
 
         if (ACTION_UPDATE == intent.action) {
             Log.d(TAG, "button pressed")
-            widgetStatus = "Updating..."
+            widgetStatus = context.getString(R.string.widget_status_updating)
             updateWidget(context, ::setWidgetStatus)
 
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -192,7 +190,7 @@ class SummaryWidget : AppWidgetProvider() {
 
         remoteViews.setTextViewText(
             R.id.updated_at,
-            "Updated at " + getLocalizedDateTimeString() // TODO: move to resource string
+            context.getString(R.string.widget_status_updated, getLocalizedDateTimeString())
         )
     }
 
