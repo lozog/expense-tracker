@@ -377,7 +377,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         if (sheetName == null) {
-            Snackbar.make(view, getString(R.string.form_no_sheet_name), Snackbar.LENGTH_LONG)
+            Snackbar.make(view, getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
             return
         }

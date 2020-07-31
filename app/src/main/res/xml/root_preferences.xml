@@ -6,6 +6,11 @@
             app:key="categories"
             app:title="@string/categories_list_pref_label"
             app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="monthly_summary_sheet_name"
+            app:title="@string/monthly_summary_sheet_name_pref_label"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/google_api_prefs_header">
@@ -15,8 +20,8 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
-            app:key="google_sheet_name"
-            app:title="@string/google_sheet_name_pref_label"
+            app:key="data_sheet_name"
+            app:title="@string/data_sheet_name_pref_label"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 

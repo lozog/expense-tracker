@@ -52,7 +52,7 @@
             android:id="@+id/updated_at"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Never Updated"
+            android:text="@string/widget_status_never_updated"
             android:textColor="#ffffff"
             android:textSize="12sp" />
     </LinearLayout>

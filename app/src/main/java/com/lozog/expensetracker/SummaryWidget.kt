@@ -26,7 +26,8 @@ class SummaryWidget : AppWidgetProvider() {
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
     private var percentages = ArrayList<String>()
-    private var widgetStatus: String = "Never updated"
+    private var widgetStatus: String = "Never updated" // TODO: replace with string resource
+    private var summarySheetName: String? = "" // TODO: replace with string resource
 
     companion object {
         private const val TAG = "SUMMARY_WIDGET"
@@ -38,6 +39,9 @@ class SummaryWidget : AppWidgetProvider() {
         private val MONTH_COLUMNS = listOf(
             "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
         )
+
+        // first row of sheet that actually contains data (i.e. not a header)
+        private const val FIRST_DATA_ROW = 3;
     }
 
     private val parentJob = Job()
@@ -77,9 +81,16 @@ class SummaryWidget : AppWidgetProvider() {
 
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+            summarySheetName = sharedPreferences.getString("monthly_summary_sheet_name", "")
 
             if (spreadsheetId == null) {
                 widgetStatus = context.getString(R.string.form_no_spreadsheet_id)
+                updateWidget(context, ::setWidgetStatus)
+                return
+            }
+
+            if (summarySheetName == "") {
+                widgetStatus = context.getString(R.string.form_no_monthly_summary_sheet_name)
                 updateWidget(context, ::setWidgetStatus)
                 return
             }
@@ -136,13 +147,13 @@ class SummaryWidget : AppWidgetProvider() {
     private fun getMonthlyCategoryAmountsAsync(
         spreadsheetId: String
     ): Deferred<BatchGetValuesResponse> = coroutineScope.async (Dispatchers.IO) {
-        val categoryLabelsRange = "'Monthly Budget Items'!A3:A13"
-        val categoryTargetRange = "'Monthly Budget Items'!B3:B13"
+        val categoryLabelsRange = "'${summarySheetName}'!A${FIRST_DATA_ROW}:A"
+        val categoryTargetRange = "'${summarySheetName}'!B${FIRST_DATA_ROW}:B"
 
         val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
 
         Log.d(TAG, "month: ${Calendar.getInstance().get(Calendar.MONTH)}}")
-        val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13" // TODO: I'm using rows 3-13 - remove this hardcoding
+        val categoryValuesRange = "'${summarySheetName}'!${curMonthColumn}${FIRST_DATA_ROW}:${curMonthColumn}"
 
         if (GoogleSheetsInterface.spreadsheetService == null) {
             throw Exception("spreadsheet service is null")
@@ -156,10 +167,12 @@ class SummaryWidget : AppWidgetProvider() {
     }
 
     private fun setWidgetValues(remoteViews: RemoteViews, context: Context) {
+        // clear previous data
         remoteViews.removeAllViews(R.id.summary_labels)
-        // set the text for each of the categories
+        remoteViews.removeAllViews(R.id.summary_amounts)
+        remoteViews.removeAllViews(R.id.summary_percentages)
+
         categories.forEach { category ->
-            // https://stackoverflow.com/questions/9266710/adding-textviews-to-home-screen-widget-programmatically
             val textView = RemoteViews(context.packageName, R.layout.summary_widget_textview)
             textView.setTextViewText(R.id.widget_textview, category)
             remoteViews.addView(R.id.summary_labels, textView)
@@ -179,7 +192,7 @@ class SummaryWidget : AppWidgetProvider() {
 
         remoteViews.setTextViewText(
             R.id.updated_at,
-            "Updated at " + getLocalizedDateTimeString()
+            "Updated at " + getLocalizedDateTimeString() // TODO: move to resource string
         )
     }
 
