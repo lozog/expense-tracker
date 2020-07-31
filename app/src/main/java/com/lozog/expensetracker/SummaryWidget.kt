@@ -23,34 +23,6 @@ import java.util.*
  * Implementation of App Widget functionality.
  */
 class SummaryWidget : AppWidgetProvider() {
-    private val categoryIds = listOf(
-        R.id.summary_groceries,
-        R.id.summary_dining_out,
-        R.id.summary_drinks,
-        R.id.summary_material_items,
-        R.id.summary_entertainment,
-        R.id.summary_transit,
-        R.id.summary_personal_medical,
-        R.id.summary_gifts,
-        R.id.summary_travel,
-        R.id.summary_miscellaneous,
-        R.id.summary_film
-    )
-
-    private val categoryPercentageIds = listOf(
-        R.id.summary_groceries_percentage,
-        R.id.summary_dining_out_percentage,
-        R.id.summary_drinks_percentage,
-        R.id.summary_material_items_percentage,
-        R.id.summary_entertainment_percentage,
-        R.id.summary_transit_percentage,
-        R.id.summary_personal_medical_percentage,
-        R.id.summary_gifts_percentage,
-        R.id.summary_travel_percentage,
-        R.id.summary_miscellaneous_percentage,
-        R.id.summary_film_percentage
-    )
-
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
     private var percentages = ArrayList<String>()
@@ -193,15 +165,16 @@ class SummaryWidget : AppWidgetProvider() {
             remoteViews.addView(R.id.summary_labels, textView)
         }
 
-        // TODO: remove hardcoding for amounts and percentages
-        
-        categoryIds.forEachIndexed {index, categoryId ->
-            remoteViews.setTextViewText(categoryId, amounts[index])
+        amounts.forEach { amount ->
+            val textView = RemoteViews(context.packageName, R.layout.summary_widget_textview)
+            textView.setTextViewText(R.id.widget_textview, amount)
+            remoteViews.addView(R.id.summary_amounts, textView)
         }
 
-        // set the text for each of the hard-coded percentages
-        categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
-            remoteViews.setTextViewText(categoryPercentageId, percentages[index])
+        percentages.forEach { percentage ->
+            val textView = RemoteViews(context.packageName, R.layout.summary_widget_textview)
+            textView.setTextViewText(R.id.widget_textview, percentage)
+            remoteViews.addView(R.id.summary_percentages, textView)
         }
 
         remoteViews.setTextViewText(
