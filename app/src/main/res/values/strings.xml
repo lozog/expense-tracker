@@ -28,38 +28,15 @@
     <string name="form_no_category">Category cannot be blank</string>
     <string name="form_no_date">Date cannot be blank</string>
     <string name="form_no_spreadsheet_id">Set a spreadsheet Id</string>
-    <string name="form_no_sheet_name">Set a data sheet name</string>
+    <string name="form_no_monthly_summary_sheet_name">Set a monthly summary sheet name</string>
+    <string name="form_no_data_sheet_name">Set a data sheet name</string>
     <string name="form_no_currency">Set a currency</string>
     <string name="form_no_exchange_rate">Set an exchange rate</string>
 
-    <!-- Categories spinner options -->
-    <string-array name="categories_array">
-        <item>@string/category_label_groceries</item>
-        <item>@string/category_label_dining_out</item>
-        <item>@string/category_label_drinks</item>
-        <item>@string/category_label_material_items</item>
-        <item>@string/category_label_entertainment</item>
-        <item>@string/category_label_transit</item>
-        <item>@string/category_label_personal_medical</item>
-        <item>@string/category_label_gifts</item>
-        <item>@string/category_label_travel</item>
-        <item>@string/category_label_misc</item>
-        <item>@string/category_label_film</item>
-        <item>@string/category_label_other_income</item>
-    </string-array>
-
-    <string name="category_label_groceries">Groceries</string>
-    <string name="category_label_dining_out">Dining Out</string>
-    <string name="category_label_drinks">Drinks</string>
-    <string name="category_label_material_items">Material Items</string>
-    <string name="category_label_entertainment">Entertainment</string>
-    <string name="category_label_transit">Transit</string>
-    <string name="category_label_personal_medical">Personal/Medical</string>
-    <string name="category_label_gifts">Gifts</string>
-    <string name="category_label_travel">Travel</string>
-    <string name="category_label_misc">Miscellaneous</string>
-    <string name="category_label_film">Film</string>
-    <string name="category_label_other_income">Other Income</string>
+    <!-- Widget -->
+    <string name="widget_status_never_updated">Never Updated</string>
+    <string name="widget_status_updating">Updating…</string>
+    <string name="widget_status_updated">Updated at %1$s</string>
 
     <!-- Settings activity link label -->
     <string name="title_activity_settings">Settings</string>
@@ -67,14 +44,19 @@
     <!-- Preference Titles -->
     <string name="google_api_prefs_header">Google Sheets Settings</string>
     <string name="currency_prefs_header">Currency Defaults</string>
+    <string name="categories_prefs_header">Expense Categories</string>
 
     <!-- Google Sheets Preferences -->
     <string name="google_spreadsheet_id_pref_label">Google Spreadsheet Id</string>
-    <string name="google_sheet_name_pref_label">Data Sheet Name</string>
+    <string name="data_sheet_name_pref_label">Data Sheet Name</string>
 
     <!-- Defaults preferences -->
     <string name="currency_pref_label">Currency</string>
     <string name="exchange_rate_pref_label">Exchange Rate</string>
+
+    <!-- Categories preferences -->
+    <string name="categories_list_pref_label">Expense Categories (comma-separated)</string>
+    <string name="monthly_summary_sheet_name_pref_label">Monthly Summary Sheet Name</string>
 
     <!-- Request Queue preferences -->
     <string name="request_queue_pref_key">request_queue_pref</string>
@@ -82,5 +64,6 @@
     <!-- Defaults -->
     <string name="default_currency">CAD</string>
     <string name="default_exchange_rate">1</string>
+    <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Other Income</string>
 
 </resources>

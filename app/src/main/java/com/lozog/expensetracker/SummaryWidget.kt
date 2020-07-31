@@ -6,14 +6,9 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.preference.PreferenceManager
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse
 import kotlinx.coroutines.*
@@ -21,47 +16,20 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 /**
  * Implementation of App Widget functionality.
  */
 class SummaryWidget : AppWidgetProvider() {
-    private val categoryIds = listOf(
-        R.id.summary_groceries,
-        R.id.summary_dining_out,
-        R.id.summary_drinks,
-        R.id.summary_material_items,
-        R.id.summary_entertainment,
-        R.id.summary_transit,
-        R.id.summary_personal_medical,
-        R.id.summary_gifts,
-        R.id.summary_travel,
-        R.id.summary_miscellaneous,
-        R.id.summary_film
-    )
-
-    private val categoryPercentageIds = listOf(
-        R.id.summary_groceries_percentage,
-        R.id.summary_dining_out_percentage,
-        R.id.summary_drinks_percentage,
-        R.id.summary_material_items_percentage,
-        R.id.summary_entertainment_percentage,
-        R.id.summary_transit_percentage,
-        R.id.summary_personal_medical_percentage,
-        R.id.summary_gifts_percentage,
-        R.id.summary_travel_percentage,
-        R.id.summary_miscellaneous_percentage,
-        R.id.summary_film_percentage
-    )
-
     private var categories = ArrayList<String>()
     private var amounts = ArrayList<String>()
     private var percentages = ArrayList<String>()
-    private var widgetStatus: String = "Never updated"
+    private var widgetStatus: String = ""
+    private var summarySheetName: String? = ""
 
     companion object {
         private const val TAG = "SUMMARY_WIDGET"
         private const val ACTION_UPDATE = "action.UPDATE"
-
         private const val SHEETS_MAJOR_DIMENSION = "COLUMNS"
 
         // January -> column C, etc
@@ -69,6 +37,9 @@ class SummaryWidget : AppWidgetProvider() {
         private val MONTH_COLUMNS = listOf(
             "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
         )
+
+        // first row of sheet that actually contains data (i.e. not a header)
+        private const val FIRST_DATA_ROW = 3;
     }
 
     private val parentJob = Job()
@@ -103,14 +74,21 @@ class SummaryWidget : AppWidgetProvider() {
 
         if (ACTION_UPDATE == intent.action) {
             Log.d(TAG, "button pressed")
-            widgetStatus = "Updating..."
+            widgetStatus = context.getString(R.string.widget_status_updating)
             updateWidget(context, ::setWidgetStatus)
 
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+            summarySheetName = sharedPreferences.getString("monthly_summary_sheet_name", "")
 
             if (spreadsheetId == null) {
                 widgetStatus = context.getString(R.string.form_no_spreadsheet_id)
+                updateWidget(context, ::setWidgetStatus)
+                return
+            }
+
+            if (summarySheetName == "") {
+                widgetStatus = context.getString(R.string.form_no_monthly_summary_sheet_name)
                 updateWidget(context, ::setWidgetStatus)
                 return
             }
@@ -167,13 +145,13 @@ class SummaryWidget : AppWidgetProvider() {
     private fun getMonthlyCategoryAmountsAsync(
         spreadsheetId: String
     ): Deferred<BatchGetValuesResponse> = coroutineScope.async (Dispatchers.IO) {
-        val categoryLabelsRange = "'Monthly Budget Items'!A3:A13"
-        val categoryTargetRange = "'Monthly Budget Items'!B3:B13"
+        val categoryLabelsRange = "'${summarySheetName}'!A${FIRST_DATA_ROW}:A"
+        val categoryTargetRange = "'${summarySheetName}'!B${FIRST_DATA_ROW}:B"
 
         val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
 
         Log.d(TAG, "month: ${Calendar.getInstance().get(Calendar.MONTH)}}")
-        val categoryValuesRange = "'Monthly Budget Items'!${curMonthColumn}3:${curMonthColumn}13"
+        val categoryValuesRange = "'${summarySheetName}'!${curMonthColumn}${FIRST_DATA_ROW}:${curMonthColumn}"
 
         if (GoogleSheetsInterface.spreadsheetService == null) {
             throw Exception("spreadsheet service is null")
@@ -186,37 +164,44 @@ class SummaryWidget : AppWidgetProvider() {
         return@async request.execute()
     }
 
-    private fun setWidgetValues(remoteViews: RemoteViews) {
-        // set the text for each of the hard-coded categories
-        categoryIds.forEachIndexed {index, categoryId ->
-            remoteViews.setTextViewText(
-                categoryId,
-                amounts[index]
-            )
+    private fun setWidgetValues(remoteViews: RemoteViews, context: Context) {
+        // clear previous data
+        remoteViews.removeAllViews(R.id.summary_labels)
+        remoteViews.removeAllViews(R.id.summary_amounts)
+        remoteViews.removeAllViews(R.id.summary_percentages)
+
+        categories.forEach { category ->
+            val textView = RemoteViews(context.packageName, R.layout.summary_widget_textview)
+            textView.setTextViewText(R.id.widget_textview, category)
+            remoteViews.addView(R.id.summary_labels, textView)
         }
 
-        // set the text for each of the hard-coded percentages
-        categoryPercentageIds.forEachIndexed {index, categoryPercentageId ->
-            remoteViews.setTextViewText(
-                categoryPercentageId,
-                percentages[index]
-            )
+        amounts.forEach { amount ->
+            val textView = RemoteViews(context.packageName, R.layout.summary_widget_textview)
+            textView.setTextViewText(R.id.widget_textview, amount)
+            remoteViews.addView(R.id.summary_amounts, textView)
+        }
+
+        percentages.forEach { percentage ->
+            val textView = RemoteViews(context.packageName, R.layout.summary_widget_textview)
+            textView.setTextViewText(R.id.widget_textview, percentage)
+            remoteViews.addView(R.id.summary_percentages, textView)
         }
 
         remoteViews.setTextViewText(
             R.id.updated_at,
-            "Updated at " + getLocalizedDateTimeString()
+            context.getString(R.string.widget_status_updated, getLocalizedDateTimeString())
         )
     }
 
-    private fun setWidgetStatus(remoteViews: RemoteViews) {
+    private fun setWidgetStatus(remoteViews: RemoteViews, context: Context) {
         remoteViews.setTextViewText(
             R.id.updated_at,
             widgetStatus
         )
     }
 
-    private fun updateWidget(context: Context, updateUIElements: (remoteViews: RemoteViews) -> Unit) {
+    private fun updateWidget(context: Context, updateUIElements: (remoteViews: RemoteViews, context: Context) -> Unit) {
         val appWidgetManager = AppWidgetManager.getInstance(
             context
                 .applicationContext
@@ -235,7 +220,7 @@ class SummaryWidget : AppWidgetProvider() {
                 R.layout.summary_widget
             )
 
-            updateUIElements(remoteViews)
+            updateUIElements(remoteViews, context)
 
             appWidgetManager.updateAppWidget(widgetId, remoteViews)
         }
