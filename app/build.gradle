@@ -27,6 +27,13 @@ android {
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
@@ -44,7 +51,7 @@ dependencies {
 
     implementation 'androidx.preference:preference:1.1.0'
     testImplementation 'junit:junit:4.12'
-    implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.google.android.gms:play-services-auth:19.2.0'
 
     implementation('com.google.api-client:google-api-client-android:1.30.8') {
         exclude group: 'org.apache.httpcomponents'

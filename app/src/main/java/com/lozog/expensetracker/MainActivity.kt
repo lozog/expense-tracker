@@ -368,7 +368,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val sheetName = sharedPreferences.getString("google_sheet_name", null)
+        val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
         if (spreadsheetId == null) {
             Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
