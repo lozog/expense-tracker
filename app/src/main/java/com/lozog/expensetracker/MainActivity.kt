@@ -311,7 +311,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun getCategorySpendingAsync(
         spreadsheetId: String,
-        sheetName: String,
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async (Dispatchers.IO) {
         Log.d(TAG, "getCategorySpending")
@@ -320,7 +319,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
 
-        val overviewSheetName = "Overview"
+        if (categoryCell == null) {
+            Log.e(TAG, "Category $expenseCategoryValue not found")
+            return@async "$??"
+        }
+
+        val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
 
         val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
         val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, categorySpendingCell).execute().getValues()
@@ -403,7 +407,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun insertRowIntoDBAsync(
         addRowRequest: AddRowRequest
     ): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-        Log.d(TAG, "insertRowIntoDBAsync")
+//        Log.d(TAG, "insertRowIntoDBAsync")
 
         addRowRequestDB.addRowRequestDao().insert(addRowRequest)
 
@@ -417,7 +421,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.launch (Dispatchers.IO) {
-        Log.d(TAG, "deleteRowAsync: deleting queued request with id ${addRowRequest.id}")
+//        Log.d(TAG, "deleteRowAsync: deleting queued request with id ${addRowRequest.id}")
 
         addRowRequestDB.addRowRequestDao().delete(addRowRequest)
     }
@@ -497,18 +501,16 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                         exchangeRate
                     ).await()
 
-                    clearInputs()
-
-//                    val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
-//                    statusText = getString(R.string.status_updated_range, updatedRange)
-
-                    val spentSoFar = getCategorySpendingAsync(spreadsheetId, sheetName, expenseCategoryValue).await()
+                    val spentSoFar = getCategorySpendingAsync(spreadsheetId, expenseCategoryValue).await()
                     statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
+
+                    clearInputs()
                 } catch (e: UserRecoverableAuthIOException) {
+                    Log.e(TAG, getString(R.string.status_need_permission))
                     startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
                     statusText = getString(R.string.status_need_permission)
                 } catch (e: IOException) {
-                    Log.d(TAG, e.toString())
+                    Log.e(TAG, e.toString())
                     statusText = getString(R.string.status_google_error)
                 }
 
@@ -574,9 +576,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     deleteRowAsync(addRowRequest)
                 } catch (e: UserRecoverableAuthIOException) {
                     startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
-                    Log.d(TAG,  getString(R.string.status_need_permission))
+                    Log.e(TAG, getString(R.string.status_need_permission))
                 } catch (e: IOException) {
-                    Log.d(TAG,  getString(R.string.status_google_error))
+                    Log.e(TAG, getString(R.string.status_google_error))
                 } finally {
                     Log.d(TAG, "creating notification of sent requests")
 
