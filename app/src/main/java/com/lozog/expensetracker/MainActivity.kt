@@ -1,10 +1,13 @@
 package com.lozog.expensetracker
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -13,6 +16,8 @@ import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -78,6 +83,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
+
+        private const val QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID = "queued_request"
 
         // January -> column C, etc
         // TODO: dynamically find month columns
@@ -162,6 +169,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         networkReceiver = NetworkReceiver()
         registerReceiver(networkReceiver, filter)
+
+        createNotificationChannel()
     }
 
     override fun onStart() {
@@ -318,12 +327,29 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, categorySpendingCell).execute().getValues()
 
         val spentSoFar = data[0][0].toString()
-        Log.d(TAG, spentSoFar)
+//        Log.d(TAG, "$spentSoFar spent so far in $expenseCategoryValue")
 
         return@async spentSoFar
     }
 
     /********** HELPER METHODS **********/
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notification_queued_requests_channel_name)
+            val descriptionText = getString(R.string.notification_queued_requests_channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
 
     private fun hideKeyboard(view: View) {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -386,13 +412,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun getAllRowsAsync(): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-        Log.d(TAG, "getAllRowsAsync")
+//        Log.d(TAG, "getAllRowsAsync")
 
         return@async addRowRequestDB.addRowRequestDao().getAll()
     }
 
     private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.launch (Dispatchers.IO) {
-        Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
+        Log.d(TAG, "deleteRowAsync: deleting queued request with id ${addRowRequest.id}")
 
         addRowRequestDB.addRowRequestDao().delete(addRowRequest)
     }
@@ -551,6 +577,20 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     Log.d(TAG,  getString(R.string.status_need_permission))
                 } catch (e: IOException) {
                     Log.d(TAG,  getString(R.string.status_no_google_connection))
+                } finally {
+                    Log.d(TAG, "creating notification of sent requests")
+
+                    val builder = NotificationCompat.Builder(this@MainActivity, QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle(getString(R.string.notification_queued_requests_title))
+                        .setContentText(getString(R.string.notification_queued_requests_content, addRowRequest.expenseItem))
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+                    with(NotificationManagerCompat.from(this@MainActivity)) {
+                        // notificationId is a unique int for each notification that you must define
+                        val notificationId = 0; // I'm using the same id for each notification, so it only shows the last one
+                        notify(notificationId, builder.build())
+                    }
                 }
             }
         }

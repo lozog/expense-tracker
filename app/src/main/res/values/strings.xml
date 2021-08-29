@@ -18,7 +18,6 @@
 
     <!-- Status messages -->
     <string name="status_no_internet">No internet connection - saved request for later</string>
-    <string name="status_updated_range">Updated range: %1$s</string>
     <string name="status_need_permission">Error: App needs Google permission</string>
     <string name="status_no_google_connection">Error: Couldn\'t connect to Google</string>
     <string name="status_spent_so_far">Spent %1$s on %2$s</string>
@@ -66,5 +65,11 @@
     <string name="default_currency">CAD</string>
     <string name="default_exchange_rate">1</string>
     <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Other Income</string>
+
+    <!-- Notifications -->
+    <string name="notification_queued_requests_channel_name">Queued Requests</string>
+    <string name="notification_queued_requests_channel_description">Notifications for queued requests being sent to the sheet</string>
+    <string name="notification_queued_requests_title">Sent queued request</string>
+    <string name="notification_queued_requests_content">%1$s sent to sheet</string>
 
 </resources>
