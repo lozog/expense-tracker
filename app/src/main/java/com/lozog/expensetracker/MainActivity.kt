@@ -84,6 +84,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
 
+        private const val QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID = "queued_request"
+
         // January -> column C, etc
         // TODO: dynamically find month columns
         private val MONTH_COLUMNS = listOf(
@@ -336,10 +338,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "notification name"
-            val descriptionText = "notification description"
+            val name = getString(R.string.notification_queued_requests_channel_name)
+            val descriptionText = getString(R.string.notification_queued_requests_channel_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            val channel = NotificationChannel(QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
             // Register the channel with the system
@@ -348,7 +350,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             notificationManager.createNotificationChannel(channel)
         }
     }
-
 
     private fun hideKeyboard(view: View) {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -411,13 +412,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun getAllRowsAsync(): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-        Log.d(TAG, "getAllRowsAsync")
+//        Log.d(TAG, "getAllRowsAsync")
 
         return@async addRowRequestDB.addRowRequestDao().getAll()
     }
 
     private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.launch (Dispatchers.IO) {
-        Log.d(TAG, "deleteRowAsync: ${addRowRequest.id}")
+        Log.d(TAG, "deleteRowAsync: deleting queued request with id ${addRowRequest.id}")
 
         addRowRequestDB.addRowRequestDao().delete(addRowRequest)
     }
@@ -579,16 +580,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 } finally {
                     Log.d(TAG, "creating notification of sent requests")
 
-                    // TODO: follow https://developer.android.com/training/notify-user/build-notification#kts
-                    var builder = NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle(textTitle)
-                        .setContentText(textContent)
+                    val builder = NotificationCompat.Builder(this@MainActivity, QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle(getString(R.string.notification_queued_requests_title))
+                        .setContentText(getString(R.string.notification_queued_requests_content, addRowRequest.expenseItem))
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
-
-                    with(NotificationManagerCompat.from(this)) {
+                    with(NotificationManagerCompat.from(this@MainActivity)) {
                         // notificationId is a unique int for each notification that you must define
+                        val notificationId = 0; // I'm using the same id for each notification, so it only shows the last one
                         notify(notificationId, builder.build())
                     }
                 }
