@@ -19,7 +19,7 @@
     <!-- Status messages -->
     <string name="status_no_internet">No internet connection - saved request for later</string>
     <string name="status_need_permission">Error: App needs Google permission</string>
-    <string name="status_no_google_connection">Error: Couldn\'t connect to Google</string>
+    <string name="status_google_error">Error: Google Error</string>
     <string name="status_spent_so_far">Spent %1$s on %2$s</string>
 
     <!-- Form validation -->
@@ -64,7 +64,7 @@
     <!-- Defaults -->
     <string name="default_currency">CAD</string>
     <string name="default_exchange_rate">1</string>
-    <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Other Income</string>
+    <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Household,Other Income</string>
 
     <!-- Notifications -->
     <string name="notification_queued_requests_channel_name">Queued Requests</string>

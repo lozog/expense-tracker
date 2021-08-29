@@ -130,12 +130,12 @@ class SummaryWidget : AppWidgetProvider() {
                     widgetStatus = context.getString(R.string.status_need_permission)
                     updateWidget(context, ::setWidgetStatus)
                 } catch (e: IOException) {
-                    Log.d(TAG, context.getString(R.string.status_no_google_connection))
-                    widgetStatus = context.getString(R.string.status_no_google_connection)
+                    Log.d(TAG, e.toString())
+                    widgetStatus = context.getString(R.string.status_google_error)
                     updateWidget(context, ::setWidgetStatus)
                 } catch (e: Exception) {
-                    Log.d(TAG, e.message.toString())
-                    widgetStatus = e.message.toString()
+                    Log.d(TAG, e.toString())
+                    widgetStatus = e.toString()
                     updateWidget(context, ::setWidgetStatus)
                 }
             }

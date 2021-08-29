@@ -104,7 +104,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             "Gifts" to "27",
             "Travel" to "28",
             "Miscellaneous" to "29",
-            "Film" to "30"
+            "Film" to "30",
+            "Household" to "30"
         )
     }
 
@@ -127,20 +128,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         signInButton = findViewById(R.id.sign_in_button)
         submitButton = findViewById(R.id.expenseSubmitButton)
         statusTextView = findViewById(R.id.statusText)
-
-        // Set default value of expenseDate input as today's date
-        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        expenseDate.setText(todayDate)
-
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val userCategories = sharedPreferences.getString("categories", getString(R.string.default_categories))!!.split(",")
-
-        // Set up the categories dropdown
-        val categoriesAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, userCategories)
-        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        expenseCategory.adapter = categoriesAdapter
-
-        expenseCategory.onItemSelectedListener = this
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -184,6 +171,18 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         if (account != null) {
             onSignInSuccess(account)
         }
+
+        // Set default value of expenseDate input as today's date
+        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        expenseDate.setText(todayDate)
+
+        // Set up the categories dropdown
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val userCategories = sharedPreferences.getString("categories", getString(R.string.default_categories))!!.split(",")
+        val categoriesAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, userCategories)
+        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        expenseCategory.adapter = categoriesAdapter
+        expenseCategory.onItemSelectedListener = this
     }
 
     override fun onResume() {
@@ -509,7 +508,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
                     statusText = getString(R.string.status_need_permission)
                 } catch (e: IOException) {
-                    statusText = getString(R.string.status_no_google_connection)
+                    Log.d(TAG, e.toString())
+                    statusText = getString(R.string.status_google_error)
                 }
 
                 Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
@@ -576,7 +576,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
                     Log.d(TAG,  getString(R.string.status_need_permission))
                 } catch (e: IOException) {
-                    Log.d(TAG,  getString(R.string.status_no_google_connection))
+                    Log.d(TAG,  getString(R.string.status_google_error))
                 } finally {
                     Log.d(TAG, "creating notification of sent requests")
 
