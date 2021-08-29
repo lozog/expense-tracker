@@ -78,6 +78,27 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
+
+        // January -> column C, etc
+        // TODO: dynamically find month columns
+        private val MONTH_COLUMNS = listOf(
+            "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
+        )
+
+        // TODO: dynamically find category cell
+        private val CATEGORY_ROW_MAP = mapOf(
+            "Groceries" to "20",
+            "Dining Out" to "21",
+            "Drinks" to "22",
+            "Material Items" to "23",
+            "Entertainment" to "24",
+            "Transit" to "25",
+            "Personal/Medical" to "26",
+            "Gifts" to "27",
+            "Travel" to "28",
+            "Miscellaneous" to "29",
+            "Film" to "30"
+        )
     }
 
     /********** OVERRIDE METHODS **********/
@@ -271,13 +292,35 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
         ))
         val requestBody = ValueRange()
-        requestBody.setValues(rowData as MutableList<MutableList<Any>>?)
+        requestBody.setValues(rowData as List<MutableList<String>>?)
 
         val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
         request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
         request.insertDataOption = SHEETS_INSERT_DATA_OPTION
 
         return@async request.execute()
+    }
+
+    private fun getCategorySpendingAsync(
+        spreadsheetId: String,
+        sheetName: String,
+        expenseCategoryValue: String
+    ): Deferred<String> = coroutineScope.async (Dispatchers.IO) {
+        Log.d(TAG, "getCategorySpending")
+
+        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
+
+        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
+
+        val overviewSheetName = "Overview"
+
+        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
+        val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, categorySpendingCell).execute().getValues()
+
+        val spentSoFar = data[0][0].toString()
+        Log.d(TAG, spentSoFar)
+
+        return@async spentSoFar
     }
 
     /********** HELPER METHODS **********/
@@ -415,7 +458,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 var statusText: String
 
                 try {
-                    val appendResponse = addExpenseRowToSheetAsync(
+//                    val appendResponse = addExpenseRowToSheetAsync(
+                     addExpenseRowToSheetAsync(
                         spreadsheetId,
                         sheetName,
                         expenseDate.text.toString(),
@@ -430,8 +474,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                     clearInputs()
 
-                    val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
-                    statusText = getString(R.string.status_updated_range, updatedRange)
+//                    val updatedRange = appendResponse.updates.updatedRange.split("!")[1]
+//                    statusText = getString(R.string.status_updated_range, updatedRange)
+
+                    val spentSoFar = getCategorySpendingAsync(spreadsheetId, sheetName, expenseCategoryValue).await()
+                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 } catch (e: UserRecoverableAuthIOException) {
                     startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
                     statusText = getString(R.string.status_need_permission)
@@ -478,12 +525,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             return
         }
 
-        Log.d(TAG, "sending queued requests")
-
         coroutineScope.launch (Dispatchers.Main) {
             val queuedRequests = getAllRowsAsync().await()
 
             queuedRequests.forEach { addRowRequest ->
+                Log.d(TAG, "sending queued requests")
+
                 try {
                     addExpenseRowToSheetAsync(
                         addRowRequest.spreadsheetId,

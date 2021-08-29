@@ -33,7 +33,7 @@ class SummaryWidget : AppWidgetProvider() {
         private const val SHEETS_MAJOR_DIMENSION = "COLUMNS"
 
         // January -> column C, etc
-        // TODO: this sucks, make it better
+        // TODO: dynamically find month columns
         private val MONTH_COLUMNS = listOf(
             "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
         )

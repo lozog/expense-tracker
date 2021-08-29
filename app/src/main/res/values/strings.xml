@@ -21,6 +21,7 @@
     <string name="status_updated_range">Updated range: %1$s</string>
     <string name="status_need_permission">Error: App needs Google permission</string>
     <string name="status_no_google_connection">Error: Couldn\'t connect to Google</string>
+    <string name="status_spent_so_far">Spent %1$s on %2$s</string>
 
     <!-- Form validation -->
     <string name="form_no_item">Item cannot be blank</string>
