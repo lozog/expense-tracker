@@ -105,7 +105,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             "Travel" to "28",
             "Miscellaneous" to "29",
             "Film" to "30",
-            "Household" to "30"
+            "Household" to "30",
+            "Other Income" to "5"
         )
     }
 
