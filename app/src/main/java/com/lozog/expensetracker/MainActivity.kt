@@ -180,7 +180,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Set up the categories dropdown
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val userCategories = sharedPreferences.getString("categories", getString(R.string.default_categories))!!.split(",")
-        val categoriesAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, userCategories)
+        val categoriesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, userCategories)
         categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         expenseCategory.adapter = categoriesAdapter
         expenseCategory.onItemSelectedListener = this
@@ -591,7 +591,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                     with(NotificationManagerCompat.from(this@MainActivity)) {
                         // notificationId is a unique int for each notification that you must define
-                        val notificationId = 0; // I'm using the same id for each notification, so it only shows the last one
+                        val notificationId = 0 // I'm using the same id for each notification, so it only shows the last one
                         notify(notificationId, builder.build())
                     }
                 }
