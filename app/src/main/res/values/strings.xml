@@ -11,10 +11,11 @@
     <string name="expense_notes">Notes</string>
     <string name="currency_label">Currency</string>
     <string name="currency_exchange_rate">Exchange Rate</string>
-    <string name="button_expense_submit">Submit</string>
 
     <!-- Button text -->
+    <string name="button_expense_submit">Submit</string>
     <string name="button_expense_submitting">Submitting…</string>
+    <string name="button_sign_out">Sign Out</string>
 
     <!-- Status messages -->
     <string name="status_no_internet">No internet connection - saved request for later</string>

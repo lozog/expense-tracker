@@ -37,7 +37,7 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.main_activity.*
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
     private lateinit var signInButton: SignInButton
+    private lateinit var signOutButton: Button
     private lateinit var submitButton: Button
     private lateinit var statusTextView: TextView
 
@@ -114,7 +115,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.main_activity)
         setSupportActionBar(toolbar)
 
         // UI element handles
@@ -127,6 +128,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         currencyLabel = findViewById(R.id.currencyLabel)
         currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
         signInButton = findViewById(R.id.sign_in_button)
+        signOutButton = findViewById(R.id.sign_out_button)
         submitButton = findViewById(R.id.expenseSubmitButton)
         statusTextView = findViewById(R.id.statusText)
 
@@ -145,6 +147,21 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 R.id.sign_in_button -> {
                     val signInIntent = mGoogleSignInClient.signInIntent
                     startActivityForResult(signInIntent, RC_SIGN_IN)
+                }
+            }
+        }
+
+        signOutButton.setOnClickListener{view ->
+            when (view.id) {
+                R.id.sign_out_button -> {
+                    mGoogleSignInClient.signOut()
+                        .addOnCompleteListener(this) {
+                            Log.d(TAG, "signing out")
+                            finish();
+                            overridePendingTransition(0, 0);
+                            startActivity(intent);
+                            overridePendingTransition(0, 0);
+                        }
                 }
             }
         }
@@ -256,8 +273,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun onSignInSuccess(account: GoogleSignInAccount) {
-//        googleSheetsInterface.googleAccount = account
-
         Log.d(TAG, "signed into account: " + account.email)
 
         val httpTransport = NetHttpTransport()
@@ -274,8 +289,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         // remove Google Sign-in button from view if already signed in
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-        val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
-        contentMainLayout.removeView(signInButton)
+        val formContentLayout = findViewById<ConstraintLayout>(R.id.form_content_layout)
+        formContentLayout.removeView(signInButton)
     }
 
     /********** GOOGLE SHEETS METHODS **********/
