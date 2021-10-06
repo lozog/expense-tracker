@@ -127,8 +127,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         expenseNotes = findViewById(R.id.expenseNotes)
         currencyLabel = findViewById(R.id.currencyLabel)
         currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
-        signInButton = findViewById(R.id.sign_in_button)
-        signOutButton = findViewById(R.id.sign_out_button)
+        signInButton = findViewById(R.id.signInButton)
+        signOutButton = findViewById(R.id.signOutButton)
         submitButton = findViewById(R.id.expenseSubmitButton)
         statusTextView = findViewById(R.id.statusText)
 
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         signInButton.setOnClickListener{view ->
             when (view.id) {
-                R.id.sign_in_button -> {
+                R.id.signInButton -> {
                     val signInIntent = mGoogleSignInClient.signInIntent
                     startActivityForResult(signInIntent, RC_SIGN_IN)
                 }
@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         signOutButton.setOnClickListener{view ->
             when (view.id) {
-                R.id.sign_out_button -> {
+                R.id.signOutButton -> {
                     mGoogleSignInClient.signOut()
                         .addOnCompleteListener(this) {
                             Log.d(TAG, "signing out")
@@ -288,8 +288,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         GoogleSheetsInterface.spreadsheetService = sheetService
 
         // remove Google Sign-in button from view if already signed in
-        val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-        val formContentLayout = findViewById<ConstraintLayout>(R.id.form_content_layout)
+        val signInButton = findViewById<SignInButton>(R.id.signInButton)
+        val formContentLayout = findViewById<ConstraintLayout>(R.id.formContentLayout)
         formContentLayout.removeView(signInButton)
     }
 
