@@ -157,10 +157,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     mGoogleSignInClient.signOut()
                         .addOnCompleteListener(this) {
                             Log.d(TAG, "signing out")
-                            finish();
-                            overridePendingTransition(0, 0);
-                            startActivity(intent);
-                            overridePendingTransition(0, 0);
+                            finish()
+                            overridePendingTransition(0, 0)
+                            startActivity(intent)
+                            overridePendingTransition(0, 0)
                         }
                 }
             }
@@ -287,10 +287,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         GoogleSheetsInterface.googleAccount = account
         GoogleSheetsInterface.spreadsheetService = sheetService
 
-        // remove Google Sign-in button from view if already signed in
         val signInButton = findViewById<SignInButton>(R.id.signInButton)
-        val formContentLayout = findViewById<ConstraintLayout>(R.id.formContentLayout)
-        formContentLayout.removeView(signInButton)
+        signInButton.visibility = View.GONE
+        val signOutButton = findViewById<Button>(R.id.signOutButton)
+        signOutButton.visibility = View.VISIBLE
     }
 
     /********** GOOGLE SHEETS METHODS **********/
