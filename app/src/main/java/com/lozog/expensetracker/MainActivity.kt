@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
     private lateinit var signInButton: SignInButton
+    private lateinit var signOutButton: Button
     private lateinit var submitButton: Button
     private lateinit var statusTextView: TextView
 
@@ -127,6 +128,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         currencyLabel = findViewById(R.id.currencyLabel)
         currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
         signInButton = findViewById(R.id.sign_in_button)
+        signOutButton = findViewById(R.id.sign_out_button)
         submitButton = findViewById(R.id.expenseSubmitButton)
         statusTextView = findViewById(R.id.statusText)
 
@@ -146,6 +148,22 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     val signInIntent = mGoogleSignInClient.signInIntent
                     startActivityForResult(signInIntent, RC_SIGN_IN)
                 }
+            }
+        }
+
+        signOutButton.setOnClickListener{view ->
+            when (view.id) {
+                R.id.sign_out_button -> {
+                    mGoogleSignInClient.signOut()
+                        .addOnCompleteListener(this) {
+                            Log.d(TAG, "signing out")
+                            finish();
+                            overridePendingTransition(0, 0);
+                            startActivity(intent);
+                            overridePendingTransition(0, 0);
+                        }
+                }
+
             }
         }
 
