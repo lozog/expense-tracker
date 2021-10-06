@@ -163,7 +163,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                             overridePendingTransition(0, 0);
                         }
                 }
-
             }
         }
 
@@ -274,8 +273,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun onSignInSuccess(account: GoogleSignInAccount) {
-//        googleSheetsInterface.googleAccount = account
-
         Log.d(TAG, "signed into account: " + account.email)
 
         val httpTransport = NetHttpTransport()
@@ -292,8 +289,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         // remove Google Sign-in button from view if already signed in
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-        val contentMainLayout = findViewById<ConstraintLayout>(R.id.content_main_layout)
-        contentMainLayout.removeView(signInButton)
+        val formContentLayout = findViewById<ConstraintLayout>(R.id.form_content_layout)
+        formContentLayout.removeView(signInButton)
     }
 
     /********** GOOGLE SHEETS METHODS **********/
