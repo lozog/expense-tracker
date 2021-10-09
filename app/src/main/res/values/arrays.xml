@@ -1,3 +1,17 @@
 <resources>
-
+    <string-array name="categories">
+        <item>Groceries</item>
+        <item>Dining Out</item>
+        <item>Drinks</item>
+        <item>Material Items</item>
+        <item>Entertainment</item>
+        <item>Transit</item>
+        <item>Personal/Medical</item>
+        <item>Gifts</item>
+        <item>Travel</item>
+        <item>Miscellaneous</item>
+        <item>Film</item>
+        <item>Household</item>
+        <item>Other Income</item>
+    </string-array>
 </resources>
