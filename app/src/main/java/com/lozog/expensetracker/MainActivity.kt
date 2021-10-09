@@ -1,8 +1,10 @@
 package com.lozog.expensetracker
 
+import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
@@ -45,11 +47,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     /********** UI Widgets **********/
     private lateinit var expenseItem: EditText
-    private lateinit var expenseCategory: Spinner
+    private lateinit var expenseCategory: Button
     private lateinit var expenseAmount: EditText
     private lateinit var expenseAmountOthers: EditText
     private lateinit var expenseDate: EditText
@@ -110,6 +112,21 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             "Household" to "31",
             "Other Income" to "5"
         )
+        private val CATEGORIES = arrayOf(
+            "Groceries",
+            "Dining Out",
+            "Drinks",
+            "Material Items",
+            "Entertainment",
+            "Transit",
+            "Personal/Medical",
+            "Gifts",
+            "Travel",
+            "Miscellaneous",
+            "Film",
+            "Household",
+            "Other Income"
+        )
     }
 
     /********** OVERRIDE METHODS **********/
@@ -168,6 +185,22 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             }
         }
 
+        expenseCategory.setOnClickListener{view ->
+            when (view.id) {
+                R.id.expenseCategory -> {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle(R.string.expense_category)
+                    builder.setItems(R.array.categories) {_, which ->
+                        Log.d(TAG, "chose ${CATEGORIES[which]} as the category")
+                        expenseCategoryValue = CATEGORIES[which]
+                        expenseCategory.text = expenseCategoryValue
+                    }
+                    val dialog = builder.create()
+                    dialog.show()
+                }
+            }
+        }
+
         addRowRequestDB = Room.databaseBuilder(
             applicationContext,
             AddRowRequestDB::class.java, "add-row-request-db"
@@ -178,6 +211,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         registerReceiver(networkReceiver, filter)
 
         createNotificationChannel()
+
+        // set default category
+        expenseCategory.text = CATEGORIES[0]
     }
 
     override fun onStart() {
@@ -195,14 +231,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         expenseDate.setText(todayDate)
-
-        // Set up the categories dropdown
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val userCategories = sharedPreferences.getString("categories", getString(R.string.default_categories))!!.split(",")
-        val categoriesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, userCategories)
-        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        expenseCategory.adapter = categoriesAdapter
-        expenseCategory.onItemSelectedListener = this
     }
 
     override fun onResume() {
@@ -218,14 +246,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         this.unregisterReceiver(networkReceiver)
     }
 
-    override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
-        expenseCategoryValue = parent.getItemAtPosition(pos).toString()
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>) {
-        expenseCategoryValue = ""
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -236,7 +256,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
         }
-//        else if (requestCode == RC_REQUEST_AUTHORIZATION) {}
+        else if (requestCode == RC_REQUEST_AUTHORIZATION) {
+            Log.e(TAG, "unhandled authorization request: $data")
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -391,11 +413,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         if (expenseAmount.text.isBlank()) {
             expenseAmount.error = getString(R.string.form_no_amount)
-            isValid = false
-        }
-
-        if (expenseCategoryValue.isBlank()) {
-            (expenseCategory.selectedView as TextView).error = getString(R.string.form_no_category)
             isValid = false
         }
 
