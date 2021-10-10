@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
@@ -146,7 +147,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        setSupportActionBar(toolbar)
+//        setSupportActionBar(toolbar)
 
 //        // UI element handles
 //        expenseItem = findViewById(R.id.expenseItem)
@@ -299,12 +300,21 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, "unhandled authorization request: $data")
         }
     }
-//
+
 //    override fun onCreateOptionsMenu(menu: Menu): Boolean {
 //        // Inflate the menu; this adds items to the action bar if it is present.
 //        menuInflater.inflate(R.menu.menu_main, menu)
 //        return true
 //    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        Log.d(TAG, "item: $item")
+//        val navHostFragment =
+//            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
+//        return NavigationUI.onNavDestinationSelected(item, navHostFragment.navController)
+//                || super.onOptionsItemSelected(item)
+//    }
+
 //
 //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 //        // Handle action bar item clicks here. The action bar will
