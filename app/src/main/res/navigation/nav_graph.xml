@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/form">
+
+    <activity
+        android:id="@+id/form"
+        android:name="com.lozog.expensetracker.MainActivity"
+        android:label="main_activity"
+        tools:layout="@layout/main_activity" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.lozog.expensetracker.SettingsActivity$SettingsFragment"
+        android:label="SettingsFragment" />
+
+</navigation>
