@@ -5,15 +5,16 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/form">
 
-    <activity
+    <fragment
         android:id="@+id/form"
-        android:name="com.lozog.expensetracker.MainActivity"
-        android:label="main_activity"
-        tools:layout="@layout/main_activity" />
+        android:name="com.lozog.expensetracker.ui.FormFragment"
+        android:label="FormFragment"
+        tools:layout="@layout/fragment_form" />
 
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.lozog.expensetracker.SettingsActivity$SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="SettingsFragment"
+        tools:layout="@layout/settings_activity"/>
 
 </navigation>

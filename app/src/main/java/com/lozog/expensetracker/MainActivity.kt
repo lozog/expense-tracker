@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -57,26 +58,26 @@ import com.lozog.expensetracker.databinding.MainActivityBinding // generated bas
 
 class MainActivity : AppCompatActivity() {
 
-    /********** UI Widgets **********/
-    private lateinit var expenseItem: EditText
-    private lateinit var expenseCategory: Button
-    private lateinit var expenseAmount: EditText
-    private lateinit var expenseAmountOthers: EditText
-    private lateinit var expenseDate: EditText
-    private lateinit var expenseNotes: EditText
-    private lateinit var currencyLabel: EditText
-    private lateinit var currencyExchangeRate: EditText
+//    /********** UI Widgets **********/
+//    private lateinit var expenseItem: EditText
+//    private lateinit var expenseCategory: Button
+//    private lateinit var expenseAmount: EditText
+//    private lateinit var expenseAmountOthers: EditText
+//    private lateinit var expenseDate: EditText
+//    private lateinit var expenseNotes: EditText
+//    private lateinit var currencyLabel: EditText
+//    private lateinit var currencyExchangeRate: EditText
     private lateinit var signInButton: SignInButton
     private lateinit var signOutButton: Button
-    private lateinit var submitButton: Button
-    private lateinit var statusTextView: TextView
-
-    private var expenseCategoryValue: String = ""
+//    private lateinit var submitButton: Button
+//    private lateinit var statusTextView: TextView
+//
+//    private var expenseCategoryValue: String = ""
 
     private lateinit var binding: MainActivityBinding
 
     /********** GOOGLE SIGN-IN **********/
-    private lateinit var mGoogleSignInClient: GoogleSignInClient
+    lateinit var mGoogleSignInClient: GoogleSignInClient
 
     /********** ROOM DB **********/
     private lateinit var addRowRequestDB: AddRowRequestDB
@@ -84,13 +85,46 @@ class MainActivity : AppCompatActivity() {
 
     /********** CONCURRENCY **********/
     private val parentJob = Job()
-    private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
+    val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
+
+    // TODO: dynamically find category cell
+    private val CATEGORY_ROW_MAP = mapOf(
+        "Groceries" to "20",
+        "Dining Out" to "21",
+        "Drinks" to "22",
+        "Material Items" to "23",
+        "Entertainment" to "24",
+        "Transit" to "25",
+        "Personal/Medical" to "26",
+        "Gifts" to "27",
+        "Travel" to "28",
+        "Miscellaneous" to "29",
+        "Film" to "30",
+        "Household" to "31",
+        "Other Income" to "5"
+    )
+    val CATEGORIES = arrayOf(
+        "Groceries",
+        "Dining Out",
+        "Drinks",
+        "Material Items",
+        "Entertainment",
+        "Transit",
+        "Personal/Medical",
+        "Gifts",
+        "Travel",
+        "Miscellaneous",
+        "Film",
+        "Household",
+        "Other Income"
+    )
 
     companion object {
         private const val TAG = "MAIN_ACTIVITY"
 
+        /********** GOOGLE STATUS CODES **********/
         private const val RC_SIGN_IN: Int = 0
-        private const val RC_REQUEST_AUTHORIZATION: Int = 1
+        const val RC_REQUEST_AUTHORIZATION: Int = 1
 
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
@@ -105,38 +139,6 @@ class MainActivity : AppCompatActivity() {
         private val MONTH_COLUMNS = listOf(
             "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
         )
-
-        // TODO: dynamically find category cell
-        private val CATEGORY_ROW_MAP = mapOf(
-            "Groceries" to "20",
-            "Dining Out" to "21",
-            "Drinks" to "22",
-            "Material Items" to "23",
-            "Entertainment" to "24",
-            "Transit" to "25",
-            "Personal/Medical" to "26",
-            "Gifts" to "27",
-            "Travel" to "28",
-            "Miscellaneous" to "29",
-            "Film" to "30",
-            "Household" to "31",
-            "Other Income" to "5"
-        )
-        private val CATEGORIES = arrayOf(
-            "Groceries",
-            "Dining Out",
-            "Drinks",
-            "Material Items",
-            "Entertainment",
-            "Transit",
-            "Personal/Medical",
-            "Gifts",
-            "Travel",
-            "Miscellaneous",
-            "Film",
-            "Household",
-            "Other Income"
-        )
     }
 
     /********** OVERRIDE METHODS **********/
@@ -146,19 +148,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
         setSupportActionBar(toolbar)
 
-        // UI element handles
-        expenseItem = findViewById(R.id.expenseItem)
-        expenseCategory = findViewById(R.id.expenseCategory)
-        expenseAmount = findViewById(R.id.expenseAmount)
-        expenseAmountOthers = findViewById(R.id.expenseAmountOthers)
-        expenseDate = findViewById(R.id.expenseDate)
-        expenseNotes = findViewById(R.id.expenseNotes)
-        currencyLabel = findViewById(R.id.currencyLabel)
-        currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
+//        // UI element handles
+//        expenseItem = findViewById(R.id.expenseItem)
+//        expenseCategory = findViewById(R.id.expenseCategory)
+//        expenseAmount = findViewById(R.id.expenseAmount)
+//        expenseAmountOthers = findViewById(R.id.expenseAmountOthers)
+//        expenseDate = findViewById(R.id.expenseDate)
+//        expenseNotes = findViewById(R.id.expenseNotes)
+//        currencyLabel = findViewById(R.id.currencyLabel)
+//        currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
         signInButton = findViewById(R.id.signInButton)
         signOutButton = findViewById(R.id.signOutButton)
-        submitButton = findViewById(R.id.expenseSubmitButton)
-        statusTextView = findViewById(R.id.statusText)
+//        submitButton = findViewById(R.id.expenseSubmitButton)
+//        statusTextView = findViewById(R.id.statusText)
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -183,6 +185,7 @@ class MainActivity : AppCompatActivity() {
         signOutButton.setOnClickListener{view ->
             when (view.id) {
                 R.id.signOutButton -> {
+                    Log.d(TAG, "signing out!!!!!")
                     mGoogleSignInClient.signOut()
                         .addOnCompleteListener(this) {
                             Log.d(TAG, "signing out")
@@ -195,21 +198,21 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        expenseCategory.setOnClickListener{view ->
-            when (view.id) {
-                R.id.expenseCategory -> {
-                    val builder = AlertDialog.Builder(this)
-                    builder.setTitle(R.string.expense_category)
-                    builder.setItems(R.array.categories) {_, which ->
-                        Log.d(TAG, "chose ${CATEGORIES[which]} as the category")
-                        expenseCategoryValue = CATEGORIES[which]
-                        expenseCategory.text = expenseCategoryValue
-                    }
-                    val dialog = builder.create()
-                    dialog.show()
-                }
-            }
-        }
+//        expenseCategory.setOnClickListener{view ->
+//            when (view.id) {
+//                R.id.expenseCategory -> {
+//                    val builder = AlertDialog.Builder(this)
+//                    builder.setTitle(R.string.expense_category)
+//                    builder.setItems(R.array.categories) {_, which ->
+//                        Log.d(TAG, "chose ${CATEGORIES[which]} as the category")
+//                        expenseCategoryValue = CATEGORIES[which]
+//                        expenseCategory.text = expenseCategoryValue
+//                    }
+//                    val dialog = builder.create()
+//                    dialog.show()
+//                }
+//            }
+//        }
 
         addRowRequestDB = Room.databaseBuilder(
             applicationContext,
@@ -222,19 +225,19 @@ class MainActivity : AppCompatActivity() {
 
         createNotificationChannel()
 
-        // set default category
-        expenseCategory.text = CATEGORIES[0]
+//        // set default category
+//        expenseCategory.text = CATEGORIES[0]
 
         // set up bottom nav
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navView: BottomNavigationView = binding.bottomNav
+        val bottomNav: BottomNavigationView = binding.bottomNav
 
-//        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
-        val navController: NavController = navHostFragment.navController
+        val navController = navHostFragment.navController
+//        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
@@ -243,7 +246,13 @@ class MainActivity : AppCompatActivity() {
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        bottomNav.setupWithNavController(navController)
+//        findViewById<BottomNavigationView>(R.id.bottom_nav)
+//            .setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            Log.d(TAG, "destination: $destination")
+        }
     }
 
     override fun onStart() {
@@ -258,9 +267,9 @@ class MainActivity : AppCompatActivity() {
             onSignInSuccess(account)
         }
 
-        // Set default value of expenseDate input as today's date
-        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        expenseDate.setText(todayDate)
+//        // Set default value of expenseDate input as today's date
+//        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+//        expenseDate.setText(todayDate)
     }
 
     override fun onResume() {
@@ -290,28 +299,52 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, "unhandled authorization request: $data")
         }
     }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                this.startActivity(Intent(this, SettingsActivity::class.java))
-                return true
-            }
-
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+//
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        menuInflater.inflate(R.menu.menu_main, menu)
+//        return true
+//    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        return when (item.itemId) {
+//            R.id.action_settings -> {
+//                this.startActivity(Intent(this, SettingsActivity::class.java))
+//                return true
+//            }
+//
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
 
     /********** GOOGLE SIGN-IN METHODS **********/
+
+//    fun signInButtonClick(view: View) {
+//        when (view.id) {
+//            R.id.signInButton -> {
+//                val signInIntent = mGoogleSignInClient.signInIntent
+//                startActivityForResult(signInIntent, RC_SIGN_IN)
+//            }
+//        }
+//    }
+//
+//    fun signOutButtonClick(view: View) {
+//        when (view.id) {
+//            R.id.signOutButton -> {
+//                mGoogleSignInClient.signOut()
+//                    .addOnCompleteListener(this) {
+//                        Log.d(TAG, "signing out")
+//                        finish()
+//                        overridePendingTransition(0, 0)
+//                        startActivity(intent)
+//                        overridePendingTransition(0, 0)
+//                    }
+//            }
+//        }
+//    }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
@@ -349,7 +382,7 @@ class MainActivity : AppCompatActivity() {
 
     /********** GOOGLE SHEETS METHODS **********/
 
-    private fun addExpenseRowToSheetAsync(
+    fun addExpenseRowToSheetAsync(
         spreadsheetId: String,
         sheetName: String,
         expenseDate: String,
@@ -379,7 +412,7 @@ class MainActivity : AppCompatActivity() {
         return@async request.execute()
     }
 
-    private fun getCategorySpendingAsync(
+    fun getCategorySpendingAsync(
         spreadsheetId: String,
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async (Dispatchers.IO) {
@@ -424,35 +457,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun hideKeyboard(view: View) {
-        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//    private fun hideKeyboard(view: View) {
+//        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//
+//        inputManager.hideSoftInputFromWindow(
+//            view.windowToken,
+//            HIDE_NOT_ALWAYS
+//        )
+//    }
 
-        inputManager.hideSoftInputFromWindow(
-            view.windowToken,
-            HIDE_NOT_ALWAYS
-        )
-    }
-
-    private fun validateInput(): Boolean {
-        var isValid = true
-
-        if (expenseItem.text.isBlank()) {
-            expenseItem.error = getString(R.string.form_no_item)
-            isValid = false
-        }
-
-        if (expenseAmount.text.isBlank()) {
-            expenseAmount.error = getString(R.string.form_no_amount)
-            isValid = false
-        }
-
-        if (expenseDate.text.isBlank()) {
-            expenseDate.error = getString(R.string.form_no_date)
-            isValid = false
-        }
-
-        return isValid
-    }
+//    private fun validateInput(): Boolean {
+//        var isValid = true
+//
+//        if (expenseItem.text.isBlank()) {
+//            expenseItem.error = getString(R.string.form_no_item)
+//            isValid = false
+//        }
+//
+//        if (expenseAmount.text.isBlank()) {
+//            expenseAmount.error = getString(R.string.form_no_amount)
+//            isValid = false
+//        }
+//
+//        if (expenseDate.text.isBlank()) {
+//            expenseDate.error = getString(R.string.form_no_date)
+//            isValid = false
+//        }
+//
+//        return isValid
+//    }
 
     private fun isInternetConnected(): Boolean {
         val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -460,16 +493,16 @@ class MainActivity : AppCompatActivity() {
         return activeNetwork?.isConnectedOrConnecting == true
     }
 
-    private fun clearInputs() {
-        expenseItem.setText("")
-        expenseAmount.setText("")
-        expenseAmountOthers.setText("")
-        expenseNotes.setText("")
-        currencyLabel.setText("")
-        currencyExchangeRate.setText("")
-    }
+//    private fun clearInputs() {
+//        expenseItem.setText("")
+//        expenseAmount.setText("")
+//        expenseAmountOthers.setText("")
+//        expenseNotes.setText("")
+//        currencyLabel.setText("")
+//        currencyExchangeRate.setText("")
+//    }
 
-    private fun insertRowIntoDBAsync(
+    fun insertRowIntoDBAsync(
         addRowRequest: AddRowRequest
     ): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
 //        Log.d(TAG, "insertRowIntoDBAsync")
@@ -493,125 +526,125 @@ class MainActivity : AppCompatActivity() {
 
     /********** PUBLIC METHODS **********/
 
-    fun submitExpense(view: View) {
-        hideKeyboard(view)
-
-        submitButton.text = getString(R.string.button_expense_submitting)
-
-        if (!validateInput()) {
-            submitButton.text = getString(R.string.button_expense_submit)
-            return
-        }
-
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val sheetName = sharedPreferences.getString("data_sheet_name", null)
-
-        if (spreadsheetId == null) {
-            Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            return
-        }
-
-        if (sheetName == null) {
-            Snackbar.make(view, getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            return
-        }
-
-        var currency = currencyLabel.text.toString()
-        var exchangeRate = currencyExchangeRate.text.toString()
-
-        if (currency == "") {
-            val defaultCurrency = sharedPreferences.getString("currency", getString(R.string.default_currency))
-
-            if (defaultCurrency == null) {
-                Snackbar.make(view, getString(R.string.form_no_currency), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-                return
-            }
-
-            currency = defaultCurrency
-        }
-
-        if (exchangeRate == "") {
-            val defaultExchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
-
-            if (defaultExchangeRate == null) {
-                Snackbar.make(view, getString(R.string.form_no_exchange_rate), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-                return
-            }
-
-            exchangeRate = defaultExchangeRate
-        }
-
-        if (isInternetConnected()) {
-//            Log.d(TAG, "there is an internet connection!")
-            coroutineScope.launch (Dispatchers.Main) {
-                var statusText: String
-
-                try {
-//                    val appendResponse = addExpenseRowToSheetAsync(
-                     addExpenseRowToSheetAsync(
-                        spreadsheetId,
-                        sheetName,
-                        expenseDate.text.toString(),
-                        expenseItem.text.toString(),
-                        expenseCategoryValue,
-                        expenseAmount.text.toString(),
-                        expenseAmountOthers.text.toString(),
-                        expenseNotes.text.toString(),
-                        currency,
-                        exchangeRate
-                    ).await()
-
-                    val spentSoFar = getCategorySpendingAsync(spreadsheetId, expenseCategoryValue).await()
-                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
-
-                    clearInputs()
-                } catch (e: UserRecoverableAuthIOException) {
-                    Log.e(TAG, getString(R.string.status_need_permission))
-                    startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
-                    statusText = getString(R.string.status_need_permission)
-                } catch (e: IOException) {
-                    Log.e(TAG, e.toString())
-                    statusText = getString(R.string.status_google_error)
-                }
-
-                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-
-                statusTextView.text = statusText
-                submitButton.text = getString(R.string.button_expense_submit)
-            }
-        } else {
-//            Log.d(TAG, "no internet connection!")
-
-            coroutineScope.launch (Dispatchers.Main) {
-                val addRowRequest = AddRowRequest(
-                    0,
-                    spreadsheetId,
-                    sheetName,
-                    expenseDate.text.toString(),
-                    expenseItem.text.toString(),
-                    expenseCategoryValue,
-                    expenseAmount.text.toString(),
-                    expenseAmountOthers.text.toString(),
-                    expenseNotes.text.toString(),
-                    currency,
-                    exchangeRate
-                )
-
-                insertRowIntoDBAsync(addRowRequest).await()
-
-                clearInputs()
-
-                statusTextView.text = getString(R.string.status_no_internet)
-                submitButton.text = getString(R.string.button_expense_submit)
-            }
-        }
-    }
+//    fun submitExpense(view: View) {
+//        hideKeyboard(view)
+//
+//        submitButton.text = getString(R.string.button_expense_submitting)
+//
+//        if (!validateInput()) {
+//            submitButton.text = getString(R.string.button_expense_submit)
+//            return
+//        }
+//
+//        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+//        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+//        val sheetName = sharedPreferences.getString("data_sheet_name", null)
+//
+//        if (spreadsheetId == null) {
+//            Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+//            return
+//        }
+//
+//        if (sheetName == null) {
+//            Snackbar.make(view, getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+//            return
+//        }
+//
+//        var currency = currencyLabel.text.toString()
+//        var exchangeRate = currencyExchangeRate.text.toString()
+//
+//        if (currency == "") {
+//            val defaultCurrency = sharedPreferences.getString("currency", getString(R.string.default_currency))
+//
+//            if (defaultCurrency == null) {
+//                Snackbar.make(view, getString(R.string.form_no_currency), Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+//                return
+//            }
+//
+//            currency = defaultCurrency
+//        }
+//
+//        if (exchangeRate == "") {
+//            val defaultExchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
+//
+//            if (defaultExchangeRate == null) {
+//                Snackbar.make(view, getString(R.string.form_no_exchange_rate), Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+//                return
+//            }
+//
+//            exchangeRate = defaultExchangeRate
+//        }
+//
+//        if (isInternetConnected()) {
+////            Log.d(TAG, "there is an internet connection!")
+//            coroutineScope.launch (Dispatchers.Main) {
+//                var statusText: String
+//
+//                try {
+////                    val appendResponse = addExpenseRowToSheetAsync(
+//                     addExpenseRowToSheetAsync(
+//                        spreadsheetId,
+//                        sheetName,
+//                        expenseDate.text.toString(),
+//                        expenseItem.text.toString(),
+//                        expenseCategoryValue,
+//                        expenseAmount.text.toString(),
+//                        expenseAmountOthers.text.toString(),
+//                        expenseNotes.text.toString(),
+//                        currency,
+//                        exchangeRate
+//                    ).await()
+//
+//                    val spentSoFar = getCategorySpendingAsync(spreadsheetId, expenseCategoryValue).await()
+//                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
+//
+//                    clearInputs()
+//                } catch (e: UserRecoverableAuthIOException) {
+//                    Log.e(TAG, getString(R.string.status_need_permission))
+//                    startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+//                    statusText = getString(R.string.status_need_permission)
+//                } catch (e: IOException) {
+//                    Log.e(TAG, e.toString())
+//                    statusText = getString(R.string.status_google_error)
+//                }
+//
+//                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+//
+//                statusTextView.text = statusText
+//                submitButton.text = getString(R.string.button_expense_submit)
+//            }
+//        } else {
+////            Log.d(TAG, "no internet connection!")
+//
+//            coroutineScope.launch (Dispatchers.Main) {
+//                val addRowRequest = AddRowRequest(
+//                    0,
+//                    spreadsheetId,
+//                    sheetName,
+//                    expenseDate.text.toString(),
+//                    expenseItem.text.toString(),
+//                    expenseCategoryValue,
+//                    expenseAmount.text.toString(),
+//                    expenseAmountOthers.text.toString(),
+//                    expenseNotes.text.toString(),
+//                    currency,
+//                    exchangeRate
+//                )
+//
+//                insertRowIntoDBAsync(addRowRequest).await()
+//
+//                clearInputs()
+//
+//                statusTextView.text = getString(R.string.status_no_internet)
+//                submitButton.text = getString(R.string.button_expense_submit)
+//            }
+//        }
+//    }
 
     fun sendQueuedRequests() {
         if (!isInternetConnected()) {
