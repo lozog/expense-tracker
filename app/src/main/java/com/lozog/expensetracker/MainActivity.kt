@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
+//        setContentView(R.layout.main_activity)
 //        setSupportActionBar(toolbar)
 
 //        // UI element handles
@@ -158,8 +158,8 @@ class MainActivity : AppCompatActivity() {
 //        expenseNotes = findViewById(R.id.expenseNotes)
 //        currencyLabel = findViewById(R.id.currencyLabel)
 //        currencyExchangeRate = findViewById(R.id.currencyExchangeRate)
-        signInButton = findViewById(R.id.signInButton)
-        signOutButton = findViewById(R.id.signOutButton)
+//        signInButton = findViewById(R.id.signInButton)
+//        signOutButton = findViewById(R.id.signOutButton)
 //        submitButton = findViewById(R.id.expenseSubmitButton)
 //        statusTextView = findViewById(R.id.statusText)
 
@@ -173,31 +173,31 @@ class MainActivity : AppCompatActivity() {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        signInButton.setOnClickListener{view ->
-            when (view.id) {
-                R.id.signInButton -> {
-                    val signInIntent = mGoogleSignInClient.signInIntent
-                    startActivityForResult(signInIntent, RC_SIGN_IN)
-                }
-            }
-        }
-
-        signOutButton.setOnClickListener{view ->
-            when (view.id) {
-                R.id.signOutButton -> {
-                    Log.d(TAG, "signing out!!!!!")
-                    mGoogleSignInClient.signOut()
-                        .addOnCompleteListener(this) {
-                            Log.d(TAG, "signing out")
-                            finish()
-                            overridePendingTransition(0, 0)
-                            startActivity(intent)
-                            overridePendingTransition(0, 0)
-                        }
-                }
-            }
-        }
+//
+//        signInButton.setOnClickListener{view ->
+//            when (view.id) {
+//                R.id.signInButton -> {
+//                    val signInIntent = mGoogleSignInClient.signInIntent
+//                    startActivityForResult(signInIntent, RC_SIGN_IN)
+//                }
+//            }
+//        }
+//
+//        signOutButton.setOnClickListener{view ->
+//            when (view.id) {
+//                R.id.signOutButton -> {
+//                    Log.d(TAG, "signing out!!!!!")
+//                    mGoogleSignInClient.signOut()
+//                        .addOnCompleteListener(this) {
+//                            Log.d(TAG, "signing out")
+//                            finish()
+//                            overridePendingTransition(0, 0)
+//                            startActivity(intent)
+//                            overridePendingTransition(0, 0)
+//                        }
+//                }
+//            }
+//        }
 
 //        expenseCategory.setOnClickListener{view ->
 //            when (view.id) {
@@ -384,10 +384,10 @@ class MainActivity : AppCompatActivity() {
         GoogleSheetsInterface.googleAccount = account
         GoogleSheetsInterface.spreadsheetService = sheetService
 
-        val signInButton = findViewById<SignInButton>(R.id.signInButton)
-        signInButton.visibility = View.GONE
-        val signOutButton = findViewById<Button>(R.id.signOutButton)
-        signOutButton.visibility = View.VISIBLE
+//        val signInButton = findViewById<SignInButton>(R.id.signInButton)
+//        signInButton.visibility = View.GONE
+//        val signOutButton = findViewById<Button>(R.id.signOutButton)
+//        signOutButton.visibility = View.VISIBLE
     }
 
     /********** GOOGLE SHEETS METHODS **********/

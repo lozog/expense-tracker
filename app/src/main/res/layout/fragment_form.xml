@@ -18,7 +18,6 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#FF0000"
             tools:context=".ui.FormFragment">
 
 <!--            <com.google.android.gms.common.SignInButton-->
@@ -63,7 +62,7 @@
                 android:inputType="textPersonName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/expenseSubmitButton" />
+                app:layout_constraintTop_toBottomOf="@id/expenseSubmitButton" />
 
             <EditText
                 android:id="@+id/expenseAmount"
@@ -94,7 +93,7 @@
                 android:text="@string/expense_category"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/expenseAmount" />
+                app:layout_constraintTop_toBottomOf="@id/expenseAmount" />
 
             <EditText
                 android:id="@+id/expenseDate"
@@ -110,7 +109,7 @@
                 android:inputType="date"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/expenseCategory" />
+                app:layout_constraintTop_toBottomOf="@id/expenseCategory" />
 
             <EditText
                 android:id="@+id/expenseAmountOthers"
@@ -126,7 +125,7 @@
                 android:inputType="numberDecimal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/expenseDate" />
+                app:layout_constraintTop_toBottomOf="@id/expenseDate" />
 
             <EditText
                 android:id="@+id/expenseNotes"
@@ -142,7 +141,7 @@
                 android:inputType="textPersonName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/expenseAmountOthers" />
+                app:layout_constraintTop_toBottomOf="@id/expenseAmountOthers" />
 
             <EditText
                 android:id="@+id/currencyLabel"
@@ -158,7 +157,7 @@
                 android:inputType="textPersonName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/expenseNotes" />
+                app:layout_constraintTop_toBottomOf="@id/expenseNotes" />
 
             <EditText
                 android:id="@+id/currencyExchangeRate"
@@ -174,7 +173,7 @@
                 android:inputType="textPersonName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/currencyLabel" />
+                app:layout_constraintTop_toBottomOf="@id/currencyLabel" />
 
             <TextView
                 android:id="@+id/statusText"
@@ -187,7 +186,7 @@
                 android:layout_marginRight="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/currencyExchangeRate" />
+                app:layout_constraintTop_toBottomOf="@id/currencyExchangeRate" />
 
 <!--            <Button-->
 <!--                android:id="@+id/signOutButton"-->
@@ -203,7 +202,7 @@
 <!--                android:text="@string/button_sign_out"-->
 <!--                app:layout_constraintEnd_toEndOf="parent"-->
 <!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toBottomOf="@+id/statusText" />-->
+<!--                app:layout_constraintTop_toBottomOf="@id/statusText" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 <!--    </ScrollView>-->
