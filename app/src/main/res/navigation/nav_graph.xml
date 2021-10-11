@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/form">
+    app:startDestination="@id/navigation_form">
 
     <fragment
-        android:id="@+id/form"
+        android:id="@+id/navigation_form"
         android:name="com.lozog.expensetracker.ui.FormFragment"
-        android:label="FormFragment"
+        android:label="Expense Tracker"
         tools:layout="@layout/fragment_form" />
 
     <fragment
-        android:id="@+id/settingsFragment"
+        android:id="@+id/navigation_settings"
         android:name="com.lozog.expensetracker.SettingsActivity$SettingsFragment"
-        android:label="SettingsFragment"
+        android:label="Settings"
         tools:layout="@layout/settings_activity"/>
 
 </navigation>
