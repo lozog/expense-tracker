@@ -55,15 +55,13 @@ class FormFragment : Fragment() {
     private lateinit var submitButton: Button
     private lateinit var statusTextView: TextView
 
-    private var expenseCategoryValue: String = ""
-
     /********** OVERRIDE METHODS **********/
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentFormBinding.inflate(inflater, container, false)
         val root: View = binding.root
         mainActivity = activity as MainActivity
@@ -90,8 +88,7 @@ class FormFragment : Fragment() {
                     builder.setTitle(R.string.expense_category)
                     builder.setItems(R.array.categories) {_, which ->
                         Log.d(TAG, "chose ${mainActivity.CATEGORIES[which]} as the category")
-                        expenseCategoryValue = mainActivity.CATEGORIES[which]
-                        expenseCategory.text = expenseCategoryValue
+                        expenseCategory.text = mainActivity.CATEGORIES[which]
                     }
                     val dialog = builder.create()
                     dialog.show()
@@ -101,7 +98,6 @@ class FormFragment : Fragment() {
 
         // set default category
         expenseCategory.text = mainActivity.CATEGORIES[0]
-        expenseCategoryValue = mainActivity.CATEGORIES[0]
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -229,7 +225,7 @@ class FormFragment : Fragment() {
                         sheetName,
                         expenseDate.text.toString(),
                         expenseItem.text.toString(),
-                        expenseCategoryValue,
+                        expenseCategory.text.toString(),
                         expenseAmount.text.toString(),
                         expenseAmountOthers.text.toString(),
                         expenseNotes.text.toString(),
@@ -237,8 +233,8 @@ class FormFragment : Fragment() {
                         exchangeRate
                     ).await()
 
-                    val spentSoFar = mainActivity.getCategorySpendingAsync(spreadsheetId, expenseCategoryValue).await()
-                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
+                    val spentSoFar = mainActivity.getCategorySpendingAsync(spreadsheetId, expenseCategory.text.toString()).await()
+                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategory.text.toString())
 
                     clearInputs()
                 } catch (e: UserRecoverableAuthIOException) {
@@ -266,7 +262,7 @@ class FormFragment : Fragment() {
                     sheetName,
                     expenseDate.text.toString(),
                     expenseItem.text.toString(),
-                    expenseCategoryValue,
+                    expenseCategory.text.toString(),
                     expenseAmount.text.toString(),
                     expenseAmountOthers.text.toString(),
                     expenseNotes.text.toString(),
