@@ -79,6 +79,10 @@ class FormFragment : Fragment() {
         submitButton = binding.expenseSubmitButton
         statusTextView = binding.statusText
 
+        submitButton.setOnClickListener{view ->
+            submitExpense(view)
+        }
+
         expenseCategory.setOnClickListener{view ->
             when (view.id) {
                 R.id.expenseCategory -> {
@@ -97,6 +101,7 @@ class FormFragment : Fragment() {
 
         // set default category
         expenseCategory.text = mainActivity.CATEGORIES[0]
+        expenseCategoryValue = mainActivity.CATEGORIES[0]
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
