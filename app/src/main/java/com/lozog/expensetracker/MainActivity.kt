@@ -301,35 +301,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.menu_main, menu)
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        Log.d(TAG, "item: $item")
-//        val navHostFragment =
-//            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
-//        return NavigationUI.onNavDestinationSelected(item, navHostFragment.navController)
-//                || super.onOptionsItemSelected(item)
-//    }
-
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        return when (item.itemId) {
-//            R.id.action_settings -> {
-//                this.startActivity(Intent(this, SettingsActivity::class.java))
-//                return true
-//            }
-//
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
-
     /********** GOOGLE SIGN-IN METHODS **********/
 
 //    fun signInButtonClick(view: View) {

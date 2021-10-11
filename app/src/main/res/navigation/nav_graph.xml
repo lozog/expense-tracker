@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.lozog.expensetracker.SettingsActivity$SettingsFragment"
+        android:name="com.lozog.expensetracker.ui.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/settings_activity"/>
 
