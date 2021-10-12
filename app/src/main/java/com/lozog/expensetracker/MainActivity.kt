@@ -68,8 +68,8 @@ class MainActivity : AppCompatActivity() {
 //    private lateinit var expenseNotes: EditText
 //    private lateinit var currencyLabel: EditText
 //    private lateinit var currencyExchangeRate: EditText
-    private lateinit var signInButton: SignInButton
-    private lateinit var signOutButton: Button
+//    private lateinit var signInButton: SignInButton
+//    private lateinit var signOutButton: Button
 //    private lateinit var submitButton: Button
 //    private lateinit var statusTextView: TextView
 //
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MAIN_ACTIVITY"
 
         /********** GOOGLE STATUS CODES **********/
-        private const val RC_SIGN_IN: Int = 0
+        const val RC_SIGN_IN: Int = 0
         const val RC_REQUEST_AUTHORIZATION: Int = 1
 
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
@@ -141,6 +141,8 @@ class MainActivity : AppCompatActivity() {
             "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
         )
     }
+
+    class NotSignedInException : Exception() {}
 
     /********** OVERRIDE METHODS **********/
 
@@ -303,29 +305,30 @@ class MainActivity : AppCompatActivity() {
 
     /********** GOOGLE SIGN-IN METHODS **********/
 
-//    fun signInButtonClick(view: View) {
-//        when (view.id) {
-//            R.id.signInButton -> {
-//                val signInIntent = mGoogleSignInClient.signInIntent
-//                startActivityForResult(signInIntent, RC_SIGN_IN)
-//            }
-//        }
-//    }
-//
-//    fun signOutButtonClick(view: View) {
-//        when (view.id) {
-//            R.id.signOutButton -> {
-//                mGoogleSignInClient.signOut()
-//                    .addOnCompleteListener(this) {
-//                        Log.d(TAG, "signing out")
-//                        finish()
-//                        overridePendingTransition(0, 0)
-//                        startActivity(intent)
-//                        overridePendingTransition(0, 0)
-//                    }
-//            }
-//        }
-//    }
+    fun signInButtonClick(view: View) {
+        when (view.id) {
+            R.id.signInButton -> {
+                val signInIntent = mGoogleSignInClient.signInIntent
+                startActivityForResult(signInIntent, RC_SIGN_IN)
+            }
+        }
+    }
+
+    fun signOutButtonClick(view: View) {
+        when (view.id) {
+            R.id.signOutButton -> {
+                mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this) {
+                        Log.d(TAG, "signout result: ${it.isSuccessful}")
+                        Log.d(TAG, "signed out")
+                        finish()
+                        overridePendingTransition(0, 0)
+                        startActivity(intent)
+                        overridePendingTransition(0, 0)
+                    }
+            }
+        }
+    }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
@@ -359,6 +362,9 @@ class MainActivity : AppCompatActivity() {
 //        signInButton.visibility = View.GONE
 //        val signOutButton = findViewById<Button>(R.id.signOutButton)
 //        signOutButton.visibility = View.VISIBLE
+//        val googleSignInFragment =
+//            supportFragmentManager.findFragmentById(R.id.googleSignInFragment)
+
     }
 
     /********** GOOGLE SHEETS METHODS **********/
@@ -376,6 +382,10 @@ class MainActivity : AppCompatActivity() {
         exchangeRate: String
     ): Deferred<AppendValuesResponse> = coroutineScope.async (Dispatchers.IO) {
         Log.d(TAG, "addExpenseRowToSheetAsync")
+
+        if (GoogleSheetsInterface.spreadsheetService == null) {
+            throw NotSignedInException()
+        }
 
         val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
         val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
@@ -658,6 +668,8 @@ class MainActivity : AppCompatActivity() {
                     Log.e(TAG, getString(R.string.status_need_permission))
                 } catch (e: IOException) {
                     Log.e(TAG, getString(R.string.status_google_error))
+                } catch (e: MainActivity.NotSignedInException) {
+                    Log.e(TAG, getString(R.string.status_not_signed_in))
                 } finally {
                     Log.d(TAG, "creating notification of sent requests")
 

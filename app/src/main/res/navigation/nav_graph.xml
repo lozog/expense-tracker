@@ -17,4 +17,10 @@
         android:label="Settings"
         tools:layout="@layout/settings_activity"/>
 
+    <fragment
+        android:id="@+id/navigation_account"
+        android:name="com.lozog.expensetracker.ui.GoogleSignInFragment"
+        android:label="Settings"
+        tools:layout="@layout/settings_activity"/>
+
 </navigation>

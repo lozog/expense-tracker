@@ -35,11 +35,11 @@ class FormFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var mainActivity: MainActivity
+
     companion object {
         private const val TAG = "FORM_FRAGMENT"
     }
-
-    private lateinit var mainActivity: MainActivity
 
     /********** UI Widgets **********/
     private lateinit var expenseItem: EditText
@@ -160,7 +160,8 @@ class FormFragment : Fragment() {
 
     /********** PUBLIC METHODS **********/
 
-    fun submitExpense(view: View) {
+    private fun submitExpense(view: View) {
+        Log.d(TAG, "submitExpense")
         hideKeyboard(view)
 
         submitButton.text = getString(R.string.button_expense_submitting)
@@ -244,6 +245,9 @@ class FormFragment : Fragment() {
                 } catch (e: IOException) {
                     Log.e(TAG, e.toString())
                     statusText = getString(R.string.status_google_error)
+                } catch (e: MainActivity.NotSignedInException) {
+                    Log.e(TAG, getString(R.string.status_not_signed_in))
+                    statusText = getString(R.string.status_not_signed_in)
                 }
 
                 Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
