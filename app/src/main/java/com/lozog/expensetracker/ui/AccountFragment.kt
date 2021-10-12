@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment
 import com.google.android.gms.common.SignInButton
 import com.lozog.expensetracker.MainActivity
 import com.lozog.expensetracker.R
-import com.lozog.expensetracker.databinding.FragmentGoogleSignInBinding
+import com.lozog.expensetracker.databinding.FragmentAccountBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GoogleSignInFragment : Fragment() {
-    private var _binding: FragmentGoogleSignInBinding? = null
+class AccountFragment : Fragment() {
+    private var _binding: FragmentAccountBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -36,7 +36,7 @@ class GoogleSignInFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentGoogleSignInBinding.inflate(inflater, container, false)
+        _binding = FragmentAccountBinding.inflate(inflater, container, false)
         val root: View = binding.root
         mainActivity = activity as MainActivity
 
