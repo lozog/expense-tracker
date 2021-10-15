@@ -41,7 +41,6 @@ import com.google.api.services.sheets.v4.model.ValueRange
 import kotlinx.android.synthetic.main.main_activity.*
 import kotlinx.coroutines.*
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
 import com.lozog.expensetracker.ui.AccountViewModel
@@ -230,7 +229,7 @@ class MainActivity : AppCompatActivity() {
                         Log.d(TAG, "signed out")
 
                         val accountViewModel: AccountViewModel by viewModels()
-                        accountViewModel.setText("not signed in")
+                        accountViewModel.setSignInStatus("not signed in")
 
                         GoogleSheetsInterface.googleAccount = null
                         GoogleSheetsInterface.spreadsheetService = null
@@ -273,7 +272,7 @@ class MainActivity : AppCompatActivity() {
         GoogleSheetsInterface.spreadsheetService = sheetService
 
         val accountViewModel: AccountViewModel by viewModels()
-        accountViewModel.setText("signed into account: ${account.email}")
+        accountViewModel.setSignInStatus("signed into account: ${account.email}")
     }
 
     /********** GOOGLE SHEETS METHODS **********/
@@ -386,13 +385,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     /********** PUBLIC METHODS **********/
-
-    fun sendRequests() {
-        coroutineScope.launch (Dispatchers.Main) {
-            testFuncAsync().await()
-            Log.d(TAG, "donnnee")
-        }
-    }
 
     fun sendQueuedRequests() {
         if (!isInternetConnected()) {
