@@ -7,7 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.SignInButton
 import com.lozog.expensetracker.MainActivity
 import com.lozog.expensetracker.R
@@ -16,6 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class AccountFragment : Fragment() {
+    private val accountViewModel: AccountViewModel by activityViewModels()
     private var _binding: FragmentAccountBinding? = null
 
     // This property is only valid between onCreateView and
@@ -26,6 +30,7 @@ class AccountFragment : Fragment() {
 
     private lateinit var signInButton: SignInButton
     private lateinit var signOutButton: Button
+    private lateinit var accountInfo: TextView
 
     companion object {
         private const val TAG = "SIGN_IN_FRAGMENT"
@@ -36,12 +41,15 @@ class AccountFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+//        accountViewModel = ViewModelProvider(this).get(AccountViewModel::class.java)
+
         _binding = FragmentAccountBinding.inflate(inflater, container, false)
         val root: View = binding.root
         mainActivity = activity as MainActivity
 
         signInButton = binding.signInButton
         signOutButton = binding.signOutButton
+        accountInfo = binding.accountInfo
 
 //        signInButton.setOnClickListener{view ->
 //            when (view.id) {
@@ -74,6 +82,11 @@ class AccountFragment : Fragment() {
         signOutButton.setOnClickListener{view ->
             mainActivity.signOutButtonClick(view)
         }
+
+        accountViewModel.text.observe(viewLifecycleOwner, {
+            Log.d(TAG, "observing: $it")
+            accountInfo.text = it
+        })
 
         return root
     }

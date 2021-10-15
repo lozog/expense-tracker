@@ -16,11 +16,13 @@ import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -55,6 +57,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
+import com.lozog.expensetracker.ui.AccountViewModel
 
 
 class MainActivity : AppCompatActivity() {
@@ -76,6 +79,8 @@ class MainActivity : AppCompatActivity() {
 //    private var expenseCategoryValue: String = ""
 
     private lateinit var binding: MainActivityBinding
+//    private lateinit var accountViewModel: AccountViewModel
+
 
     /********** GOOGLE SIGN-IN **********/
     lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -253,9 +258,11 @@ class MainActivity : AppCompatActivity() {
 //        findViewById<BottomNavigationView>(R.id.bottom_nav)
 //            .setupWithNavController(navController)
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            Log.d(TAG, "destination: $destination")
-        }
+//        navController.addOnDestinationChangedListener { _, destination, _ ->
+//            Log.d(TAG, "destination: $destination")
+//        }
+
+//        accountViewModel = ViewModelProvider(this).get(AccountViewModel::class.java)
     }
 
     override fun onStart() {
@@ -319,12 +326,16 @@ class MainActivity : AppCompatActivity() {
             R.id.signOutButton -> {
                 mGoogleSignInClient.signOut()
                     .addOnCompleteListener(this) {
-                        Log.d(TAG, "signout result: ${it.isSuccessful}")
                         Log.d(TAG, "signed out")
-                        finish()
-                        overridePendingTransition(0, 0)
-                        startActivity(intent)
-                        overridePendingTransition(0, 0)
+//                        accountViewModel.text.value = "not signed in"
+                        val accountViewModel: AccountViewModel by viewModels()
+                        accountViewModel.setText("not signed in")
+                        GoogleSheetsInterface.googleAccount = null
+                        GoogleSheetsInterface.spreadsheetService = null
+//                        finish()
+//                        overridePendingTransition(0, 0)
+//                        startActivity(intent)
+//                        overridePendingTransition(0, 0)
                     }
             }
         }
@@ -344,7 +355,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSignInSuccess(account: GoogleSignInAccount) {
-        Log.d(TAG, "signed into account: " + account.email)
+        Log.d(TAG, "signed into account: ${account.email}")
 
         val httpTransport = NetHttpTransport()
         val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
@@ -357,6 +368,10 @@ class MainActivity : AppCompatActivity() {
 
         GoogleSheetsInterface.googleAccount = account
         GoogleSheetsInterface.spreadsheetService = sheetService
+
+        val accountViewModel: AccountViewModel by viewModels()
+//        accountViewModel.text.value = "signed into account: ${account.email}"
+        accountViewModel.setText("signed into account: ${account.email}")
 
 //        val signInButton = findViewById<SignInButton>(R.id.signInButton)
 //        signInButton.visibility = View.GONE
