@@ -15,12 +15,12 @@
         android:id="@+id/navigation_settings"
         android:name="com.lozog.expensetracker.ui.SettingsFragment"
         android:label="Settings"
-        tools:layout="@layout/settings_activity"/>
+        tools:layout="@layout/fragment_settings"/>
 
     <fragment
         android:id="@+id/navigation_account"
         android:name="com.lozog.expensetracker.ui.AccountFragment"
         android:label="Account"
-        tools:layout="@layout/settings_activity"/>
+        tools:layout="@layout/fragment_account"/>
 
 </navigation>
