@@ -15,7 +15,6 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.lozog.expensetracker.AddRowRequest
@@ -50,8 +49,6 @@ class FormFragment : Fragment() {
     private lateinit var expenseNotes: EditText
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
-//    private lateinit var signInButton: SignInButton
-//    private lateinit var signOutButton: Button
     private lateinit var submitButton: Button
     private lateinit var statusTextView: TextView
 
