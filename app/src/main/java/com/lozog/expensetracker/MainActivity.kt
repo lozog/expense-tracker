@@ -683,8 +683,8 @@ class MainActivity : AppCompatActivity() {
                     Log.e(TAG, getString(R.string.status_need_permission))
                 } catch (e: IOException) {
                     Log.e(TAG, getString(R.string.status_google_error))
-                } catch (e: MainActivity.NotSignedInException) {
-                    Log.e(TAG, getString(R.string.status_not_signed_in))
+                } catch (e: NotSignedInException) {
+                    Log.d(TAG, getString(R.string.status_not_signed_in))
                 } finally {
                     Log.d(TAG, "creating notification of sent requests")
 

@@ -246,7 +246,7 @@ class FormFragment : Fragment() {
                     Log.e(TAG, e.toString())
                     statusText = getString(R.string.status_google_error)
                 } catch (e: MainActivity.NotSignedInException) {
-                    Log.e(TAG, getString(R.string.status_not_signed_in))
+                    Log.d(TAG, getString(R.string.status_not_signed_in))
                     statusText = getString(R.string.status_not_signed_in)
                 }
 
