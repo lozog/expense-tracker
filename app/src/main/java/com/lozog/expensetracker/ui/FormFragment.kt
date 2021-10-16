@@ -237,7 +237,7 @@ class FormFragment : Fragment() {
                     clearInputs()
                 } catch (e: UserRecoverableAuthIOException) {
                     Log.e(TAG, getString(R.string.status_need_permission))
-                    startActivityForResult(e.intent, MainActivity.RC_REQUEST_AUTHORIZATION)
+                    mainActivity.startForRequestAuthorizationResult.launch(e.intent)
                     statusText = getString(R.string.status_need_permission)
                 } catch (e: IOException) {
                     Log.e(TAG, e.toString())

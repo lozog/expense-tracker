@@ -12,6 +12,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -52,6 +55,8 @@ class MainActivity : AppCompatActivity() {
 
     /********** GOOGLE SIGN-IN **********/
     lateinit var mGoogleSignInClient: GoogleSignInClient
+    lateinit var startForSignInResult: ActivityResultLauncher<Intent>
+    lateinit var startForRequestAuthorizationResult: ActivityResultLauncher<Intent>
 
     /********** ROOM DB **********/
     private lateinit var addRowRequestDB: AddRowRequestDB
@@ -115,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    class NotSignedInException : Exception() {}
+    class NotSignedInException : Exception()
 
     /********** OVERRIDE METHODS **********/
 
@@ -167,6 +172,13 @@ class MainActivity : AppCompatActivity() {
 //        navController.addOnDestinationChangedListener { _, destination, _ ->
 //            Log.d(TAG, "destination: $destination")
 //        }
+
+        startForSignInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            onActivityResult(RC_SIGN_IN, result)
+        }
+        startForRequestAuthorizationResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            onActivityResult(RC_REQUEST_AUTHORIZATION, result)
+        }
     }
 
     override fun onStart() {
@@ -195,18 +207,16 @@ class MainActivity : AppCompatActivity() {
         this.unregisterReceiver(networkReceiver)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
+    private fun onActivityResult(requestCode: Int, result: ActivityResult) {
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
-            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handleSignInResult(task)
         }
         else if (requestCode == RC_REQUEST_AUTHORIZATION) {
-            Log.e(TAG, "unhandled authorization request: $data")
+            Log.e(TAG, "unhandled authorization request: ${result.data}")
         }
     }
 
@@ -216,7 +226,7 @@ class MainActivity : AppCompatActivity() {
         when (view.id) {
             R.id.signInButton -> {
                 val signInIntent = mGoogleSignInClient.signInIntent
-                startActivityForResult(signInIntent, RC_SIGN_IN)
+                startForSignInResult.launch(signInIntent)
             }
         }
     }
@@ -233,11 +243,6 @@ class MainActivity : AppCompatActivity() {
 
                         GoogleSheetsInterface.googleAccount = null
                         GoogleSheetsInterface.spreadsheetService = null
-
-//                        finish()
-//                        overridePendingTransition(0, 0)
-//                        startActivity(intent)
-//                        overridePendingTransition(0, 0)
                     }
             }
         }
@@ -413,7 +418,7 @@ class MainActivity : AppCompatActivity() {
 
                     deleteRowAsync(addRowRequest)
                 } catch (e: UserRecoverableAuthIOException) {
-                    startActivityForResult(e.intent, RC_REQUEST_AUTHORIZATION)
+                    startForRequestAuthorizationResult.launch(e.intent)
                     Log.e(TAG, getString(R.string.status_need_permission))
                 } catch (e: IOException) {
                     Log.e(TAG, getString(R.string.status_google_error))
