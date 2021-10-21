@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class FormFragment : Fragment() {
+    private val sheetsViewModel: SheetsViewModel by viewModels()
     private var _binding: FragmentFormBinding? = null
 
     // This property is only valid between onCreateView and
@@ -119,11 +121,11 @@ class FormFragment : Fragment() {
         )
     }
 
-    private fun isInternetConnected(): Boolean {
-        val cm = mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-        return activeNetwork?.isConnectedOrConnecting == true
-    }
+//    private fun isInternetConnected(): Boolean {
+//        val cm = mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+//        return activeNetwork?.isConnectedOrConnecting == true
+//    }
 
     private fun validateInput(): Boolean {
         var isValid = true
@@ -146,14 +148,14 @@ class FormFragment : Fragment() {
         return isValid
     }
 
-    private fun clearInputs() {
-        expenseItem.setText("")
-        expenseAmount.setText("")
-        expenseAmountOthers.setText("")
-        expenseNotes.setText("")
-        currencyLabel.setText("")
-        currencyExchangeRate.setText("")
-    }
+//    private fun clearInputs() {
+//        expenseItem.setText("")
+//        expenseAmount.setText("")
+//        expenseAmountOthers.setText("")
+//        expenseNotes.setText("")
+//        currencyLabel.setText("")
+//        currencyExchangeRate.setText("")
+//    }
 
     /********** PUBLIC METHODS **********/
 
@@ -211,73 +213,91 @@ class FormFragment : Fragment() {
             exchangeRate = defaultExchangeRate
         }
 
-        if (isInternetConnected()) {
-//            Log.d(TAG, "there is an internet connection!")
-            mainActivity.coroutineScope.launch (Dispatchers.Main) {
-                var statusText: String
-
-                try {
-//                    val appendResponse = addExpenseRowToSheetAsync(
-                    mainActivity.addExpenseRowToSheetAsync(
-                        spreadsheetId,
-                        sheetName,
-                        expenseDate.text.toString(),
-                        expenseItem.text.toString(),
-                        expenseCategory.text.toString(),
-                        expenseAmount.text.toString(),
-                        expenseAmountOthers.text.toString(),
-                        expenseNotes.text.toString(),
-                        currency,
-                        exchangeRate
-                    ).await()
-
-                    val spentSoFar = mainActivity.getCategorySpendingAsync(spreadsheetId, expenseCategory.text.toString()).await()
-                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategory.text.toString())
-
-                    clearInputs()
-                } catch (e: UserRecoverableAuthIOException) {
-                    Log.e(TAG, getString(R.string.status_need_permission))
-                    mainActivity.startForRequestAuthorizationResult.launch(e.intent)
-                    statusText = getString(R.string.status_need_permission)
-                } catch (e: IOException) {
-                    Log.e(TAG, e.toString())
-                    statusText = getString(R.string.status_google_error)
-                } catch (e: MainActivity.NotSignedInException) {
-                    Log.d(TAG, getString(R.string.status_not_signed_in))
-                    statusText = getString(R.string.status_not_signed_in)
-                }
-
-                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-
-                statusTextView.text = statusText
-                submitButton.text = getString(R.string.button_expense_submit)
-            }
-        } else {
-//            Log.d(TAG, "no internet connection!")
-
-            mainActivity.coroutineScope.launch (Dispatchers.Main) {
-                val addRowRequest = AddRowRequest(
-                    0,
-                    spreadsheetId,
-                    sheetName,
-                    expenseDate.text.toString(),
-                    expenseItem.text.toString(),
-                    expenseCategory.text.toString(),
-                    expenseAmount.text.toString(),
-                    expenseAmountOthers.text.toString(),
-                    expenseNotes.text.toString(),
-                    currency,
-                    exchangeRate
-                )
-
-                mainActivity.insertRowIntoDBAsync(addRowRequest).await()
-
-                clearInputs()
-
-                statusTextView.text = getString(R.string.status_no_internet)
-                submitButton.text = getString(R.string.button_expense_submit)
-            }
+        try {
+            Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
+            sheetsViewModel.addExpenseRowToSheetAsync(
+                spreadsheetId,
+                sheetName,
+                expenseDate.text.toString(),
+                expenseItem.text.toString(),
+                expenseCategory.text.toString(),
+                expenseAmount.text.toString(),
+                expenseAmountOthers.text.toString(),
+                expenseNotes.text.toString(),
+                currency,
+                exchangeRate
+            )
+        } catch (e: Exception) {
+            Log.d(TAG, "exception: $e")
         }
+//
+//        if (isInternetConnected()) {
+////            Log.d(TAG, "there is an internet connection!")
+//            mainActivity.coroutineScope.launch (Dispatchers.Main) {
+//                var statusText: String
+//
+//                try {
+////                    val appendResponse = addExpenseRowToSheetAsync(
+//                    mainActivity.addExpenseRowToSheetAsync(
+//                        spreadsheetId,
+//                        sheetName,
+//                        expenseDate.text.toString(),
+//                        expenseItem.text.toString(),
+//                        expenseCategory.text.toString(),
+//                        expenseAmount.text.toString(),
+//                        expenseAmountOthers.text.toString(),
+//                        expenseNotes.text.toString(),
+//                        currency,
+//                        exchangeRate
+//                    ).await()
+//
+//                    val spentSoFar = mainActivity.getCategorySpendingAsync(spreadsheetId, expenseCategory.text.toString()).await()
+//                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategory.text.toString())
+//
+//                    clearInputs()
+//                } catch (e: UserRecoverableAuthIOException) {
+//                    Log.e(TAG, getString(R.string.status_need_permission))
+//                    mainActivity.startForRequestAuthorizationResult.launch(e.intent)
+//                    statusText = getString(R.string.status_need_permission)
+//                } catch (e: IOException) {
+//                    Log.e(TAG, e.toString())
+//                    statusText = getString(R.string.status_google_error)
+//                } catch (e: MainActivity.NotSignedInException) {
+//                    Log.d(TAG, getString(R.string.status_not_signed_in))
+//                    statusText = getString(R.string.status_not_signed_in)
+//                }
+//
+//                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+//
+//                statusTextView.text = statusText
+//                submitButton.text = getString(R.string.button_expense_submit)
+//            }
+//        } else {
+////            Log.d(TAG, "no internet connection!")
+//
+//            mainActivity.coroutineScope.launch (Dispatchers.Main) {
+//                val addRowRequest = AddRowRequest(
+//                    0,
+//                    spreadsheetId,
+//                    sheetName,
+//                    expenseDate.text.toString(),
+//                    expenseItem.text.toString(),
+//                    expenseCategory.text.toString(),
+//                    expenseAmount.text.toString(),
+//                    expenseAmountOthers.text.toString(),
+//                    expenseNotes.text.toString(),
+//                    currency,
+//                    exchangeRate
+//                )
+//
+//                mainActivity.insertRowIntoDBAsync(addRowRequest).await()
+//
+//                clearInputs()
+//
+//                statusTextView.text = getString(R.string.status_no_internet)
+//                submitButton.text = getString(R.string.button_expense_submit)
+//            }
+//        }
     }
 }
