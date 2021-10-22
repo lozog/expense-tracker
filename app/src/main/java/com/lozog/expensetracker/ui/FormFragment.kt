@@ -118,6 +118,8 @@ class FormFragment : Fragment() {
 
         sheetsViewModel.statusText.observe(viewLifecycleOwner, {
             statusTextView.text = it
+            Snackbar.make(expenseSubmitButton, it, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
         })
 
         return root
@@ -179,7 +181,10 @@ class FormFragment : Fragment() {
         if (workInfo != null) {
             when (workInfo.state) {
                 WorkInfo.State.SUCCEEDED -> {
-                    Log.d(TAG, "task succeeded")
+                    Log.d(TAG, getString(
+                        R.string.notification_queued_requests_content,
+                        workInfo.outputData.getString("expenseItem")
+                    ))
 
                     // send notification
                     val builder = NotificationCompat
@@ -207,7 +212,6 @@ class FormFragment : Fragment() {
     }
 
     private fun submitExpense(view: View) {
-        Log.d(TAG, "submitExpense")
         hideKeyboard(view)
 
         submitButton.text = getString(R.string.button_expense_submitting)
@@ -286,6 +290,7 @@ class FormFragment : Fragment() {
                 )
             } catch (e: Exception) {
                 Log.d(TAG, "exception: $e")
+                sheetsViewModel.setStatusText(e.toString())
             }
         } else {
             Log.d(TAG, "no internet")
@@ -293,7 +298,7 @@ class FormFragment : Fragment() {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
-            val sheetsWorkRequest: WorkRequest =
+            val sheetsWorkRequest: OneTimeWorkRequest =
                 OneTimeWorkRequestBuilder<SheetsWorker>()
                     .setConstraints(constraints)
                     .setInputData(workDataOf(
@@ -312,12 +317,14 @@ class FormFragment : Fragment() {
 
             WorkManager
                 .getInstance(mainActivity)
-                .enqueue(sheetsWorkRequest)
+                .enqueueUniqueWork(UUID.randomUUID().toString(), ExistingWorkPolicy.APPEND, sheetsWorkRequest)
 
             WorkManager
                 .getInstance(mainActivity)
                 .getWorkInfoByIdLiveData(sheetsWorkRequest.id)
-                .observe(viewLifecycleOwner, workManagerObserver)
+                .observe(viewLifecycleOwner, { workInfo: WorkInfo ->
+                    workManagerObserver(workInfo)
+                })
 
             sheetsViewModel.resetView()
             sheetsViewModel.setStatusText("no internet - request queued")

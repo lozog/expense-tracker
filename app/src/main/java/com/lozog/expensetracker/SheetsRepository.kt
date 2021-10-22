@@ -72,7 +72,7 @@ class SheetsRepository {
         currency: String,
         exchangeRate: String
     ) = withContext(Dispatchers.IO) {
-        Log.d(TAG, "in sheetsRepository.addExpenseRowToSheetAsync")
+        Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
 
             if (GoogleSheetsInterface.spreadsheetService == null) {
                 throw NotSignedInException()
@@ -106,7 +106,7 @@ class SheetsRepository {
             request.insertDataOption = SHEETS_INSERT_DATA_OPTION
 
             request.execute()
-            Log.d(TAG, "done executing")
+            Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync() done")
     }
 
     fun getCategorySpendingAsync(

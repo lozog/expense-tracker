@@ -47,10 +47,7 @@ class SheetsViewModel : ViewModel() {
         exchangeRate: String
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
-        Log.d(TAG, "in sheetsViewModel.addExpenseRowToSheetAsync")
         viewModelScope.launch (Dispatchers.IO) {
-            Log.d(TAG, "calling sheetsRepository.addExpenseRowToSheetAsync")
-
             var statusText: String
 
             try {
@@ -86,10 +83,6 @@ class SheetsViewModel : ViewModel() {
             } catch (e: Exception) {
                 statusText = "something went wrong"
             }
-
-
-//            Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
 
             withContext(Dispatchers.Main) {
                 setStatusText(statusText)
