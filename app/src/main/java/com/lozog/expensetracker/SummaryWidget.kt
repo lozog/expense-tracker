@@ -11,6 +11,7 @@ import android.widget.RemoteViews
 import androidx.preference.PreferenceManager
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse
+import com.lozog.expensetracker.util.SheetsInterface
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -153,11 +154,11 @@ class SummaryWidget : AppWidgetProvider() {
         Log.d(TAG, "month: ${Calendar.getInstance().get(Calendar.MONTH)}}")
         val categoryValuesRange = "'${summarySheetName}'!${curMonthColumn}${FIRST_DATA_ROW}:${curMonthColumn}"
 
-        if (GoogleSheetsInterface.spreadsheetService == null) {
+        if (SheetsInterface.spreadsheetService == null) {
             throw Exception("spreadsheet service is null")
         }
 
-        val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().batchGet(spreadsheetId)
+        val request = SheetsInterface.spreadsheetService!!.spreadsheets().values().batchGet(spreadsheetId)
         request.ranges = mutableListOf(categoryLabelsRange, categoryTargetRange, categoryValuesRange) // this order is important - matches the order of the result
         request.majorDimension = SHEETS_MAJOR_DIMENSION
 

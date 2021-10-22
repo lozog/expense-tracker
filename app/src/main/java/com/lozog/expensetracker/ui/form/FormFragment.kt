@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.ui
+package com.lozog.expensetracker.ui.form
 
 import android.app.AlertDialog
 import android.content.Context
@@ -13,21 +13,24 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
+import androidx.work.*
 import com.google.android.material.snackbar.Snackbar
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.lozog.expensetracker.AddRowRequest
-import com.lozog.expensetracker.MainActivity
+import com.lozog.expensetracker.*
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.databinding.FragmentFormBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.IOException
+import com.lozog.expensetracker.SheetsViewModel
+import com.lozog.expensetracker.util.SheetsStatus
+import kotlinx.android.synthetic.main.fragment_form.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class FormFragment : Fragment() {
+    private val sheetsViewModel: SheetsViewModel by viewModels()
     private var _binding: FragmentFormBinding? = null
 
     // This property is only valid between onCreateView and
@@ -84,8 +87,8 @@ class FormFragment : Fragment() {
                     val builder = AlertDialog.Builder(mainActivity)
                     builder.setTitle(R.string.expense_category)
                     builder.setItems(R.array.categories) {_, which ->
-                        Log.d(TAG, "chose ${mainActivity.CATEGORIES[which]} as the category")
-                        expenseCategory.text = mainActivity.CATEGORIES[which]
+//                        Log.d(TAG, "chose ${MainActivity.CATEGORIES[which]} as the category")
+                        expenseCategory.text = MainActivity.CATEGORIES[which]
                     }
                     val dialog = builder.create()
                     dialog.show()
@@ -94,11 +97,32 @@ class FormFragment : Fragment() {
         }
 
         // set default category
-        expenseCategory.text = mainActivity.CATEGORIES[0]
+        expenseCategory.text = MainActivity.CATEGORIES[0]
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         expenseDate.setText(todayDate)
+
+        sheetsViewModel.status.observe(viewLifecycleOwner, {
+            when (it) {
+                SheetsStatus.IN_PROGRESS -> {
+                    expenseSubmitButton.text = getString(R.string.button_expense_submitting)
+                }
+                SheetsStatus.DONE -> {
+                    clearInputs()
+                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
+                }
+                null -> {
+                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
+                }
+            }
+        })
+
+        sheetsViewModel.statusText.observe(viewLifecycleOwner, {
+            statusTextView.text = it
+            Snackbar.make(expenseSubmitButton, it, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+        })
 
         return root
     }
@@ -155,10 +179,42 @@ class FormFragment : Fragment() {
         currencyExchangeRate.setText("")
     }
 
-    /********** PUBLIC METHODS **********/
+    private fun workManagerObserver(workInfo: WorkInfo?) {
+        if (workInfo != null) {
+            when (workInfo.state) {
+                WorkInfo.State.SUCCEEDED -> {
+                    Log.d(
+                        TAG, getString(
+                        R.string.notification_queued_requests_content,
+                        workInfo.outputData.getString("expenseItem")
+                    ))
+
+                    // send notification
+                    val builder = NotificationCompat
+                        .Builder(mainActivity, MainActivity.QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle(getString(R.string.notification_queued_requests_title))
+                        .setContentText(
+                            getString(
+                                R.string.notification_queued_requests_content,
+                                workInfo.outputData.getString("expenseItem")
+                            )
+                        )
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+                    with(NotificationManagerCompat.from(mainActivity)) {
+                        // notificationId is a unique int for each notification that you must define
+                        val notificationId = 0 // I'm using the same id for each notification, so it only shows the last one
+                        notify(notificationId, builder.build())
+                    }
+
+                }
+                else -> {}
+            }
+        }
+    }
 
     private fun submitExpense(view: View) {
-        Log.d(TAG, "submitExpense")
         hideKeyboard(view)
 
         submitButton.text = getString(R.string.button_expense_submitting)
@@ -211,73 +267,70 @@ class FormFragment : Fragment() {
             exchangeRate = defaultExchangeRate
         }
 
+        val expenseDateText = expenseDate.text.toString()
+        val expenseItemText = expenseItem.text.toString()
+        val expenseCategoryText = expenseCategory.text.toString()
+        val expenseAmountText = expenseAmount.text.toString()
+        val expenseAmountOthersText = expenseAmountOthers.text.toString()
+        val expenseNotesText = expenseNotes.text.toString()
+
         if (isInternetConnected()) {
-//            Log.d(TAG, "there is an internet connection!")
-            mainActivity.coroutineScope.launch (Dispatchers.Main) {
-                var statusText: String
+            Log.d(TAG, "internet")
 
-                try {
-//                    val appendResponse = addExpenseRowToSheetAsync(
-                    mainActivity.addExpenseRowToSheetAsync(
-                        spreadsheetId,
-                        sheetName,
-                        expenseDate.text.toString(),
-                        expenseItem.text.toString(),
-                        expenseCategory.text.toString(),
-                        expenseAmount.text.toString(),
-                        expenseAmountOthers.text.toString(),
-                        expenseNotes.text.toString(),
-                        currency,
-                        exchangeRate
-                    ).await()
-
-                    val spentSoFar = mainActivity.getCategorySpendingAsync(spreadsheetId, expenseCategory.text.toString()).await()
-                    statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategory.text.toString())
-
-                    clearInputs()
-                } catch (e: UserRecoverableAuthIOException) {
-                    Log.e(TAG, getString(R.string.status_need_permission))
-                    startActivityForResult(e.intent, MainActivity.RC_REQUEST_AUTHORIZATION)
-                    statusText = getString(R.string.status_need_permission)
-                } catch (e: IOException) {
-                    Log.e(TAG, e.toString())
-                    statusText = getString(R.string.status_google_error)
-                } catch (e: MainActivity.NotSignedInException) {
-                    Log.d(TAG, getString(R.string.status_not_signed_in))
-                    statusText = getString(R.string.status_not_signed_in)
-                }
-
-                Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-
-                statusTextView.text = statusText
-                submitButton.text = getString(R.string.button_expense_submit)
-            }
-        } else {
-//            Log.d(TAG, "no internet connection!")
-
-            mainActivity.coroutineScope.launch (Dispatchers.Main) {
-                val addRowRequest = AddRowRequest(
-                    0,
+            try {
+                Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
+                sheetsViewModel.addExpenseRowToSheetAsync(
                     spreadsheetId,
                     sheetName,
-                    expenseDate.text.toString(),
-                    expenseItem.text.toString(),
-                    expenseCategory.text.toString(),
-                    expenseAmount.text.toString(),
-                    expenseAmountOthers.text.toString(),
-                    expenseNotes.text.toString(),
+                    expenseDateText,
+                    expenseItemText,
+                    expenseCategoryText,
+                    expenseAmountText,
+                    expenseAmountOthersText,
+                    expenseNotesText,
                     currency,
                     exchangeRate
                 )
-
-                mainActivity.insertRowIntoDBAsync(addRowRequest).await()
-
-                clearInputs()
-
-                statusTextView.text = getString(R.string.status_no_internet)
-                submitButton.text = getString(R.string.button_expense_submit)
+            } catch (e: Exception) {
+                Log.d(TAG, "exception: $e")
+                sheetsViewModel.setStatusText(e.toString())
             }
+        } else {
+            Log.d(TAG, "no internet")
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            val sheetsWorkRequest: OneTimeWorkRequest =
+                OneTimeWorkRequestBuilder<SheetsWorker>()
+                    .setConstraints(constraints)
+                    .setInputData(workDataOf(
+                        "spreadsheetId" to spreadsheetId,
+                        "sheetName" to sheetName,
+                        "expenseDate" to expenseDateText,
+                        "expenseItem" to expenseItemText,
+                        "expenseCategory" to expenseCategoryText,
+                        "expenseAmount" to expenseAmountText,
+                        "expenseAmountOthers" to expenseAmountOthersText,
+                        "expenseNotes" to expenseNotesText,
+                        "currency" to currency,
+                        "exchangeRate" to exchangeRate,
+                    ))
+                    .build()
+
+            WorkManager
+                .getInstance(mainActivity)
+                .enqueueUniqueWork(UUID.randomUUID().toString(), ExistingWorkPolicy.APPEND, sheetsWorkRequest)
+
+            WorkManager
+                .getInstance(mainActivity)
+                .getWorkInfoByIdLiveData(sheetsWorkRequest.id)
+                .observe(viewLifecycleOwner, { workInfo: WorkInfo ->
+                    workManagerObserver(workInfo)
+                })
+
+            sheetsViewModel.resetView()
+            sheetsViewModel.setStatusText("no internet - $expenseItemText request queued")
         }
     }
 }

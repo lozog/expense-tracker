@@ -1,11 +1,11 @@
-package com.lozog.expensetracker
+package com.lozog.expensetracker.util
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.api.services.sheets.v4.Sheets
 
-class GoogleSheetsInterface {
+class SheetsInterface {
     companion object {
-        private const val TAG = "GOOGLE_SHEETS_INTERFACE"
+        private const val TAG = "SHEETS_INTERFACE"
 
         var googleAccount: GoogleSignInAccount? = null
         var spreadsheetService: Sheets? = null

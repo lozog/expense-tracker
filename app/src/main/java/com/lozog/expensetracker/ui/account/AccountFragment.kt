@@ -1,7 +1,6 @@
-package com.lozog.expensetracker.ui
+package com.lozog.expensetracker.ui.account
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
