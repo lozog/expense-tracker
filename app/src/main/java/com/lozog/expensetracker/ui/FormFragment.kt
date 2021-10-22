@@ -233,6 +233,13 @@ class FormFragment : Fragment() {
             exchangeRate = defaultExchangeRate
         }
 
+        val expenseDateText = expenseDate.text.toString()
+        val expenseItemText = expenseItem.text.toString()
+        val expenseCategoryText = expenseCategory.text.toString()
+        val expenseAmountText = expenseAmount.text.toString()
+        val expenseAmountOthersText = expenseAmountOthers.text.toString()
+        val expenseNotesText = expenseNotes.text.toString()
+
         if (isInternetConnected()) {
             Log.d(TAG, "internet")
 
@@ -241,12 +248,12 @@ class FormFragment : Fragment() {
                 sheetsViewModel.addExpenseRowToSheetAsync(
                     spreadsheetId,
                     sheetName,
-                    expenseDate.text.toString(),
-                    expenseItem.text.toString(),
-                    expenseCategory.text.toString(),
-                    expenseAmount.text.toString(),
-                    expenseAmountOthers.text.toString(),
-                    expenseNotes.text.toString(),
+                    expenseDateText,
+                    expenseItemText,
+                    expenseCategoryText,
+                    expenseAmountText,
+                    expenseAmountOthersText,
+                    expenseNotesText,
                     currency,
                     exchangeRate
                 )
@@ -262,6 +269,18 @@ class FormFragment : Fragment() {
             val sheetsWorkRequest: WorkRequest =
                 OneTimeWorkRequestBuilder<SheetsWorker>()
                     .setConstraints(constraints)
+                    .setInputData(workDataOf(
+                        "spreadsheetId" to spreadsheetId,
+                        "sheetName" to sheetName,
+                        "expenseDate" to expenseDateText,
+                        "expenseItem" to expenseItemText,
+                        "expenseCategory" to expenseCategoryText,
+                        "expenseAmount" to expenseAmountText,
+                        "expenseAmountOthers" to expenseAmountOthersText,
+                        "expenseNotes" to expenseNotesText,
+                        "currency" to currency,
+                        "exchangeRate" to exchangeRate,
+                    ))
                     .build()
 
             WorkManager
