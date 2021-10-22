@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 
 class SheetsWorker(appContext: Context, workerParams: WorkerParameters):
     CoroutineWorker(appContext, workerParams) {
@@ -31,6 +32,8 @@ class SheetsWorker(appContext: Context, workerParams: WorkerParameters):
             inputData.getString("exchangeRate")!!
         )
 
-        return Result.success()
+        val outputData = workDataOf("expenseItem" to inputData.getString("expenseItem")!!)
+
+        return Result.success(outputData)
     }
 }

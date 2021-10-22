@@ -80,11 +80,9 @@ class SheetsRepository {
 
             val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
                 .get(spreadsheetId, sheetName).execute().getValues().size + 1
-            Log.d(TAG, "nextRow")
 
             val expenseTotal =
                 "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
-            Log.d(TAG, "expenseTotal")
 
             val rowData = mutableListOf(
                 mutableListOf(
@@ -115,8 +113,6 @@ class SheetsRepository {
         spreadsheetId: String,
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
-        Log.d(TAG, "getCategorySpending")
-
         val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
 
         val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]

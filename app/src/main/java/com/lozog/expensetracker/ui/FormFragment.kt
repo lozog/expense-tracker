@@ -13,19 +13,17 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.google.android.material.snackbar.Snackbar
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import kotlinx.android.synthetic.main.fragment_form.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -177,7 +175,36 @@ class FormFragment : Fragment() {
         currencyExchangeRate.setText("")
     }
 
-    /********** PUBLIC METHODS **********/
+    private fun workManagerObserver(workInfo: WorkInfo?) {
+        if (workInfo != null) {
+            when (workInfo.state) {
+                WorkInfo.State.SUCCEEDED -> {
+                    Log.d(TAG, "task succeeded")
+
+                    // send notification
+                    val builder = NotificationCompat
+                        .Builder(mainActivity, MainActivity.QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle(getString(R.string.notification_queued_requests_title))
+                        .setContentText(
+                            getString(
+                                R.string.notification_queued_requests_content,
+                                workInfo.outputData.getString("expenseItem")
+                            )
+                        )
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+                    with(NotificationManagerCompat.from(mainActivity)) {
+                        // notificationId is a unique int for each notification that you must define
+                        val notificationId = 0 // I'm using the same id for each notification, so it only shows the last one
+                        notify(notificationId, builder.build())
+                    }
+
+                }
+                else -> {}
+            }
+        }
+    }
 
     private fun submitExpense(view: View) {
         Log.d(TAG, "submitExpense")
@@ -286,6 +313,11 @@ class FormFragment : Fragment() {
             WorkManager
                 .getInstance(mainActivity)
                 .enqueue(sheetsWorkRequest)
+
+            WorkManager
+                .getInstance(mainActivity)
+                .getWorkInfoByIdLiveData(sheetsWorkRequest.id)
+                .observe(viewLifecycleOwner, workManagerObserver)
 
             sheetsViewModel.resetView()
             sheetsViewModel.setStatusText("no internet - request queued")
