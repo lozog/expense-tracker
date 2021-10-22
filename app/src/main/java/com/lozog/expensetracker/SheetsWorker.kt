@@ -14,6 +14,9 @@ class SheetsWorker(appContext: Context, workerParams: WorkerParameters):
 
     override suspend fun doWork(): Result {
 
+        // TODO: bug when multiple requests are queued, it doesn't get the correct row
+        // it uses the same row for each
+
         Log.d(TAG, "SheetsWorker.doWork()")
         sheetsRepository.addExpenseRowToSheetAsync(
             inputData.getString("spreadsheetId")!!,

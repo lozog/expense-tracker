@@ -7,7 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.lozog.expensetracker.SheetsRepository
 import com.lozog.expensetracker.SheetsStatus
+import com.lozog.expensetracker.util.NotSignedInException
 import kotlinx.coroutines.*
+import java.io.IOException
 
 
 class SheetsViewModel : ViewModel() {
@@ -72,6 +74,10 @@ class SheetsViewModel : ViewModel() {
         status.value = newStatus
     }
 
+    fun resetView() {
+        status.value = SheetsStatus.DONE
+    }
+
 //    override fun onCleared() {
 //        super.onCleared()
 //        job.cancel()
@@ -117,21 +123,21 @@ class SheetsViewModel : ViewModel() {
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in $expenseCategoryValue"
+            } catch (e: UserRecoverableAuthIOException) {
+//                Log.e(TAG, getString(R.string.status_need_permission))
+//                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
+                statusText = "need google permission"
+            } catch (e: IOException) {
+                Log.e(TAG, e.toString())
+//                statusText = getString(R.string.status_google_error)
+                statusText = "google error"
+            } catch (e: NotSignedInException) {
+//                Log.d(TAG, getString(R.string.status_not_signed_in))
+                statusText = "not signed in"
             } catch (e: Exception) {
                 statusText = "something went wrong"
             }
-//
-//            catch (e: UserRecoverableAuthIOException) {
-//                Log.e(TAG, getString(R.string.status_need_permission))
-////                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
-//                statusText = getString(R.string.status_need_permission)
-//            } catch (e: IOException) {
-//                Log.e(TAG, e.toString())
-//                statusText = getString(R.string.status_google_error)
-//            } catch (e: MainActivity.NotSignedInException) {
-//                Log.d(TAG, getString(R.string.status_not_signed_in))
-//                statusText = getString(R.string.status_not_signed_in)
-//            }
+
 
 //            Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show()

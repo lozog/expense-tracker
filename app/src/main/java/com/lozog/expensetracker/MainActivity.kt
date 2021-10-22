@@ -57,31 +57,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var startForSignInResult: ActivityResultLauncher<Intent>
     lateinit var startForRequestAuthorizationResult: ActivityResultLauncher<Intent>
 
-    /********** ROOM DB **********/
-//    private lateinit var addRowRequestDB: AddRowRequestDB
-//    private lateinit var networkReceiver: NetworkReceiver
-
-    /********** CONCURRENCY **********/
-//    private val parentJob = Job()
-//    val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
-
-//    // TODO: dynamically find category cell
-//    private val CATEGORY_ROW_MAP = mapOf(
-//        "Groceries" to "20",
-//        "Dining Out" to "21",
-//        "Drinks" to "22",
-//        "Material Items" to "23",
-//        "Entertainment" to "24",
-//        "Transit" to "25",
-//        "Personal/Medical" to "26",
-//        "Gifts" to "27",
-//        "Travel" to "28",
-//        "Miscellaneous" to "29",
-//        "Film" to "30",
-//        "Household" to "31",
-//        "Other Income" to "5"
-//    )
-
     companion object {
         private const val TAG = "MAIN_ACTIVITY"
 
@@ -89,19 +64,10 @@ class MainActivity : AppCompatActivity() {
         const val RC_SIGN_IN: Int = 0
         const val RC_REQUEST_AUTHORIZATION: Int = 1
 
-//        private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
-//        private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
-
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
 
 //        private const val QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID = "queued_request"
-//
-//        // January -> column C, etc
-//        // TODO: dynamically find month columns
-//        private val MONTH_COLUMNS = listOf(
-//            "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
-//        )
 
         val CATEGORIES = arrayOf(
             "Groceries",
@@ -120,8 +86,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    class NotSignedInException : Exception()
-
     /********** OVERRIDE METHODS **********/
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,15 +101,6 @@ class MainActivity : AppCompatActivity() {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-
-//        addRowRequestDB = Room.databaseBuilder(
-//            applicationContext,
-//            AddRowRequestDB::class.java, "add-row-request-db"
-//        ).build()
-
-//        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-//        networkReceiver = NetworkReceiver()
-//        registerReceiver(networkReceiver, filter)
 
 //        createNotificationChannel()
 
@@ -193,19 +148,6 @@ class MainActivity : AppCompatActivity() {
             onSignInSuccess(account)
         }
     }
-
-//    override fun onResume() {
-//        super.onResume()
-//
-//        sendQueuedRequests()
-//    }
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-//
-//        // Unregisters BroadcastReceiver when app is destroyed.
-//        this.unregisterReceiver(networkReceiver)
-//    }
 
     private fun onActivityResult(requestCode: Int, result: ActivityResult) {
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
@@ -279,167 +221,4 @@ class MainActivity : AppCompatActivity() {
         val accountViewModel: AccountViewModel by viewModels()
         accountViewModel.setSignInStatus("signed into account: ${account.email}")
     }
-
-    /********** GOOGLE SHEETS METHODS **********/
-
-//    fun addExpenseRowToSheetAsync(
-//        spreadsheetId: String,
-//        sheetName: String,
-//        expenseDate: String,
-//        expenseItem: String,
-//        expenseCategoryValue: String,
-//        expenseAmount: String,
-//        expenseAmountOthers: String,
-//        expenseNotes: String,
-//        currency: String,
-//        exchangeRate: String
-//    ): Deferred<AppendValuesResponse> = coroutineScope.async (Dispatchers.IO) {
-//        Log.d(TAG, "addExpenseRowToSheetAsync")
-//
-//        if (GoogleSheetsInterface.spreadsheetService == null) {
-//            throw NotSignedInException()
-//        }
-//
-//        val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, sheetName).execute().getValues().size + 1
-//        val expenseTotal = "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
-//
-//        val rowData = mutableListOf(mutableListOf(
-//            expenseDate, expenseItem, expenseCategoryValue, expenseAmount, expenseAmountOthers, expenseTotal, expenseNotes, currency, exchangeRate
-//        ))
-//        val requestBody = ValueRange()
-//        requestBody.setValues(rowData as List<MutableList<String>>?)
-//
-//        val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().append(spreadsheetId, sheetName, requestBody)
-//        request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
-//        request.insertDataOption = SHEETS_INSERT_DATA_OPTION
-//
-//        return@async request.execute()
-//    }
-//
-//    fun getCategorySpendingAsync(
-//        spreadsheetId: String,
-//        expenseCategoryValue: String
-//    ): Deferred<String> = coroutineScope.async (Dispatchers.IO) {
-//        Log.d(TAG, "getCategorySpending")
-//
-//        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
-//
-//        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
-//
-//        if (categoryCell == null) {
-//            Log.e(TAG, "Category $expenseCategoryValue not found")
-//            return@async "$??"
-//        }
-//
-//        val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
-//
-//        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-//        val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values().get(spreadsheetId, categorySpendingCell).execute().getValues()
-//
-//        val spentSoFar = data[0][0].toString()
-////        Log.d(TAG, "$spentSoFar spent so far in $expenseCategoryValue")
-//
-//        return@async spentSoFar
-//    }
-
-    /********** HELPER METHODS **********/
-//
-//    private fun createNotificationChannel() {
-//        // Create the NotificationChannel, but only on API 26+ because
-//        // the NotificationChannel class is new and not in the support library
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            val name = getString(R.string.notification_queued_requests_channel_name)
-//            val descriptionText = getString(R.string.notification_queued_requests_channel_description)
-//            val importance = NotificationManager.IMPORTANCE_DEFAULT
-//            val channel = NotificationChannel(QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID, name, importance).apply {
-//                description = descriptionText
-//            }
-//            // Register the channel with the system
-//            val notificationManager: NotificationManager =
-//                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//            notificationManager.createNotificationChannel(channel)
-//        }
-//    }
-
-//    private fun isInternetConnected(): Boolean {
-//        val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-//        return activeNetwork?.isConnectedOrConnecting == true
-//    }
-//
-//    fun insertRowIntoDBAsync(
-//        addRowRequest: AddRowRequest
-//    ): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-////        Log.d(TAG, "insertRowIntoDBAsync")
-//
-//        addRowRequestDB.addRowRequestDao().insert(addRowRequest)
-//
-//        return@async addRowRequestDB.addRowRequestDao().getAll()
-//    }
-//
-//    private fun getAllRowsAsync(): Deferred<List<AddRowRequest>> = coroutineScope.async (Dispatchers.IO) {
-////        Log.d(TAG, "getAllRowsAsync")
-//
-//        return@async addRowRequestDB.addRowRequestDao().getAll()
-//    }
-//
-//    private fun deleteRowAsync(addRowRequest: AddRowRequest) = coroutineScope.launch (Dispatchers.IO) {
-////        Log.d(TAG, "deleteRowAsync: deleting queued request with id ${addRowRequest.id}")
-//
-//        addRowRequestDB.addRowRequestDao().delete(addRowRequest)
-//    }
-
-    /********** PUBLIC METHODS **********/
-
-//    fun sendQueuedRequests() {
-//        if (!isInternetConnected()) {
-//            return
-//        }
-//
-//        coroutineScope.launch (Dispatchers.Main) {
-//            val queuedRequests = getAllRowsAsync().await()
-//
-//            queuedRequests.forEach { addRowRequest ->
-//                Log.d(TAG, "sending queued requests")
-//
-//                try {
-//                    addExpenseRowToSheetAsync(
-//                        addRowRequest.spreadsheetId,
-//                        addRowRequest.sheetName,
-//                        addRowRequest.expenseDate,
-//                        addRowRequest.expenseItem,
-//                        addRowRequest.expenseCategoryValue,
-//                        addRowRequest.expenseAmount,
-//                        addRowRequest.expenseAmountOthers,
-//                        addRowRequest.expenseNotes,
-//                        addRowRequest.currency,
-//                        addRowRequest.exchangeRate
-//                    ).await()
-//
-//                    deleteRowAsync(addRowRequest)
-//                } catch (e: UserRecoverableAuthIOException) {
-//                    startForRequestAuthorizationResult.launch(e.intent)
-//                    Log.e(TAG, getString(R.string.status_need_permission))
-//                } catch (e: IOException) {
-//                    Log.e(TAG, getString(R.string.status_google_error))
-//                } catch (e: NotSignedInException) {
-//                    Log.d(TAG, getString(R.string.status_not_signed_in))
-//                } finally {
-//                    Log.d(TAG, "creating notification of sent requests")
-//
-//                    val builder = NotificationCompat.Builder(this@MainActivity, QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
-//                        .setSmallIcon(R.drawable.ic_launcher_foreground)
-//                        .setContentTitle(getString(R.string.notification_queued_requests_title))
-//                        .setContentText(getString(R.string.notification_queued_requests_content, addRowRequest.expenseItem))
-//                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//
-//                    with(NotificationManagerCompat.from(this@MainActivity)) {
-//                        // notificationId is a unique int for each notification that you must define
-//                        val notificationId = 0 // I'm using the same id for each notification, so it only shows the last one
-//                        notify(notificationId, builder.build())
-//                    }
-//                }
-//            }
-//        }
-//    }
 }

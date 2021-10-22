@@ -2,6 +2,7 @@ package com.lozog.expensetracker
 
 import android.util.Log
 import com.google.api.services.sheets.v4.model.ValueRange
+import com.lozog.expensetracker.util.NotSignedInException
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -74,7 +75,7 @@ class SheetsRepository {
         Log.d(TAG, "in sheetsRepository.addExpenseRowToSheetAsync")
 
             if (GoogleSheetsInterface.spreadsheetService == null) {
-                throw MainActivity.NotSignedInException()
+                throw NotSignedInException()
             }
 
             val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
@@ -132,10 +133,6 @@ class SheetsRepository {
             .get(spreadsheetId, categorySpendingCell).execute().getValues()
 
         val spentSoFar = data[0][0].toString()
-
-//        withContext(Dispatchers.Main) {
-//            setStatusText("$spentSoFar spent so far in $expenseCategoryValue")
-//        }
 
         return@async spentSoFar
     }
