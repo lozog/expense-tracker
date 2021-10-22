@@ -74,11 +74,11 @@ class SheetsRepository {
     ) = withContext(Dispatchers.IO) {
         Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
 
-            if (GoogleSheetsInterface.spreadsheetService == null) {
+            if (SheetsInterface.spreadsheetService == null) {
                 throw NotSignedInException()
             }
 
-            val nextRow = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
+            val nextRow = SheetsInterface.spreadsheetService!!.spreadsheets().values()
                 .get(spreadsheetId, sheetName).execute().getValues().size + 1
 
             val expenseTotal =
@@ -100,7 +100,7 @@ class SheetsRepository {
             val requestBody = ValueRange()
             requestBody.setValues(rowData as List<MutableList<String>>?)
 
-            val request = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
+            val request = SheetsInterface.spreadsheetService!!.spreadsheets().values()
                 .append(spreadsheetId, sheetName, requestBody)
             request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
             request.insertDataOption = SHEETS_INSERT_DATA_OPTION
@@ -125,7 +125,7 @@ class SheetsRepository {
         val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
 
         val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-        val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
+        val data = SheetsInterface.spreadsheetService!!.spreadsheets().values()
             .get(spreadsheetId, categorySpendingCell).execute().getValues()
 
         val spentSoFar = data[0][0].toString()

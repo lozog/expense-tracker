@@ -4,27 +4,19 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.room.Room
-import androidx.work.WorkManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -34,17 +26,11 @@ import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
-import com.google.api.services.sheets.v4.model.AppendValuesResponse
-import com.google.api.services.sheets.v4.model.ValueRange
-import kotlinx.android.synthetic.main.main_activity.*
-import kotlinx.coroutines.*
-import java.io.IOException
 import java.util.*
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
 import com.lozog.expensetracker.ui.AccountViewModel
@@ -201,8 +187,8 @@ class MainActivity : AppCompatActivity() {
                         val accountViewModel: AccountViewModel by viewModels()
                         accountViewModel.setSignInStatus("not signed in")
 
-                        GoogleSheetsInterface.googleAccount = null
-                        GoogleSheetsInterface.spreadsheetService = null
+                        SheetsInterface.googleAccount = null
+                        SheetsInterface.spreadsheetService = null
                     }
             }
         }
@@ -233,8 +219,8 @@ class MainActivity : AppCompatActivity() {
             .setApplicationName(getString(R.string.app_name))
             .build()
 
-        GoogleSheetsInterface.googleAccount = account
-        GoogleSheetsInterface.spreadsheetService = sheetService
+        SheetsInterface.googleAccount = account
+        SheetsInterface.spreadsheetService = sheetService
 
         val accountViewModel: AccountViewModel by viewModels()
         accountViewModel.setSignInStatus("signed into account: ${account.email}")
