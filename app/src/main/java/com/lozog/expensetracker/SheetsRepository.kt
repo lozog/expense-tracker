@@ -108,33 +108,34 @@ class SheetsRepository {
             Log.d(TAG, "doneexcecuting")
     }
 
-    fun getCategorySpendingAsync(
-        spreadsheetId: String,
-        expenseCategoryValue: String
-    ): String? {
-        Log.d(TAG, "getCategorySpending")
-
-        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
-
-        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
-
-        if (categoryCell == null) {
-            Log.e(TAG, "Category $expenseCategoryValue not found")
-            return null
-        }
-
-        val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
-
-        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-        val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
-            .get(spreadsheetId, categorySpendingCell).execute().getValues()
-
-        val spentSoFar = data[0][0].toString()
-
-//        withContext(Dispatchers.Main) {
-//            setStatusText("$spentSoFar spent so far in $expenseCategoryValue")
+//    fun getCategorySpendingAsync(
+//        spreadsheetId: String,
+//        expenseCategoryValue: String
+//    ): String? {
+//        Log.d(TAG, "getCategorySpending")
+//
+//        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
+//
+//        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
+//
+//        if (categoryCell == null) {
+//            Log.e(TAG, "Category $expenseCategoryValue not found")
+//            // TODO: WHY CANT I ASYNC
+//            return@async null
 //        }
-
-        return spentSoFar
-    }
+//
+//        val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
+//
+//        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
+//        val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
+//            .get(spreadsheetId, categorySpendingCell).execute().getValues()
+//
+//        val spentSoFar = data[0][0].toString()
+//
+////        withContext(Dispatchers.Main) {
+////            setStatusText("$spentSoFar spent so far in $expenseCategoryValue")
+////        }
+//
+//        return@async spentSoFar
+//    }
 }
