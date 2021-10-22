@@ -11,6 +11,7 @@ import android.widget.RemoteViews
 import androidx.preference.PreferenceManager
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse
+import com.lozog.expensetracker.util.SheetsInterface
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.text.SimpleDateFormat

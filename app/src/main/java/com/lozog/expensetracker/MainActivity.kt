@@ -33,7 +33,8 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import java.util.*
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
-import com.lozog.expensetracker.ui.AccountViewModel
+import com.lozog.expensetracker.ui.account.AccountViewModel
+import com.lozog.expensetracker.util.SheetsInterface
 
 class MainActivity : AppCompatActivity() {
 

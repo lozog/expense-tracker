@@ -3,6 +3,7 @@ package com.lozog.expensetracker
 import android.util.Log
 import com.google.api.services.sheets.v4.model.ValueRange
 import com.lozog.expensetracker.util.NotSignedInException
+import com.lozog.expensetracker.util.SheetsInterface
 import kotlinx.coroutines.*
 import java.util.*
 

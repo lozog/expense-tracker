@@ -1,12 +1,11 @@
-package com.lozog.expensetracker.ui
+package com.lozog.expensetracker
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.lozog.expensetracker.SheetsRepository
-import com.lozog.expensetracker.SheetsStatus
+import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
 import kotlinx.coroutines.*
 import java.io.IOException

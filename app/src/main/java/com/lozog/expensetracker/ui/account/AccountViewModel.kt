@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.ui
+package com.lozog.expensetracker.ui.account
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

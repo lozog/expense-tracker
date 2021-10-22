@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.ui
+package com.lozog.expensetracker.ui.form
 
 import android.app.AlertDialog
 import android.content.Context
@@ -23,6 +23,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.databinding.FragmentFormBinding
+import com.lozog.expensetracker.SheetsViewModel
+import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -181,7 +183,8 @@ class FormFragment : Fragment() {
         if (workInfo != null) {
             when (workInfo.state) {
                 WorkInfo.State.SUCCEEDED -> {
-                    Log.d(TAG, getString(
+                    Log.d(
+                        TAG, getString(
                         R.string.notification_queued_requests_content,
                         workInfo.outputData.getString("expenseItem")
                     ))
@@ -327,7 +330,7 @@ class FormFragment : Fragment() {
                 })
 
             sheetsViewModel.resetView()
-            sheetsViewModel.setStatusText("no internet - request queued")
+            sheetsViewModel.setStatusText("no internet - $expenseItemText request queued")
         }
     }
 }

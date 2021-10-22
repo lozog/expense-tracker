@@ -1,4 +1,4 @@
-package com.lozog.expensetracker
+package com.lozog.expensetracker.util
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.api.services.sheets.v4.Sheets
