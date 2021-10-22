@@ -106,9 +106,8 @@ class SheetsRepository {
             request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
             request.insertDataOption = SHEETS_INSERT_DATA_OPTION
 
-            Log.d(TAG, "excecuting")
             request.execute()
-            Log.d(TAG, "doneexcecuting")
+            Log.d(TAG, "done executing")
     }
 
     fun getCategorySpendingAsync(

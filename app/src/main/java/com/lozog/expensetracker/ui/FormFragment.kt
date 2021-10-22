@@ -16,12 +16,11 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
+import androidx.work.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.lozog.expensetracker.AddRowRequest
-import com.lozog.expensetracker.MainActivity
+import com.lozog.expensetracker.*
 import com.lozog.expensetracker.R
-import com.lozog.expensetracker.SheetsStatus
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import kotlinx.android.synthetic.main.fragment_form.*
 import kotlinx.coroutines.Dispatchers
@@ -142,11 +141,11 @@ class FormFragment : Fragment() {
         )
     }
 
-//    private fun isInternetConnected(): Boolean {
-//        val cm = mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-//        return activeNetwork?.isConnectedOrConnecting == true
-//    }
+    private fun isInternetConnected(): Boolean {
+        val cm = mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        return activeNetwork?.isConnectedOrConnecting == true
+    }
 
     private fun validateInput(): Boolean {
         var isValid = true
@@ -234,23 +233,42 @@ class FormFragment : Fragment() {
             exchangeRate = defaultExchangeRate
         }
 
-        try {
-            Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
-            sheetsViewModel.addExpenseRowToSheetAsync(
-                spreadsheetId,
-                sheetName,
-                expenseDate.text.toString(),
-                expenseItem.text.toString(),
-                expenseCategory.text.toString(),
-                expenseAmount.text.toString(),
-                expenseAmountOthers.text.toString(),
-                expenseNotes.text.toString(),
-                currency,
-                exchangeRate
-            )
-        } catch (e: Exception) {
-            Log.d(TAG, "exception: $e")
+        if (isInternetConnected()) {
+            Log.d(TAG, "internet")
+
+            try {
+                Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
+                sheetsViewModel.addExpenseRowToSheetAsync(
+                    spreadsheetId,
+                    sheetName,
+                    expenseDate.text.toString(),
+                    expenseItem.text.toString(),
+                    expenseCategory.text.toString(),
+                    expenseAmount.text.toString(),
+                    expenseAmountOthers.text.toString(),
+                    expenseNotes.text.toString(),
+                    currency,
+                    exchangeRate
+                )
+            } catch (e: Exception) {
+                Log.d(TAG, "exception: $e")
+            }
+        } else {
+            Log.d(TAG, "no internet")
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            val sheetsWorkRequest: WorkRequest =
+                OneTimeWorkRequestBuilder<SheetsWorker>()
+                    .setConstraints(constraints)
+                    .build()
+
+            WorkManager
+                .getInstance(mainActivity)
+                .enqueue(sheetsWorkRequest)
         }
+
 //
 //        if (isInternetConnected()) {
 ////            Log.d(TAG, "there is an internet connection!")
