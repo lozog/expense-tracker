@@ -93,22 +93,9 @@ class SheetsViewModel : ViewModel() {
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
         Log.d(TAG, "in sheetsViewModel.addExpenseRowToSheetAsync")
-        viewModelScope.launch {
+        viewModelScope.launch (Dispatchers.IO) {
             Log.d(TAG, "calling sheetsRepository.addExpenseRowToSheetAsync")
 
-//            sheetsRepository.addExpenseRowToSheetAsync(
-//                spreadsheetId,
-//                sheetName,
-//                expenseDate,
-//                expenseItem,
-//                expenseCategoryValue,
-//                expenseAmount,
-//                expenseAmountOthers,
-//                expenseNotes,
-//                currency,
-//                exchangeRate
-//            )
-//            Log.d(TAG, "done sheetsRepository.addExpenseRowToSheetAsync")
             var statusText: String
 
             try {
@@ -125,15 +112,13 @@ class SheetsViewModel : ViewModel() {
                     exchangeRate
                 )
 
-//                val spentSoFar = withContext(Dispatchers.IO) {
-//                    sheetsRepository.getCategorySpendingAsync(spreadsheetId, expenseCategoryValue)
-//                }
+                val spentSoFar = sheetsRepository
+                    .getCategorySpendingAsync(spreadsheetId, expenseCategoryValue)
+                    .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
-                statusText = "good"
-
-//                clearInputs()
+                statusText = "$spentSoFar spent so far in $expenseCategoryValue"
             } catch (e: Exception) {
-                statusText = "bad"
+                statusText = "something went wrong"
             }
 //
 //            catch (e: UserRecoverableAuthIOException) {
@@ -151,8 +136,10 @@ class SheetsViewModel : ViewModel() {
 //            Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show()
 
-            setStatusText(statusText)
-            setStatus(SheetsStatus.DONE)
+            withContext(Dispatchers.Main) {
+                setStatusText(statusText)
+                setStatus(SheetsStatus.DONE)
+            }
 
 //            setStatusText(statusText)
 //            submitButton.text = getString(R.string.button_expense_submit)

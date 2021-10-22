@@ -2,13 +2,15 @@ package com.lozog.expensetracker
 
 import android.util.Log
 import com.google.api.services.sheets.v4.model.ValueRange
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 
 
 class SheetsRepository {
+
+    /********** CONCURRENCY **********/
+    private val parentJob = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + parentJob)
 
     companion object {
         private const val TAG = "SHEETS_REPOSITORY"
@@ -109,34 +111,33 @@ class SheetsRepository {
             Log.d(TAG, "doneexcecuting")
     }
 
-//    fun getCategorySpendingAsync(
-//        spreadsheetId: String,
-//        expenseCategoryValue: String
-//    ): String? {
-//        Log.d(TAG, "getCategorySpending")
-//
-//        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
-//
-//        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
-//
-//        if (categoryCell == null) {
-//            Log.e(TAG, "Category $expenseCategoryValue not found")
-//            // TODO: WHY CANT I ASYNC
-//            return@async null
+    fun getCategorySpendingAsync(
+        spreadsheetId: String,
+        expenseCategoryValue: String
+    ): Deferred<String> = coroutineScope.async {
+        Log.d(TAG, "getCategorySpending")
+
+        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
+
+        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
+
+        if (categoryCell == null) {
+            Log.e(TAG, "Category $expenseCategoryValue not found")
+            throw Exception("Category $expenseCategoryValue not found")
+        }
+
+        val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
+
+        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
+        val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
+            .get(spreadsheetId, categorySpendingCell).execute().getValues()
+
+        val spentSoFar = data[0][0].toString()
+
+//        withContext(Dispatchers.Main) {
+//            setStatusText("$spentSoFar spent so far in $expenseCategoryValue")
 //        }
-//
-//        val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
-//
-//        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-//        val data = GoogleSheetsInterface.spreadsheetService!!.spreadsheets().values()
-//            .get(spreadsheetId, categorySpendingCell).execute().getValues()
-//
-//        val spentSoFar = data[0][0].toString()
-//
-////        withContext(Dispatchers.Main) {
-////            setStatusText("$spentSoFar spent so far in $expenseCategoryValue")
-////        }
-//
-//        return@async spentSoFar
-//    }
+
+        return@async spentSoFar
+    }
 }
