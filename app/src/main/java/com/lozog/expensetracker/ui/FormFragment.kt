@@ -21,7 +21,9 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.lozog.expensetracker.AddRowRequest
 import com.lozog.expensetracker.MainActivity
 import com.lozog.expensetracker.R
+import com.lozog.expensetracker.SheetsStatus
 import com.lozog.expensetracker.databinding.FragmentFormBinding
+import kotlinx.android.synthetic.main.fragment_form.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -86,8 +88,8 @@ class FormFragment : Fragment() {
                     val builder = AlertDialog.Builder(mainActivity)
                     builder.setTitle(R.string.expense_category)
                     builder.setItems(R.array.categories) {_, which ->
-                        Log.d(TAG, "chose ${mainActivity.CATEGORIES[which]} as the category")
-                        expenseCategory.text = mainActivity.CATEGORIES[which]
+//                        Log.d(TAG, "chose ${MainActivity.CATEGORIES[which]} as the category")
+                        expenseCategory.text = MainActivity.CATEGORIES[which]
                     }
                     val dialog = builder.create()
                     dialog.show()
@@ -96,11 +98,30 @@ class FormFragment : Fragment() {
         }
 
         // set default category
-        expenseCategory.text = mainActivity.CATEGORIES[0]
+        expenseCategory.text = MainActivity.CATEGORIES[0]
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         expenseDate.setText(todayDate)
+
+        sheetsViewModel.status.observe(viewLifecycleOwner, {
+            when (it) {
+                SheetsStatus.IN_PROGRESS -> {
+                    expenseSubmitButton.text = getString(R.string.button_expense_submitting)
+                }
+                SheetsStatus.DONE -> {
+                    clearInputs()
+                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
+                }
+                null -> {
+                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
+                }
+            }
+        })
+
+        sheetsViewModel.statusText.observe(viewLifecycleOwner, {
+            statusTextView.text = it
+        })
 
         return root
     }
@@ -148,14 +169,14 @@ class FormFragment : Fragment() {
         return isValid
     }
 
-//    private fun clearInputs() {
-//        expenseItem.setText("")
-//        expenseAmount.setText("")
-//        expenseAmountOthers.setText("")
-//        expenseNotes.setText("")
-//        currencyLabel.setText("")
-//        currencyExchangeRate.setText("")
-//    }
+    private fun clearInputs() {
+        expenseItem.setText("")
+        expenseAmount.setText("")
+        expenseAmountOthers.setText("")
+        expenseNotes.setText("")
+        currencyLabel.setText("")
+        currencyExchangeRate.setText("")
+    }
 
     /********** PUBLIC METHODS **********/
 

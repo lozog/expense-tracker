@@ -4,17 +4,15 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.lozog.expensetracker.SheetsRepository
-import kotlinx.coroutines.launch
+import com.lozog.expensetracker.SheetsStatus
+import kotlinx.coroutines.*
 
 
 class SheetsViewModel : ViewModel() {
     companion object {
         private const val TAG = "SHEETS_VIEW_MODEL"
-
-        enum class SHEETS_STATUS {
-            DONE, IN_PROGRESS
-        }
 //
 //        private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
 //        private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
@@ -63,10 +61,15 @@ class SheetsViewModel : ViewModel() {
 
     private val sheetsRepository = SheetsRepository()
 
+    val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
+    }
+
+    fun setStatus(newStatus: SheetsStatus) {
+        status.value = newStatus
     }
 
 //    override fun onCleared() {
@@ -88,6 +91,7 @@ class SheetsViewModel : ViewModel() {
         currency: String,
         exchangeRate: String
     ) {
+        setStatus(SheetsStatus.IN_PROGRESS)
         Log.d(TAG, "in sheetsViewModel.addExpenseRowToSheetAsync")
         viewModelScope.launch {
             Log.d(TAG, "calling sheetsRepository.addExpenseRowToSheetAsync")
@@ -125,9 +129,14 @@ class SheetsViewModel : ViewModel() {
 //                    sheetsRepository.getCategorySpendingAsync(spreadsheetId, expenseCategoryValue)
 //                }
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
-//
+                statusText = "good"
+
 //                clearInputs()
-//            } catch (e: UserRecoverableAuthIOException) {
+            } catch (e: Exception) {
+                statusText = "bad"
+            }
+//
+//            catch (e: UserRecoverableAuthIOException) {
 //                Log.e(TAG, getString(R.string.status_need_permission))
 ////                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
 //                statusText = getString(R.string.status_need_permission)
@@ -139,7 +148,13 @@ class SheetsViewModel : ViewModel() {
 //                statusText = getString(R.string.status_not_signed_in)
 //            }
 
-//            sheetsViewModel.setStatusText(statusText)
+//            Snackbar.make(view, statusText, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+
+            setStatusText(statusText)
+            setStatus(SheetsStatus.DONE)
+
+//            setStatusText(statusText)
 //            submitButton.text = getString(R.string.button_expense_submit)
         }
     }
