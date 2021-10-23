@@ -61,7 +61,7 @@ class SheetsRepository {
 
     /********** GOOGLE SHEETS METHODS **********/
 
-    suspend fun addExpenseRowToSheetAsync(
+    fun addExpenseRowToSheetAsync(
         spreadsheetId: String,
         sheetName: String,
         expenseDate: String,
@@ -72,7 +72,7 @@ class SheetsRepository {
         expenseNotes: String,
         currency: String,
         exchangeRate: String
-    ) = withContext(Dispatchers.IO) {
+    ) = coroutineScope.launch {
         Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
 
             if (SheetsInterface.spreadsheetService == null) {
