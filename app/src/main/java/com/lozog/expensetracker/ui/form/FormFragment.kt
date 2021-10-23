@@ -88,7 +88,7 @@ class FormFragment : Fragment() {
                     builder.setTitle(R.string.expense_category)
                     builder.setItems(R.array.categories) {_, which ->
 //                        Log.d(TAG, "chose ${MainActivity.CATEGORIES[which]} as the category")
-                        expenseCategory.text = MainActivity.CATEGORIES[which]
+                        expenseCategory.text = SheetsRepository.CATEGORIES[which]
                     }
                     val dialog = builder.create()
                     dialog.show()
@@ -97,7 +97,7 @@ class FormFragment : Fragment() {
         }
 
         // set default category
-        expenseCategory.text = MainActivity.CATEGORIES[0]
+        expenseCategory.text = SheetsRepository.CATEGORIES[0]
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())

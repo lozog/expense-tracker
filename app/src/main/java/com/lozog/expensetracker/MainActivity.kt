@@ -56,22 +56,6 @@ class MainActivity : AppCompatActivity() {
         private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
 
         const val QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID = "queued_request"
-
-        val CATEGORIES = arrayOf(
-            "Groceries",
-            "Dining Out",
-            "Drinks",
-            "Material Items",
-            "Entertainment",
-            "Transit",
-            "Personal/Medical",
-            "Gifts",
-            "Travel",
-            "Miscellaneous",
-            "Film",
-            "Household",
-            "Other Income"
-        )
     }
 
     /********** OVERRIDE METHODS **********/
