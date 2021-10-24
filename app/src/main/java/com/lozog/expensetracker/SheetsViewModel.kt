@@ -21,6 +21,7 @@ class SheetsViewModel : ViewModel() {
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
     val historyText = MutableLiveData<String>()
+    val recentHistory = MutableLiveData<List<List<String>>>()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
@@ -28,6 +29,10 @@ class SheetsViewModel : ViewModel() {
 
     fun setHistoryText(newText: String) {
         historyText.value = newText
+    }
+
+    fun setRecentHistory(history: List<List<String>>) {
+        recentHistory.value = history
     }
 
     fun setStatus(newStatus: SheetsStatus) {
@@ -45,6 +50,7 @@ class SheetsViewModel : ViewModel() {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
             var historyText: String
+            var recentHistory: List<List<String>>?
 
             try {
                 Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
@@ -52,15 +58,19 @@ class SheetsViewModel : ViewModel() {
                     spreadsheetId,
                     sheetName
                 ).await()
-                historyText = res
-                Log.d(TAG, "got history: $historyText")
+                recentHistory = res
+                Log.d(TAG, "got history: $recentHistory")
             } catch (e: Exception) {
-                historyText = "something went wrong"
+//                historyText = "something went wrong"
+                recentHistory = null
                 Log.e(TAG, e.toString())
             }
 
             withContext(Dispatchers.Main) {
-                setHistoryText(historyText)
+//                setHistoryText(historyText)
+                if (recentHistory != null) {
+                    setRecentHistory(recentHistory)
+                }
                 setStatus(SheetsStatus.DONE)
             }
         }

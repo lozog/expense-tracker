@@ -137,7 +137,7 @@ class SheetsRepository {
     fun getRecentExpenseHistoryAsync(
         spreadsheetId: String,
         sheetName: String
-    ): Deferred<String> = coroutineScope.async {
+    ): Deferred<List<List<String>>> = coroutineScope.async {
         if (SheetsInterface.spreadsheetService == null) {
             throw NotSignedInException()
         }
@@ -149,13 +149,16 @@ class SheetsRepository {
         val values = res.getValues()
         val rowsInSheet = values.size
         var historyText: List<String>
+        var recentHistory: List<List<String>>
         val HISTORY_LENGTH = 10
         // TODO:
 
         if (rowsInSheet < HISTORY_LENGTH + 1 ) {
             historyText = values as List<String>
+            recentHistory = values as List<List<String>>
         } else {
             historyText = values.takeLast(10) as List<String>
+            recentHistory = values.takeLast(10) as List<List<String>>
         }
 
         Log.d(TAG, "first row: ${values[0]}")
@@ -163,6 +166,6 @@ class SheetsRepository {
 
 //        Log.d(TAG, "got : $lastRowNumber")
 
-        return@async "async return: $historyText"
+        return@async recentHistory
     }
 }

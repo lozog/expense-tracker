@@ -10,12 +10,15 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.lozog.expensetracker.MainActivity
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
 import com.lozog.expensetracker.ui.form.FormFragment
+import com.lozog.expensetracker.util.HistoryAdapter
 import kotlinx.android.synthetic.main.fragment_history.*
 
 class HistoryFragment: Fragment() {
@@ -32,6 +35,9 @@ class HistoryFragment: Fragment() {
 
     private lateinit var updateHistoryButton: Button
     private lateinit var historyText: TextView
+    private lateinit var recentHistory: RecyclerView
+//    private lateinit var recentHistory: List<List<String>>
+    private var historyAdapter = HistoryAdapter(listOf())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,10 +51,20 @@ class HistoryFragment: Fragment() {
 
         updateHistoryButton = binding.updateHistoryButton
         historyText = binding.historyText
+        recentHistory = binding.recentHistory
+        recentHistory.layoutManager = LinearLayoutManager(mainActivity)
+        recentHistory.adapter = historyAdapter
+
 
         sheetsViewModel.historyText.observe(viewLifecycleOwner, {
 //            Log.d(TAG, "observing: $it")
             historyText.text = it
+        })
+
+        sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
+//            Log.d(TAG, "observing: $it")
+            historyAdapter = HistoryAdapter(it)
+            recentHistory.adapter = historyAdapter
         })
 
         updateHistoryButton.setOnClickListener{view ->
