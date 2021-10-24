@@ -74,4 +74,9 @@
     <string name="notification_queued_requests_title">Sent queued request</string>
     <string name="notification_queued_requests_content">%1$s sent to sheet</string>
 
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_settings">Settings</string>
+
 </resources>
