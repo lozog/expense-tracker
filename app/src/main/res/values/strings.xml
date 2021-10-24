@@ -16,6 +16,7 @@
     <string name="button_expense_submit">Submit</string>
     <string name="button_expense_submitting">Submitting…</string>
     <string name="button_sign_out">Sign Out</string>
+    <string name="button_history">Update History</string>
 
     <!-- Status messages -->
     <string name="status_no_internet">No internet connection - saved request for later</string>
