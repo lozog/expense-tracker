@@ -147,13 +147,22 @@ class SheetsRepository {
         val res = SheetsInterface.spreadsheetService!!.spreadsheets().values()
             .get(spreadsheetId, sheetName).execute()
         val values = res.getValues()
-        val lastRowNumber = values.size
+        val rowsInSheet = values.size
+        var historyText: List<String>
+        val HISTORY_LENGTH = 10
+        // TODO:
+
+        if (rowsInSheet < HISTORY_LENGTH + 1 ) {
+            historyText = values as List<String>
+        } else {
+            historyText = values.takeLast(10) as List<String>
+        }
 
         Log.d(TAG, "first row: ${values[0]}")
         Log.d(TAG, "last row: ${values.last()}")
 
 //        Log.d(TAG, "got : $lastRowNumber")
 
-        return@async "async return: $lastRowNumber"
+        return@async "async return: $historyText"
     }
 }

@@ -44,18 +44,23 @@ class SheetsViewModel : ViewModel() {
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
+            var historyText: String
+
             try {
                 Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
-                val historyText = sheetsRepository.getRecentExpenseHistoryAsync(
+                val res = sheetsRepository.getRecentExpenseHistoryAsync(
                     spreadsheetId,
                     sheetName
                 ).await()
+                historyText = res
                 Log.d(TAG, "got history: $historyText")
-                setHistoryText(historyText)
             } catch (e: Exception) {
+                historyText = "something went wrong"
                 Log.e(TAG, e.toString())
             }
+
             withContext(Dispatchers.Main) {
+                setHistoryText(historyText)
                 setStatus(SheetsStatus.DONE)
             }
         }
