@@ -7,12 +7,17 @@
         android:title="@string/nav_home" />
 
     <item
+        android:id="@+id/navigation_history"
+        android:icon="@drawable/ic_baseline_history_24"
+        android:title="@string/nav_history" />
+
+    <item
         android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_refresh"
+        android:icon="@drawable/ic_baseline_settings_24"
         android:title="@string/nav_settings" />
 
     <item
         android:id="@+id/navigation_account"
-        android:icon="@drawable/ic_baseline_settings_24"
+        android:icon="@drawable/ic_baseline_person_24"
         android:title="@string/nav_account" />
 </menu>

@@ -217,6 +217,7 @@ class FormFragment : Fragment() {
     private fun submitExpense(view: View) {
         hideKeyboard(view)
 
+        // TODO: observe sheetsViewModel
         submitButton.text = getString(R.string.button_expense_submitting)
 
         if (!validateInput()) {
@@ -228,6 +229,7 @@ class FormFragment : Fragment() {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
+        // TODO: move to validatePrefs()
         if (spreadsheetId == null) {
             Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
