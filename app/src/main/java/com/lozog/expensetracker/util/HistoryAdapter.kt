@@ -10,10 +10,6 @@ import com.lozog.expensetracker.R
 class HistoryAdapter(private val recentHistory: List<List<String>>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.historyItemText)
-
-//        init {
-//            // Define click listener for the ViewHolder's View.
-//        }
     }
 
     // Create new views (invoked by the layout manager)

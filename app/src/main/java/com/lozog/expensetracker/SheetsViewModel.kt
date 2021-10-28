@@ -126,7 +126,6 @@ class SheetsViewModel : ViewModel() {
                 statusText = "something went wrong"
             }
 
-
             withContext(Dispatchers.Main) {
                 setStatusText(statusText)
                 setStatus(SheetsStatus.DONE)
