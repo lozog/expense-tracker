@@ -72,7 +72,7 @@ class SheetsRepository {
         expenseNotes: String,
         currency: String,
         exchangeRate: String
-    ) = coroutineScope.launch {
+    ) = coroutineScope.async {
         Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
 
             if (SheetsInterface.spreadsheetService == null) {

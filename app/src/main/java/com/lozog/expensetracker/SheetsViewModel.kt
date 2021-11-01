@@ -104,7 +104,7 @@ class SheetsViewModel : ViewModel() {
                     expenseNotes,
                     currency,
                     exchangeRate
-                )
+                ).await()
 
                 val spentSoFar = sheetsRepository
                     .getCategorySpendingAsync(spreadsheetId, expenseCategoryValue)
