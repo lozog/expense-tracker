@@ -20,6 +20,8 @@ class SheetsRepository {
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
 
+        private const val HISTORY_LENGTH = 10
+
         // January -> column C, etc
         // TODO: dynamically find month columns
         private val MONTH_COLUMNS = listOf(
@@ -144,27 +146,17 @@ class SheetsRepository {
 
         Log.d(TAG, "getRecentExpenseHistoryAsync")
 
-        val res = SheetsInterface.spreadsheetService!!.spreadsheets().values()
-            .get(spreadsheetId, sheetName).execute()
+        val res = SheetsInterface
+            .spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, sheetName)
+            .execute()
         val values = res.getValues()
-        val rowsInSheet = values.size
-        var historyText: List<String>
-        var recentHistory: List<List<String>>
-        val HISTORY_LENGTH = 10
-        // TODO:
-
-        if (rowsInSheet < HISTORY_LENGTH + 1 ) {
-            historyText = values as List<String>
-            recentHistory = values as List<List<String>>
-        } else {
-            historyText = values.takeLast(10) as List<String>
-            recentHistory = values.takeLast(10) as List<List<String>>
-        }
+        val recentHistory = values.takeLast(HISTORY_LENGTH) as List<List<String>>
 
         Log.d(TAG, "first row: ${values[0]}")
         Log.d(TAG, "last row: ${values.last()}")
-
-//        Log.d(TAG, "got : $lastRowNumber")
 
         return@async recentHistory
     }
