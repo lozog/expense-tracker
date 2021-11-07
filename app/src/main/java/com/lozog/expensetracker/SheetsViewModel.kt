@@ -72,6 +72,7 @@ class SheetsViewModel : ViewModel() {
     fun addExpenseRowToSheetAsync(
         spreadsheetId: String,
         sheetName: String,
+        overviewSheetName: String,
         expenseDate: String,
         expenseItem: String,
         expenseCategoryValue: String,
@@ -100,7 +101,7 @@ class SheetsViewModel : ViewModel() {
                 ).await()
 
                 val spentSoFar = sheetsRepository
-                    .getCategorySpendingAsync(spreadsheetId, expenseCategoryValue)
+                    .getCategorySpendingAsync(spreadsheetId, overviewSheetName, expenseCategoryValue)
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in $expenseCategoryValue"

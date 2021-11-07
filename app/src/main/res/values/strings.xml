@@ -33,6 +33,7 @@
     <string name="form_no_spreadsheet_id">Set a spreadsheet Id</string>
     <string name="form_no_monthly_summary_sheet_name">Set a monthly summary sheet name</string>
     <string name="form_no_data_sheet_name">Set a data sheet name</string>
+    <string name="form_no_overview_sheet_name">Set an overview sheet name</string>
     <string name="form_no_currency">Set a currency</string>
     <string name="form_no_exchange_rate">Set an exchange rate</string>
 
@@ -52,6 +53,7 @@
     <!-- Google Sheets Preferences -->
     <string name="google_spreadsheet_id_pref_label">Google Spreadsheet Id</string>
     <string name="data_sheet_name_pref_label">Data Sheet Name</string>
+    <string name="overview_sheet_name_pref_label">Overview Sheet Name</string>
 
     <!-- Defaults preferences -->
     <string name="currency_pref_label">Currency</string>

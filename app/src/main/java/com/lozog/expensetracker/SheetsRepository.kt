@@ -114,6 +114,7 @@ class SheetsRepository {
 
     fun getCategorySpendingAsync(
         spreadsheetId: String,
+        overviewSheetName: String,
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
         val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
@@ -124,8 +125,6 @@ class SheetsRepository {
             Log.e(TAG, "Category $expenseCategoryValue not found")
             throw Exception("Category $expenseCategoryValue not found")
         }
-
-        val overviewSheetName = "Overview" // TODO: move to user pref. or dynamically read sheet
 
         val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
         val data = SheetsInterface.spreadsheetService!!.spreadsheets().values()

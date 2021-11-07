@@ -23,6 +23,11 @@
             app:key="data_sheet_name"
             app:title="@string/data_sheet_name_pref_label"
             app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="overview_sheet_name"
+            app:title="@string/overview_sheet_name_pref_label"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/currency_prefs_header">

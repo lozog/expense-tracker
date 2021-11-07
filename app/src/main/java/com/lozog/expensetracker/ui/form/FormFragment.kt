@@ -248,13 +248,14 @@ class FormFragment : Fragment() {
         submitButton.text = getString(R.string.button_expense_submitting)
 
         if (!validateInput()) {
-            submitButton.text = getString(R.string.button_expense_submit)
+            sheetsViewModel.resetView()
             return
         }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity)
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val sheetName = sharedPreferences.getString("data_sheet_name", null)
+        val dataSheetName = sharedPreferences.getString("data_sheet_name", null)
+        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
 
         // TODO: move to validatePrefs()
         if (spreadsheetId == null || spreadsheetId == "") {
@@ -267,6 +268,14 @@ class FormFragment : Fragment() {
         if (dataSheetName == null || dataSheetName == "") {
             Snackbar.make(view, getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+            sheetsViewModel.resetView()
+            return
+        }
+
+        if (overviewSheetName == null || overviewSheetName == "") {
+            Snackbar.make(view, getString(R.string.form_no_overview_sheet_name), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            sheetsViewModel.resetView()
             return
         }
 
@@ -313,7 +322,8 @@ class FormFragment : Fragment() {
                 Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
                 sheetsViewModel.addExpenseRowToSheetAsync(
                     spreadsheetId,
-                    sheetName,
+                    dataSheetName,
+                    overviewSheetName,
                     expenseDateText,
                     expenseItemText,
                     expenseCategoryText,
@@ -338,7 +348,7 @@ class FormFragment : Fragment() {
                     .setConstraints(constraints)
                     .setInputData(workDataOf(
                         "spreadsheetId" to spreadsheetId,
-                        "sheetName" to sheetName,
+                        "sheetName" to dataSheetName,
                         "expenseDate" to expenseDateText,
                         "expenseItem" to expenseItemText,
                         "expenseCategory" to expenseCategoryText,
