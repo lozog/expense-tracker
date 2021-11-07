@@ -3,7 +3,9 @@ package com.lozog.expensetracker.ui.form
 import android.app.AlertDialog
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.NetworkInfo
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -143,10 +145,36 @@ class FormFragment : Fragment() {
         )
     }
 
-    private fun isInternetConnected(): Boolean {
-        val cm = mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-        return activeNetwork?.isConnectedOrConnecting == true
+    // taken from https://stackoverflow.com/a/53532456
+    private fun isInternetConnected(context: Context): Boolean {
+        var result = false
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            result = when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            connectivityManager.run {
+                connectivityManager.activeNetworkInfo?.run {
+                    result = when (type) {
+                        ConnectivityManager.TYPE_WIFI -> true
+                        ConnectivityManager.TYPE_MOBILE -> true
+                        ConnectivityManager.TYPE_ETHERNET -> true
+                        else -> false
+                    }
+
+                }
+            }
+        }
+
+        return result
     }
 
     private fun validateInput(): Boolean {
@@ -276,7 +304,7 @@ class FormFragment : Fragment() {
         val expenseAmountOthersText = expenseAmountOthers.text.toString()
         val expenseNotesText = expenseNotes.text.toString()
 
-        if (isInternetConnected()) {
+        if (isInternetConnected(mainActivity)) {
             Log.d(TAG, "internet")
 
             try {
