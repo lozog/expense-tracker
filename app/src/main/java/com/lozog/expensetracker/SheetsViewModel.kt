@@ -27,10 +27,6 @@ class SheetsViewModel : ViewModel() {
         statusText.value = newSignInStatus
     }
 
-    fun setHistoryText(newText: String) {
-        historyText.value = newText
-    }
-
     fun setRecentHistory(history: List<List<String>>) {
         recentHistory.value = history
     }
@@ -49,7 +45,6 @@ class SheetsViewModel : ViewModel() {
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
-            var historyText: String
             var recentHistory: List<List<String>>?
 
             try {
@@ -61,13 +56,11 @@ class SheetsViewModel : ViewModel() {
                 recentHistory = res
                 Log.d(TAG, "got history: $recentHistory")
             } catch (e: Exception) {
-//                historyText = "something went wrong"
                 recentHistory = null
                 Log.e(TAG, e.toString())
             }
 
             withContext(Dispatchers.Main) {
-//                setHistoryText(historyText)
                 if (recentHistory != null) {
                     setRecentHistory(recentHistory)
                 }
