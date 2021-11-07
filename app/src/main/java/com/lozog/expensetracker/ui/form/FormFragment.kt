@@ -257,13 +257,14 @@ class FormFragment : Fragment() {
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
         // TODO: move to validatePrefs()
-        if (spreadsheetId == null) {
+        if (spreadsheetId == null || spreadsheetId == "") {
             Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+            sheetsViewModel.resetView()
             return
         }
 
-        if (sheetName == null) {
+        if (dataSheetName == null || dataSheetName == "") {
             Snackbar.make(view, getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
             return
@@ -278,6 +279,7 @@ class FormFragment : Fragment() {
             if (defaultCurrency == null) {
                 Snackbar.make(view, getString(R.string.form_no_currency), Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
+                sheetsViewModel.resetView()
                 return
             }
 
@@ -290,6 +292,7 @@ class FormFragment : Fragment() {
             if (defaultExchangeRate == null) {
                 Snackbar.make(view, getString(R.string.form_no_exchange_rate), Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
+                sheetsViewModel.resetView()
                 return
             }
 
