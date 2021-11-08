@@ -2,6 +2,7 @@ package com.lozog.expensetracker
 
 import android.util.Log
 import com.google.api.services.sheets.v4.model.ValueRange
+import com.lozog.expensetracker.util.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.SheetsInterface
 import kotlinx.coroutines.*
@@ -66,14 +67,7 @@ class SheetsRepository {
     fun addExpenseRowToSheetAsync(
         spreadsheetId: String,
         sheetName: String,
-        expenseDate: String,
-        expenseItem: String,
-        expenseCategoryValue: String,
-        expenseAmount: String,
-        expenseAmountOthers: String,
-        expenseNotes: String,
-        currency: String,
-        exchangeRate: String
+        expenseRow: ExpenseRow
     ) = coroutineScope.async {
         Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
 
@@ -87,21 +81,13 @@ class SheetsRepository {
             val expenseTotal =
                 "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
 
+            expenseRow.expenseTotal = expenseTotal
+
             val rowData = mutableListOf(
-                mutableListOf(
-                    expenseDate,
-                    expenseItem,
-                    expenseCategoryValue,
-                    expenseAmount,
-                    expenseAmountOthers,
-                    expenseTotal,
-                    expenseNotes,
-                    currency,
-                    exchangeRate
-                )
+                expenseRow.toList()
             )
             val requestBody = ValueRange()
-            requestBody.setValues(rowData as List<MutableList<String>>?)
+            requestBody.setValues(rowData as List<List<String>>?)
 
             val request = SheetsInterface.spreadsheetService!!.spreadsheets().values()
                 .append(spreadsheetId, sheetName, requestBody)

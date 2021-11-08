@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.lozog.expensetracker.util.ExpenseRow
 
 class SheetsWorker(appContext: Context, workerParams: WorkerParameters):
     CoroutineWorker(appContext, workerParams) {
@@ -18,14 +19,7 @@ class SheetsWorker(appContext: Context, workerParams: WorkerParameters):
         sheetsRepository.addExpenseRowToSheetAsync(
             inputData.getString("spreadsheetId")!!,
             inputData.getString("sheetName")!!,
-            inputData.getString("expenseDate")!!,
-            inputData.getString("expenseItem")!!,
-            inputData.getString("expenseCategory")!!,
-            inputData.getString("expenseAmount")!!,
-            inputData.getString("expenseAmountOthers")!!,
-            inputData.getString("expenseNotes")!!,
-            inputData.getString("currency")!!,
-            inputData.getString("exchangeRate")!!
+            ExpenseRow(inputData)
         )
 
         val outputData = workDataOf("expenseItem" to inputData.getString("expenseItem")!!)

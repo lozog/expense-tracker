@@ -25,6 +25,7 @@ import com.lozog.expensetracker.*
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import com.lozog.expensetracker.SheetsViewModel
+import com.lozog.expensetracker.util.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
 import java.text.SimpleDateFormat
@@ -315,6 +316,17 @@ class FormFragment : Fragment() {
         val expenseAmountOthersText = expenseAmountOthers.text.toString()
         val expenseNotesText = expenseNotes.text.toString()
 
+        val expenseRow = ExpenseRow(
+            expenseDateText,
+            expenseItemText,
+            expenseCategoryText,
+            expenseAmountText,
+            expenseAmountOthersText,
+            expenseNotesText,
+            currency,
+            exchangeRate
+        )
+
         if (isInternetConnected(mainActivity)) {
             Log.d(TAG, "internet")
 
@@ -324,14 +336,7 @@ class FormFragment : Fragment() {
                     spreadsheetId,
                     dataSheetName,
                     overviewSheetName,
-                    expenseDateText,
-                    expenseItemText,
-                    expenseCategoryText,
-                    expenseAmountText,
-                    expenseAmountOthersText,
-                    expenseNotesText,
-                    currency,
-                    exchangeRate
+                    expenseRow
                 )
             } catch (e: Exception) {
                 Log.d(TAG, "exception: $e")
@@ -346,18 +351,7 @@ class FormFragment : Fragment() {
             val sheetsWorkRequest: OneTimeWorkRequest =
                 OneTimeWorkRequestBuilder<SheetsWorker>()
                     .setConstraints(constraints)
-                    .setInputData(workDataOf(
-                        "spreadsheetId" to spreadsheetId,
-                        "sheetName" to dataSheetName,
-                        "expenseDate" to expenseDateText,
-                        "expenseItem" to expenseItemText,
-                        "expenseCategory" to expenseCategoryText,
-                        "expenseAmount" to expenseAmountText,
-                        "expenseAmountOthers" to expenseAmountOthersText,
-                        "expenseNotes" to expenseNotesText,
-                        "currency" to currency,
-                        "exchangeRate" to exchangeRate,
-                    ))
+                    .setInputData(expenseRow.toWorkData(spreadsheetId, dataSheetName))
                     .build()
 
             WorkManager

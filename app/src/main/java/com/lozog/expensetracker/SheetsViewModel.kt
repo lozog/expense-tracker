@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.lozog.expensetracker.util.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
 import kotlinx.coroutines.*
@@ -73,14 +74,7 @@ class SheetsViewModel : ViewModel() {
         spreadsheetId: String,
         sheetName: String,
         overviewSheetName: String,
-        expenseDate: String,
-        expenseItem: String,
-        expenseCategoryValue: String,
-        expenseAmount: String,
-        expenseAmountOthers: String,
-        expenseNotes: String,
-        currency: String,
-        exchangeRate: String
+        expenseRow: ExpenseRow
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
@@ -90,21 +84,14 @@ class SheetsViewModel : ViewModel() {
                 sheetsRepository.addExpenseRowToSheetAsync(
                     spreadsheetId,
                     sheetName,
-                    expenseDate,
-                    expenseItem,
-                    expenseCategoryValue,
-                    expenseAmount,
-                    expenseAmountOthers,
-                    expenseNotes,
-                    currency,
-                    exchangeRate
+                    expenseRow
                 ).await()
 
                 val spentSoFar = sheetsRepository
-                    .getCategorySpendingAsync(spreadsheetId, overviewSheetName, expenseCategoryValue)
+                    .getCategorySpendingAsync(spreadsheetId, overviewSheetName, expenseRow.expenseCategoryValue)
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
-                statusText = "$spentSoFar spent so far in $expenseCategoryValue"
+                statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"
             } catch (e: UserRecoverableAuthIOException) {
 //                Log.e(TAG, getString(R.string.status_need_permission))
 //                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
