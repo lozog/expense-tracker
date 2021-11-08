@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.lozog.expensetracker.R
 
-class HistoryAdapter(private val recentHistory: List<List<String>>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
+class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.historyItemText)
     }
@@ -26,7 +26,7 @@ class HistoryAdapter(private val recentHistory: List<List<String>>): RecyclerVie
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.textView.text = recentHistory[position].toString()
+        viewHolder.textView.text = "${recentHistory[position]}"
     }
 
     // Return the size of your dataset (invoked by the layout manager)

@@ -18,6 +18,7 @@ import com.lozog.expensetracker.R
 import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
 import com.lozog.expensetracker.ui.form.FormFragment
+import com.lozog.expensetracker.util.ExpenseRow
 import com.lozog.expensetracker.util.HistoryAdapter
 import kotlinx.android.synthetic.main.fragment_history.*
 
@@ -36,7 +37,6 @@ class HistoryFragment: Fragment() {
     private lateinit var updateHistoryButton: Button
     private lateinit var historyText: TextView
     private lateinit var recentHistory: RecyclerView
-//    private lateinit var recentHistory: List<List<String>>
     private var historyAdapter = HistoryAdapter(listOf())
 
     override fun onCreateView(
@@ -63,7 +63,8 @@ class HistoryFragment: Fragment() {
 
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
 //            Log.d(TAG, "observing: $it")
-            historyAdapter = HistoryAdapter(it)
+
+            historyAdapter = HistoryAdapter(it as List<ExpenseRow>)
             recentHistory.adapter = historyAdapter
         })
 

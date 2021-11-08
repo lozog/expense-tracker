@@ -22,13 +22,13 @@ class SheetsViewModel : ViewModel() {
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
     val historyText = MutableLiveData<String>()
-    val recentHistory = MutableLiveData<List<List<String>>>()
+    val recentHistory = MutableLiveData<List<ExpenseRow>>()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
     }
 
-    fun setRecentHistory(history: List<List<String>>) {
+    fun setRecentHistory(history: List<ExpenseRow>) {
         recentHistory.value = history
     }
 
@@ -46,7 +46,7 @@ class SheetsViewModel : ViewModel() {
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
-            var recentHistory: List<List<String>>?
+            var recentHistory: List<ExpenseRow>?
 
             try {
                 Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
