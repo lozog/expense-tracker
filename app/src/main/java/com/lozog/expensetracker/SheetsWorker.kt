@@ -15,12 +15,13 @@ class SheetsWorker(appContext: Context, workerParams: WorkerParameters):
     private val sheetsRepository = SheetsRepository()
 
     override suspend fun doWork(): Result {
+        Log.d(TAG, "doWork")
 
         sheetsRepository.addExpenseRowToSheetAsync(
             inputData.getString("spreadsheetId")!!,
             inputData.getString("sheetName")!!,
             ExpenseRow(inputData)
-        )
+        ).await()
 
         val outputData = workDataOf("expenseItem" to inputData.getString("expenseItem")!!)
 

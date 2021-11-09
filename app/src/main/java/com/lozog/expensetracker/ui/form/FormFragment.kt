@@ -184,8 +184,7 @@ class FormFragment : Fragment() {
         if (workInfo != null) {
             when (workInfo.state) {
                 WorkInfo.State.SUCCEEDED -> {
-                    Log.d(
-                        TAG, getString(
+                    Log.d(TAG, getString(
                         R.string.notification_queued_requests_content,
                         workInfo.outputData.getString("expenseItem")
                     ))
