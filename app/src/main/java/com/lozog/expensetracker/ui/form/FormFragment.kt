@@ -192,7 +192,7 @@ class FormFragment : Fragment() {
                     // send notification
                     val builder = NotificationCompat
                         .Builder(mainActivity, MainActivity.QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setSmallIcon(R.drawable.ic_stat_notify)
                         .setContentTitle(getString(R.string.notification_queued_requests_title))
                         .setContentText(
                             getString(
