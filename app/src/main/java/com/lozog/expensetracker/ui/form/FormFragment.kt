@@ -207,7 +207,23 @@ class FormFragment : Fragment() {
                     }
 
                 }
-                // TODO: handle failure
+                WorkInfo.State.FAILED -> {
+                    // TODO: this doesn't actually send a notification on worker failure
+                    val builder = NotificationCompat
+                        .Builder(mainActivity, MainActivity.QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_stat_notify)
+                        .setContentTitle("Request failed")
+                        .setContentText(
+                            "Failed to send ${workInfo.outputData.getString("expenseItem")} to sheet"
+                        )
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+                    with(NotificationManagerCompat.from(mainActivity)) {
+                        // notificationId is a unique int for each notification that you must define
+                        val notificationId = 0 // I'm using the same id for each notification, so it only shows the last one
+                        notify(notificationId, builder.build())
+                    }
+                }
                 else -> {}
             }
         }

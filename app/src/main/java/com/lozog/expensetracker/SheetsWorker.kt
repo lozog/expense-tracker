@@ -28,11 +28,16 @@ class SheetsWorker(
             return Result.retry()
         }
 
-        sheetsRepository.addExpenseRowToSheetAsync(
-            inputData.getString("spreadsheetId")!!,
-            inputData.getString("sheetName")!!,
-            ExpenseRow(inputData)
-        ).await()
+        try {
+            sheetsRepository.addExpenseRowToSheetAsync(
+                inputData.getString("spreadsheetId")!!,
+                inputData.getString("sheetName")!!,
+                ExpenseRow(inputData)
+            ).await()
+        } catch (e: Exception) {
+            Log.d(TAG, e.toString())
+            return Result.failure()
+        }
 
         val outputData = workDataOf("expenseItem" to inputData.getString("expenseItem")!!)
 
