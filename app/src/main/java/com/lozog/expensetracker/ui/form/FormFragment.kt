@@ -26,6 +26,7 @@ import com.lozog.expensetracker.*
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import com.lozog.expensetracker.SheetsViewModel
+import com.lozog.expensetracker.util.ConnectivityHelper
 import com.lozog.expensetracker.util.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
@@ -145,26 +146,6 @@ class FormFragment : Fragment() {
             view.windowToken,
             InputMethodManager.HIDE_NOT_ALWAYS
         )
-    }
-
-    private fun isInternetConnected(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        val networkCapabilities = connectivityManager.activeNetwork ?: return false
-        val actNw =
-            connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-
-        Log.d(TAG, "capabilities: $actNw")
-
-        val result = when {
-            actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            else -> false
-        }
-
-        return result
     }
 
     private fun validateInput(): Boolean {
@@ -317,7 +298,7 @@ class FormFragment : Fragment() {
             exchangeRate
         )
 
-        if (isInternetConnected(mainActivity)) {
+        if (ConnectivityHelper.isInternetConnected(mainActivity)) {
             Log.d(TAG, "internet")
 
             try {
