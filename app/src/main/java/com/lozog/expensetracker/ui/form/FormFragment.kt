@@ -3,7 +3,9 @@ package com.lozog.expensetracker.ui.form
 import android.app.AlertDialog
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.NetworkInfo
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,6 +31,7 @@ import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class FormFragment : Fragment() {
     private val sheetsViewModel: SheetsViewModel by viewModels()
@@ -145,9 +148,23 @@ class FormFragment : Fragment() {
     }
 
     private fun isInternetConnected(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-        return activeNetwork?.isConnectedOrConnecting == true
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val networkCapabilities = connectivityManager.activeNetwork ?: return false
+        val actNw =
+            connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+
+        Log.d(TAG, "capabilities: $actNw")
+
+        val result = when {
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
+        }
+
+        return result
     }
 
     private fun validateInput(): Boolean {
@@ -209,6 +226,7 @@ class FormFragment : Fragment() {
                     }
 
                 }
+                // TODO: handle failure
                 else -> {}
             }
         }
@@ -324,11 +342,19 @@ class FormFragment : Fragment() {
                 OneTimeWorkRequestBuilder<SheetsWorker>()
                     .setConstraints(constraints)
                     .setInputData(expenseRow.toWorkData(spreadsheetId, dataSheetName))
+                    .setBackoffCriteria(
+                        BackoffPolicy.LINEAR,
+                        OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
+                        TimeUnit.MILLISECONDS)
                     .build()
 
             WorkManager
                 .getInstance(mainActivity)
-                .enqueueUniqueWork(UUID.randomUUID().toString(), ExistingWorkPolicy.APPEND, sheetsWorkRequest)
+                .enqueueUniqueWork(
+                    UUID.randomUUID().toString(),
+                    ExistingWorkPolicy.APPEND,
+                    sheetsWorkRequest
+                )
 
             WorkManager
                 .getInstance(mainActivity)
