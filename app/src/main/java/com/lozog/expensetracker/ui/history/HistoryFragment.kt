@@ -35,7 +35,6 @@ class HistoryFragment: Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var updateHistoryButton: Button
-    private lateinit var historyText: TextView
     private lateinit var recentHistory: RecyclerView
     private var historyAdapter = HistoryAdapter(listOf())
 
@@ -50,21 +49,12 @@ class HistoryFragment: Fragment() {
         mainActivity = activity as MainActivity
 
         updateHistoryButton = binding.updateHistoryButton
-        historyText = binding.historyText
         recentHistory = binding.recentHistory
         recentHistory.layoutManager = LinearLayoutManager(mainActivity)
         recentHistory.adapter = historyAdapter
 
-
-        sheetsViewModel.historyText.observe(viewLifecycleOwner, {
-//            Log.d(TAG, "observing: $it")
-            historyText.text = it
-        })
-
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
-//            Log.d(TAG, "observing: $it")
-
-            historyAdapter = HistoryAdapter(it as List<ExpenseRow>)
+            historyAdapter = HistoryAdapter(it)
             recentHistory.adapter = historyAdapter
         })
 

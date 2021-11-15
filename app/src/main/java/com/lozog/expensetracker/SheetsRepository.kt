@@ -138,7 +138,7 @@ class SheetsRepository {
             .get(spreadsheetId, sheetName)
             .execute()
         val values = res.getValues()
-        val recentHistory = values.takeLast(HISTORY_LENGTH) as List<ExpenseRow>
+        val recentHistory = values.takeLast(HISTORY_LENGTH).map{ value -> ExpenseRow(value as List<String>)}
 
         Log.d(TAG, "first row: ${values[0]}")
         Log.d(TAG, "last row: ${values.last()}")

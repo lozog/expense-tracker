@@ -26,6 +26,18 @@ data class ExpenseRow(
         workData.getString("exchangeRate")!!
     )
 
+    constructor(input: List<String>) : this(
+        input[0],
+        input[1],
+        input[2],
+        input[3],
+        input[4],
+        input[6],
+        input[7],
+        input[8],
+        expenseTotal=input[5]
+    )
+
     // return as a List, to be sent to the spreadsheet
     fun toList(): List<String> {
         return listOf(

@@ -21,7 +21,6 @@ class SheetsViewModel : ViewModel() {
 
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
-    val historyText = MutableLiveData<String>()
     val recentHistory = MutableLiveData<List<ExpenseRow>>()
 
     fun setStatusText(newSignInStatus: String) {
