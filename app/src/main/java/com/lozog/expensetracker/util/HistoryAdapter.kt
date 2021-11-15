@@ -1,6 +1,5 @@
 package com.lozog.expensetracker.util
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,9 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
         private const val TAG = "HISTORY_ADAPTER"
     }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.historyItemText)
+        val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
+        val expenseItemTextView: TextView = view.findViewById(R.id.historyExpenseItem)
+        val expenseTotalTextView: TextView = view.findViewById(R.id.historyExpenseTotal)
     }
 
     // Create new views (invoked by the layout manager)
@@ -28,7 +29,9 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expenseRow: ExpenseRow = recentHistory[position]
-        viewHolder.textView.text = expenseRow.expenseItem
+        viewHolder.expenseDateTextView.text = expenseRow.expenseDate
+        viewHolder.expenseItemTextView.text = expenseRow.expenseItem
+        viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
     }
 
     // Return the size of your dataset (invoked by the layout manager)

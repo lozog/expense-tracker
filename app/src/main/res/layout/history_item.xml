@@ -6,15 +6,33 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/historyItemText"
-        android:layout_width="match_parent"
+        android:id="@+id/historyExpenseDate"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="start"
         android:textColor="#000000"
-        android:textSize="11sp"
-        android:text="item"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="14sp"
+        android:layout_marginEnd="5dp"
+        android:text="date" />
+
+    <TextView
+        android:id="@+id/historyExpenseItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_marginEnd="5dp"
+        android:text="item" />
+
+    <TextView
+        android:id="@+id/historyExpenseTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_marginEnd="5dp"
+        android:text="total" />
 
 </GridLayout>
