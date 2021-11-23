@@ -7,8 +7,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
+import com.lozog.expensetracker.util.expenserow.ExpenseRowEntity
 
-class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
+class HistoryAdapter(private val recentHistory: List<ExpenseRowEntity>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     companion object {
         private const val TAG = "HISTORY_ADAPTER"
     }
@@ -29,7 +30,7 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
 
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val expenseRow: ExpenseRow = recentHistory[position]
+        val expenseRow: ExpenseRowEntity = recentHistory[position]
         viewHolder.expenseDateTextView.text = expenseRow.expenseDate
         viewHolder.expenseItemTextView.text = expenseRow.expenseItem
         viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal

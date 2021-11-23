@@ -12,9 +12,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.lozog.expensetracker.MainActivity
-import com.lozog.expensetracker.R
-import com.lozog.expensetracker.SheetsViewModel
+import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
 import com.lozog.expensetracker.util.HistoryAdapter
 import com.lozog.expensetracker.util.SheetsStatus
@@ -25,14 +23,16 @@ class HistoryFragment: Fragment() {
     }
     private var _binding: FragmentHistoryBinding? = null
     private lateinit var mainActivity: MainActivity
-    private val sheetsViewModel: SheetsViewModel by viewModels()
+    private val sheetsViewModel: SheetsViewModel by viewModels {
+        SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+    }
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
 
     private lateinit var updateHistoryButton: Button
-    private lateinit var recentHistory: RecyclerView
+    private lateinit var recentHistoryView: RecyclerView
     private var historyAdapter = HistoryAdapter(listOf())
 
     override fun onCreateView(
@@ -46,13 +46,13 @@ class HistoryFragment: Fragment() {
         mainActivity = activity as MainActivity
 
         updateHistoryButton = binding.updateHistoryButton
-        recentHistory = binding.recentHistory
-        recentHistory.layoutManager = LinearLayoutManager(mainActivity)
-        recentHistory.adapter = historyAdapter
+        recentHistoryView = binding.recentHistory
+        recentHistoryView.layoutManager = LinearLayoutManager(mainActivity)
+        recentHistoryView.adapter = historyAdapter
 
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
             historyAdapter = HistoryAdapter(it)
-            recentHistory.adapter = historyAdapter
+            recentHistoryView.adapter = historyAdapter
         })
 
         sheetsViewModel.status.observe(viewLifecycleOwner, {

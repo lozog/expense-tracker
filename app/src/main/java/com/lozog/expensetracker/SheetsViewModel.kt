@@ -1,35 +1,33 @@
 package com.lozog.expensetracker
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
+import com.lozog.expensetracker.util.expenserow.ExpenseRowEntity
 import kotlinx.coroutines.*
 import java.io.IOException
 
 
-class SheetsViewModel : ViewModel() {
+class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
         private const val TAG = "SHEETS_VIEW_MODEL"
     }
 
-    private val sheetsRepository = SheetsRepository()
-
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
-    val recentHistory = MutableLiveData<List<ExpenseRow>>()
+//    val recentHistory = MutableLiveData<List<ExpenseRow>>()
+    val recentHistory: LiveData<List<ExpenseRowEntity>> = sheetsRepository.recentHistory.asLiveData()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
     }
 
-    fun setRecentHistory(history: List<ExpenseRow>) {
-        recentHistory.value = history
-    }
+//    fun setRecentHistory(history: List<ExpenseRow>) {
+//        recentHistory.value = history
+//    }
 
     fun setStatus(newStatus: SheetsStatus) {
         status.value = newStatus
@@ -45,7 +43,7 @@ class SheetsViewModel : ViewModel() {
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
-            var recentHistory: List<ExpenseRow>?
+//            var recentHistory: List<ExpenseRow>?
 
             try {
                 Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
@@ -53,17 +51,17 @@ class SheetsViewModel : ViewModel() {
                     spreadsheetId,
                     sheetName
                 ).await()
-                recentHistory = res
+//                recentHistory = res
                 Log.d(TAG, "got history: $recentHistory")
             } catch (e: Exception) {
-                recentHistory = null
+//                recentHistory = null
                 Log.e(TAG, e.toString())
             }
 
             withContext(Dispatchers.Main) {
-                if (recentHistory != null) {
-                    setRecentHistory(recentHistory)
-                }
+//                if (recentHistory != null) {
+//                    setRecentHistory(recentHistory)
+//                }
                 setStatus(SheetsStatus.DONE)
             }
         }
@@ -111,5 +109,15 @@ class SheetsViewModel : ViewModel() {
                 setStatus(SheetsStatus.DONE)
             }
         }
+    }
+}
+
+class SheetsViewModelFactory(private val sheetsRepository: SheetsRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(SheetsViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return SheetsViewModel(sheetsRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

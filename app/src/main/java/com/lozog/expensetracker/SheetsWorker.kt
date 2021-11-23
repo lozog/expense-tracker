@@ -14,7 +14,7 @@ class SheetsWorker(
     companion object {
         private const val TAG = "SHEETS_WORKER"
     }
-    private val sheetsRepository = SheetsRepository()
+    private val sheetsRepository = (applicationContext as ExpenseTrackerApplication).sheetsRepository
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "doWork")

@@ -13,7 +13,7 @@ data class ExpenseRow(
     val currency: String,
     val exchangeRate: String,
     var expenseTotal: String = "",
-    var row: String? = null
+    var row: String = "0"
 ) {
     constructor(workData: Data) : this(
         workData.getString("expenseDate")!!,
@@ -65,6 +65,24 @@ data class ExpenseRow(
             "expenseNotes" to expenseNotes,
             "currency" to currency,
             "exchangeRate" to exchangeRate,
+        )
+    }
+
+    fun toExpenseRowEntity(spreadsheetId: String, sheetName: String): ExpenseRowEntity {
+        return ExpenseRowEntity(
+            0,
+            spreadsheetId,
+            sheetName,
+            expenseDate,
+            expenseItem,
+            expenseCategoryValue,
+            expenseAmount,
+            expenseAmountOthers,
+            expenseTotal,
+            expenseNotes,
+            currency,
+            exchangeRate,
+            row.toInt(),
         )
     }
 }
