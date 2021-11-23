@@ -2,10 +2,6 @@ package com.lozog.expensetracker.ui.form
 
 import android.app.AlertDialog
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.net.NetworkInfo
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater

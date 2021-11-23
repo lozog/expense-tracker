@@ -1,15 +1,10 @@
 package com.lozog.expensetracker
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.net.NetworkInfo
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.lozog.expensetracker.ui.form.FormFragment
 import com.lozog.expensetracker.util.ConnectivityHelper
 import com.lozog.expensetracker.util.ExpenseRow
 

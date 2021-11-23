@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
@@ -17,10 +16,7 @@ import com.lozog.expensetracker.MainActivity
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
-import com.lozog.expensetracker.ui.form.FormFragment
-import com.lozog.expensetracker.util.ExpenseRow
 import com.lozog.expensetracker.util.HistoryAdapter
-import kotlinx.android.synthetic.main.fragment_history.*
 
 class HistoryFragment: Fragment() {
     companion object {
