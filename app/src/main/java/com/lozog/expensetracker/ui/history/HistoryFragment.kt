@@ -17,6 +17,7 @@ import com.lozog.expensetracker.R
 import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
 import com.lozog.expensetracker.util.HistoryAdapter
+import com.lozog.expensetracker.util.SheetsStatus
 
 class HistoryFragment: Fragment() {
     companion object {
@@ -52,6 +53,20 @@ class HistoryFragment: Fragment() {
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
             historyAdapter = HistoryAdapter(it)
             recentHistory.adapter = historyAdapter
+        })
+
+        sheetsViewModel.status.observe(viewLifecycleOwner, {
+            when(it) {
+                SheetsStatus.IN_PROGRESS -> {
+                    updateHistoryButton.text = "Updating..."
+                }
+                SheetsStatus.DONE -> {
+                    updateHistoryButton.text = "Update"
+                }
+                else -> {
+                    updateHistoryButton.text = "Update"
+                }
+            }
         })
 
         updateHistoryButton.setOnClickListener{view ->
