@@ -23,7 +23,7 @@ import com.lozog.expensetracker.R
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.util.ConnectivityHelper
-import com.lozog.expensetracker.util.ExpenseRow
+import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
 import java.text.SimpleDateFormat

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.lozog.expensetracker.util.ExpenseRow
+import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
 import kotlinx.coroutines.*

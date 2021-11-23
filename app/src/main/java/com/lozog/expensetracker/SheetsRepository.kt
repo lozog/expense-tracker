@@ -2,7 +2,7 @@ package com.lozog.expensetracker
 
 import android.util.Log
 import com.google.api.services.sheets.v4.model.ValueRange
-import com.lozog.expensetracker.util.ExpenseRow
+import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.SheetsInterface
 import kotlinx.coroutines.*
@@ -138,7 +138,7 @@ class SheetsRepository {
             .get(spreadsheetId, sheetName)
             .execute()
         val values = res.getValues()
-        val recentHistory = values.takeLast(HISTORY_LENGTH).map{ value -> ExpenseRow(value as List<String>)}
+        val recentHistory = values.takeLast(HISTORY_LENGTH).map{ value -> ExpenseRow(value as List<String>) }
 
         Log.d(TAG, "first row: ${values[0]}")
         Log.d(TAG, "last row: ${values.last()}")

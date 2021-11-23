@@ -6,7 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.lozog.expensetracker.util.ConnectivityHelper
-import com.lozog.expensetracker.util.ExpenseRow
+import com.lozog.expensetracker.util.expenserow.ExpenseRow
 
 class SheetsWorker(
     appContext: Context, workerParams: WorkerParameters

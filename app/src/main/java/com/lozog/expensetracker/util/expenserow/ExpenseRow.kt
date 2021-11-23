@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.util
+package com.lozog.expensetracker.util.expenserow
 
 import androidx.work.Data
 import androidx.work.workDataOf

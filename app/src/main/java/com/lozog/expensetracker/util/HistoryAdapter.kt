@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.lozog.expensetracker.R
+import com.lozog.expensetracker.util.expenserow.ExpenseRow
 
 class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     companion object {
