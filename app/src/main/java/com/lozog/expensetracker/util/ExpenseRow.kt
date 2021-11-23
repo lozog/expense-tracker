@@ -32,10 +32,10 @@ data class ExpenseRow(
         input[2],
         input[3],
         input[4],
-        input[6],
-        input[7],
-        input[8],
-        expenseTotal=input[5]
+        input.getOrElse(6) { "" },
+        input.getOrElse(7) { "" },
+        input.getOrElse(8) { "" },
+        expenseTotal=input.getOrElse(5) { "" },
     )
 
     // return as a List, to be sent to the spreadsheet
