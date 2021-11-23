@@ -12,6 +12,7 @@ android {
     defaultConfig {
         applicationId "com.lozog.expensetracker"
         minSdkVersion 23
+        // bumping the targetSdkVersion, which is causing Google Play Services to break for some reason
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -38,6 +39,8 @@ android {
         viewBinding true
     }
 }
+
+// several dependencies are stuck at versions which allow for targetSdkVersion 29
 
 dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
@@ -73,11 +76,11 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     def lifecycle_version = "2.3.1"
+    //noinspection GradleDependency
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    //noinspection GradleDependency
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
-    // bumping this version requires bumping the targetSdkVersion, which is causing Google Play
-    // Services to break for some reason
     def work_version = "2.5.0"
     //noinspection GradleDependency
     implementation("androidx.work:work-runtime-ktx:$work_version")
