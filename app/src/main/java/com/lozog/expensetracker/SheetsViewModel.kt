@@ -46,11 +46,10 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
             try {
                 Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
-                val res = sheetsRepository.getRecentExpenseHistoryAsync(
+                sheetsRepository.getRecentExpenseHistoryAsync(
                     spreadsheetId,
                     sheetName
                 ).await()
-//                recentHistory = res
                 Log.d(TAG, "got history: $recentHistory")
             } catch (e: Exception) {
 //                recentHistory = null
@@ -86,7 +85,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 sheetsRepository.getRecentExpenseHistoryAsync(
                     spreadsheetId,
                     sheetName
-                )
+                ).await()
 
                 val spentSoFar = sheetsRepository
                     .getCategorySpendingAsync(spreadsheetId, overviewSheetName, expenseRow.expenseCategoryValue)

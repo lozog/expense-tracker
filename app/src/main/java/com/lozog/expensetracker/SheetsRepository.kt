@@ -128,7 +128,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
     fun getRecentExpenseHistoryAsync(
         spreadsheetId: String,
         sheetName: String
-    ): Deferred<List<ExpenseRow>> = coroutineScope.async {
+    ) = coroutineScope.async {
         if (SheetsInterface.spreadsheetService == null) {
             throw NotSignedInException()
         }
@@ -152,7 +152,5 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             it.row = values.size - ((HISTORY_LENGTH - 1) - i)
             expenseRowDao.insert(it)
         }
-
-        return@async recentHistory
     }
 }
