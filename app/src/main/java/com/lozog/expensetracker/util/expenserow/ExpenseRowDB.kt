@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [ExpenseRowEntity::class], version = 1)
+@Database(entities = [ExpenseRow::class], version = 1)
 abstract class ExpenseRowDB : RoomDatabase() {
     abstract fun expenseRowDao(): ExpenseRowDao
 
@@ -23,7 +23,10 @@ abstract class ExpenseRowDB : RoomDatabase() {
                     context.applicationContext,
                     ExpenseRowDB::class.java,
                     "expense_row_database"
-                ).build()
+                )
+//                     DANGER: don't uncomment this unless you want to clear all data
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 // return instance
                 instance

@@ -30,6 +30,7 @@ class SheetsWorker(
                 ExpenseRow(inputData)
             ).await()
         } catch (e: Exception) {
+            // TODO: keep track of failures to try again later
             Log.d(TAG, e.toString())
             return Result.failure()
         }

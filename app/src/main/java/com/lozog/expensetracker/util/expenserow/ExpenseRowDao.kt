@@ -8,18 +8,18 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseRowDao {
-    @Query("SELECT * FROM expenseRowEntity")
-    fun getAll(): Flow<List<ExpenseRowEntity>>
+    @Query("SELECT * FROM expenseRow")
+    fun getAll(): Flow<List<ExpenseRow>>
 
-    @Query("SELECT * FROM expenseRowEntity WHERE id IN (:expenseRowEntityIds)")
-    fun loadAllByIds(expenseRowEntityIds: IntArray): List<ExpenseRowEntity>
+    @Query("SELECT * FROM expenseRow WHERE id IN (:expenseRowIds)")
+    fun loadAllByIds(expenseRowIds: IntArray): List<ExpenseRow>
 
     @Insert
-    fun insert(expenseRowEntity: ExpenseRowEntity)
+    fun insert(expenseRow: ExpenseRow)
 
     @Delete
-    fun delete(expenseRowEntity: ExpenseRowEntity)
+    fun delete(expenseRow: ExpenseRow)
 
-    @Query("DELETE FROM expenseRowEntity")
+    @Query("DELETE FROM expenseRow")
     fun deleteAll()
 }

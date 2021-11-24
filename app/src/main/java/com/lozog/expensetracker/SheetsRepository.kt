@@ -6,7 +6,6 @@ import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.SheetsInterface
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
-import com.lozog.expensetracker.util.expenserow.ExpenseRowEntity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -14,7 +13,7 @@ import java.util.*
 
 class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
-    val recentHistory: Flow<List<ExpenseRowEntity>> = expenseRowDao.getAll()
+    val recentHistory: Flow<List<ExpenseRow>> = expenseRowDao.getAll()
 
     /********** CONCURRENCY **********/
     private val parentJob = Job()
@@ -150,7 +149,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
         expenseRowDao.deleteAll()
         recentHistory.forEach {
-            expenseRowDao.insert(it.toExpenseRowEntity(spreadsheetId, sheetName))
+            expenseRowDao.insert(it)
         }
 
         return@async recentHistory

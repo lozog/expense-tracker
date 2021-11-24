@@ -6,7 +6,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
-import com.lozog.expensetracker.util.expenserow.ExpenseRowEntity
 import kotlinx.coroutines.*
 import java.io.IOException
 
@@ -19,7 +18,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
 //    val recentHistory = MutableLiveData<List<ExpenseRow>>()
-    val recentHistory: LiveData<List<ExpenseRowEntity>> = sheetsRepository.recentHistory.asLiveData()
+    val recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.recentHistory.asLiveData()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
