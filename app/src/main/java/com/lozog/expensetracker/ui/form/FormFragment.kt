@@ -302,7 +302,6 @@ class FormFragment : Fragment() {
         val expenseNotesText = expenseNotes.text.toString()
 
         val expenseRow = ExpenseRow(
-            0,
             expenseDateText,
             expenseItemText,
             expenseCategoryText,

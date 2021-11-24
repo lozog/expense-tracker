@@ -8,7 +8,6 @@ import androidx.work.workDataOf
 
 @Entity
 data class ExpenseRow(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
 //    @ColumnInfo(name = "spreadsheet_id") val spreadsheetId: String,
 //    @ColumnInfo(name = "sheet_name") val sheetName: String,
     @ColumnInfo(name = "expense_date") val expenseDate: String,
@@ -16,14 +15,14 @@ data class ExpenseRow(
     @ColumnInfo(name = "expense_category_value") val expenseCategoryValue: String,
     @ColumnInfo(name = "expense_amount") val expenseAmount: String,
     @ColumnInfo(name = "expense_amount_others") val expenseAmountOthers: String,
-    @ColumnInfo(name = "expense_total") var expenseTotal: String = "",
+    @ColumnInfo(name = "expense_total") var expenseTotal: String,
     @ColumnInfo(name = "expense_notes") val expenseNotes: String,
     @ColumnInfo(name = "currency") val currency: String,
     @ColumnInfo(name = "exchange_rate") val exchangeRate: String,
-    @ColumnInfo(name = "row") val row: Int = 0
-) {
+    @ColumnInfo(name = "row") val row: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    ) {
     constructor(workData: Data) : this(
-        0,
         workData.getString("expenseDate")!!,
         workData.getString("expenseItem")!!,
         workData.getString("expenseCategory")!!,
@@ -36,7 +35,6 @@ data class ExpenseRow(
     )
 
     constructor(input: List<String>) : this(
-        0,
         input[0],
         input[1],
         input[2],
@@ -56,7 +54,7 @@ data class ExpenseRow(
             expenseCategoryValue,
             expenseAmount,
             expenseAmountOthers,
-            expenseTotal, // order matters because this is left to right in the sheet, so expenseTotal needs to go 6th (col F)
+            expenseTotal,
             expenseNotes,
             currency,
             exchangeRate
