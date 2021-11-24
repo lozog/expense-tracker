@@ -83,6 +83,11 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                     expenseRow
                 ).await()
 
+                sheetsRepository.getRecentExpenseHistoryAsync(
+                    spreadsheetId,
+                    sheetName
+                )
+
                 val spentSoFar = sheetsRepository
                     .getCategorySpendingAsync(spreadsheetId, overviewSheetName, expenseRow.expenseCategoryValue)
                     .await()
