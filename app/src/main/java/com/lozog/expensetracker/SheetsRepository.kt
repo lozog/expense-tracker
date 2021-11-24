@@ -25,7 +25,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
 
-        private const val HISTORY_LENGTH = 10
+        private const val HISTORY_LENGTH = 25
 
         // January -> column C, etc
         // TODO: dynamically find month columns
@@ -148,7 +148,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         Log.d(TAG, "last row: ${values.last()}")
 
         expenseRowDao.deleteAll()
-        recentHistory.forEach {
+        recentHistory.forEachIndexed {i, it ->
+            it.row = values.size - ((HISTORY_LENGTH - 1) - i)
             expenseRowDao.insert(it)
         }
 

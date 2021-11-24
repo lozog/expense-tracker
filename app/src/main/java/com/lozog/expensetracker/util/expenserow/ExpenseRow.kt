@@ -19,7 +19,7 @@ data class ExpenseRow(
     @ColumnInfo(name = "expense_notes") val expenseNotes: String,
     @ColumnInfo(name = "currency") val currency: String,
     @ColumnInfo(name = "exchange_rate") val exchangeRate: String,
-    @ColumnInfo(name = "row") val row: Int = 0,
+    @ColumnInfo(name = "row") var row: Int = 0,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     ) {
     constructor(workData: Data) : this(
