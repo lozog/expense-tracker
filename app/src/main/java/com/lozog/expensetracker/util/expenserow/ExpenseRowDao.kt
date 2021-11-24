@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseRowDao {
-    @Query("SELECT * FROM expenseRow")
+    @Query("SELECT * FROM expenseRow ORDER BY `row` DESC")
     fun getAll(): Flow<List<ExpenseRow>>
 
     @Query("SELECT * FROM expenseRow WHERE id IN (:expenseRowIds)")
