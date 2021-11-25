@@ -41,10 +41,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
             try {
                 Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
-                sheetsRepository.getRecentExpenseHistoryAsync(
-                    spreadsheetId,
-                    sheetName
-                ).await()
+                sheetsRepository.getRecentExpenseHistoryAsync().await()
                 Log.d(TAG, "got history: $recentHistory")
             } catch (e: Exception) {
                 Log.e(TAG, e.toString())
@@ -57,9 +54,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     }
 
     fun addExpenseRowToSheetAsync(
-        spreadsheetId: String,
-        sheetName: String,
-        overviewSheetName: String,
         expenseRow: ExpenseRow
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
@@ -68,18 +62,13 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
             try {
                 sheetsRepository.addExpenseRowToSheetAsync(
-                    spreadsheetId,
-                    sheetName,
                     expenseRow
                 ).await()
 
-                sheetsRepository.getRecentExpenseHistoryAsync(
-                    spreadsheetId,
-                    sheetName
-                ).await()
+                sheetsRepository.getRecentExpenseHistoryAsync().await()
 
                 val spentSoFar = sheetsRepository
-                    .getCategorySpendingAsync(spreadsheetId, overviewSheetName, expenseRow.expenseCategoryValue)
+                    .getCategorySpendingAsync(expenseRow.expenseCategoryValue)
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"

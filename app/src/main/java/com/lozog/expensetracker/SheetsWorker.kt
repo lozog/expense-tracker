@@ -25,8 +25,6 @@ class SheetsWorker(
 
         try {
             sheetsRepository.addExpenseRowToSheetAsync(
-                inputData.getString("spreadsheetId")!!,
-                inputData.getString("sheetName")!!,
                 ExpenseRow(inputData)
             ).await()
         } catch (e: Exception) {

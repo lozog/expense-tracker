@@ -8,8 +8,6 @@ import androidx.work.workDataOf
 
 @Entity
 data class ExpenseRow(
-//    @ColumnInfo(name = "spreadsheet_id") val spreadsheetId: String,
-//    @ColumnInfo(name = "sheet_name") val sheetName: String,
     @ColumnInfo(name = "expense_date") val expenseDate: String,
     @ColumnInfo(name = "expense_item") val expenseItem: String,
     @ColumnInfo(name = "expense_category_value") val expenseCategoryValue: String,
@@ -61,10 +59,8 @@ data class ExpenseRow(
         )
     }
 
-    fun toWorkData(spreadsheetId: String, dataSheetName: String): Data {
+    fun toWorkData(): Data {
         return workDataOf(
-            "spreadsheetId" to spreadsheetId,
-            "sheetName" to dataSheetName,
             "expenseDate" to expenseDate,
             "expenseItem" to expenseItem,
             "expenseCategory" to expenseCategoryValue,

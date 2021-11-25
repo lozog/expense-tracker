@@ -319,9 +319,6 @@ class FormFragment : Fragment() {
             try {
                 Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
                 sheetsViewModel.addExpenseRowToSheetAsync(
-                    spreadsheetId,
-                    dataSheetName,
-                    overviewSheetName,
                     expenseRow
                 )
             } catch (e: Exception) {
@@ -337,7 +334,7 @@ class FormFragment : Fragment() {
             val sheetsWorkRequest: OneTimeWorkRequest =
                 OneTimeWorkRequestBuilder<SheetsWorker>()
                     .setConstraints(constraints)
-                    .setInputData(expenseRow.toWorkData(spreadsheetId, dataSheetName))
+                    .setInputData(expenseRow.toWorkData())
                     .setBackoffCriteria(
                         BackoffPolicy.LINEAR,
                         OneTimeWorkRequest.MIN_BACKOFF_MILLIS,

@@ -12,10 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 
-class SheetsRepository(
-    private val expenseRowDao: ExpenseRowDao,
-    ) {
-
+class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
     val recentHistory: Flow<List<ExpenseRow>> = expenseRowDao.getAll()
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -75,55 +72,55 @@ class SheetsRepository(
     /********** GOOGLE SHEETS METHODS **********/
 
     fun addExpenseRowToSheetAsync(
-        spreadsheetId: String,
-        sheetName: String,
         expenseRow: ExpenseRow
     ) = coroutineScope.async {
         Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
 
-            if (SheetsInterface.spreadsheetService == null) {
-                throw NotSignedInException()
-            }
+        if (SheetsInterface.spreadsheetService == null) {
+            throw NotSignedInException()
+        }
 
-            val nextRow = SheetsInterface.spreadsheetService!!
-                .spreadsheets()
-                .values()
-                .get(spreadsheetId, sheetName)
-                .execute()
-                .getValues()
-                .size + 1
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
-            val expenseTotal =
-                "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
+        val nextRow = SheetsInterface.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, sheetName)
+            .execute()
+            .getValues()
+            .size + 1
 
-            expenseRow.expenseTotal = expenseTotal
+        val expenseTotal =
+            "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
 
-            val rowData = mutableListOf(
-                expenseRow.toList()
-            )
-            val requestBody = ValueRange()
-            requestBody.setValues(rowData as List<List<String>>?)
+        expenseRow.expenseTotal = expenseTotal
 
-            val request = SheetsInterface.spreadsheetService!!
-                .spreadsheets()
-                .values()
-                .append(spreadsheetId, sheetName, requestBody)
+        val rowData = mutableListOf(
+            expenseRow.toList()
+        )
+        val requestBody = ValueRange()
+        requestBody.setValues(rowData as List<List<String>>?)
 
-            request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
-            request.insertDataOption = SHEETS_INSERT_DATA_OPTION
+        val request = SheetsInterface.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .append(spreadsheetId, sheetName, requestBody)
 
-            request.execute()
-            Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync() done")
+        request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
+        request.insertDataOption = SHEETS_INSERT_DATA_OPTION
+
+        request.execute()
+        Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync() done")
     }
 
     fun getCategorySpendingAsync(
-        spreadsheetId: String,
-        overviewSheetName: String,
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
         val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
-
         val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
 
         if (categoryCell == null) {
             Log.e(TAG, "Category $expenseCategoryValue not found")
@@ -143,16 +140,15 @@ class SheetsRepository(
         return@async "$spentSoFar"
     }
 
-    fun getRecentExpenseHistoryAsync(
-        spreadsheetId: String,
-        sheetName: String
-    ) = coroutineScope.async {
+    fun getRecentExpenseHistoryAsync() = coroutineScope.async {
         Log.d(TAG, "getRecentExpenseHistoryAsync")
 
         if (SheetsInterface.spreadsheetService == null) {
             throw NotSignedInException()
         }
 
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val historyLength = sharedPreferences.getString("history_length", "25")?.toInt() ?: 25
 
         val res = SheetsInterface
