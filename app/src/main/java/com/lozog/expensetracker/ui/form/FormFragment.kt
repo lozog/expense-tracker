@@ -269,29 +269,11 @@ class FormFragment : Fragment() {
         var exchangeRate = currencyExchangeRate.text.toString()
 
         if (currency == "") {
-            val defaultCurrency = sharedPreferences.getString("currency", getString(R.string.default_currency))
-
-            if (defaultCurrency == null) {
-                Snackbar.make(view, getString(R.string.form_no_currency), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-                sheetsViewModel.resetView()
-                return
-            }
-
-            currency = defaultCurrency
+            currency = sharedPreferences.getString("currency", null)?: ""
         }
 
         if (exchangeRate == "") {
-            val defaultExchangeRate = sharedPreferences.getString("exchange_rate", getString(R.string.default_exchange_rate))
-
-            if (defaultExchangeRate == null) {
-                Snackbar.make(view, getString(R.string.form_no_exchange_rate), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-                sheetsViewModel.resetView()
-                return
-            }
-
-            exchangeRate = defaultExchangeRate
+            exchangeRate = sharedPreferences.getString("exchange_rate", null)?: ""
         }
 
         val expenseDateText = expenseDate.text.toString()

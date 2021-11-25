@@ -34,8 +34,6 @@
     <string name="form_no_monthly_summary_sheet_name">Set a monthly summary sheet name</string>
     <string name="form_no_data_sheet_name">Set a data sheet name</string>
     <string name="form_no_overview_sheet_name">Set an overview sheet name</string>
-    <string name="form_no_currency">Set a currency</string>
-    <string name="form_no_exchange_rate">Set an exchange rate</string>
 
     <!-- Widget -->
     <string name="widget_status_never_updated">Never Updated</string>
@@ -61,8 +59,6 @@
     <string name="history_length_pref_label">History length</string>
 
     <!-- Defaults -->
-    <string name="default_currency">CAD</string>
-    <string name="default_exchange_rate">1</string>
     <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Household,Other Income</string>
     <string name="default_history_length">25</string>
 
