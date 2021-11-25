@@ -45,10 +45,9 @@
     <!-- Settings activity link label -->
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Preference Titles -->
-    <string name="google_api_prefs_header">Google Sheets Settings</string>
+    <!-- Preference Section Titles -->
+    <string name="sheet_prefs_header">Sheet Settings</string>
     <string name="currency_prefs_header">Currency Defaults</string>
-    <string name="categories_prefs_header">Expense Categories</string>
 
     <!-- Google Sheets Preferences -->
     <string name="google_spreadsheet_id_pref_label">Google Spreadsheet Id</string>
