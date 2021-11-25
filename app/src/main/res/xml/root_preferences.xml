@@ -1,54 +1,54 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="@string/sheet_prefs_header">
+    <PreferenceCategory app:title="@string/pref_header_sheet">
         <EditTextPreference
             app:key="google_spreadsheet_id"
-            app:title="@string/google_spreadsheet_id_pref_label"
+            app:title="@string/pref_label_google_spreadsheet_id"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             app:key="categories"
             android:defaultValue="@string/default_categories"
-            app:title="@string/categories_list_pref_label"
+            app:title="@string/pref_label_categories_list"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             app:key="overview_sheet_name"
-            app:title="@string/overview_sheet_name_pref_label"
+            app:title="@string/pref_label_overview_sheet_name"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             app:key="data_sheet_name"
-            app:title="@string/data_sheet_name_pref_label"
+            app:title="@string/pref_label_data_sheet_name"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             app:key="monthly_summary_sheet_name"
-            app:title="@string/monthly_summary_sheet_name_pref_label"
+            app:title="@string/pref_label_monthly_summary_sheet_name"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/currency_prefs_header">
+    <PreferenceCategory app:title="@string/pref_header_currency">
         <EditTextPreference
             app:key="currency"
-            app:title="@string/currency_pref_label"
+            app:title="@string/pref_label_currency"
             app:useSimpleSummaryProvider="true" />
 
         <!-- inputType to enforce numeric values is not working -->
         <EditTextPreference
             app:key="exchange_rate"
-            app:title="@string/exchange_rate_pref_label"
+            app:title="@string/pref_label_exchange_rate"
             android:inputType="numberDecimal"
             android:digits="0123456789."
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/history_prefs_header">
+    <PreferenceCategory app:title="@string/pref_header_history">
         <EditTextPreference
             app:key="history_length"
             android:defaultValue="@string/default_history_length"
-            app:title="@string/history_length_pref_label"
+            app:title="@string/pref_label_history_length"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 </PreferenceScreen>
