@@ -17,16 +17,11 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
-//    val recentHistory = MutableLiveData<List<ExpenseRow>>()
     val recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.recentHistory.asLiveData()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
     }
-
-//    fun setRecentHistory(history: List<ExpenseRow>) {
-//        recentHistory.value = history
-//    }
 
     fun setStatus(newStatus: SheetsStatus) {
         status.value = newStatus
@@ -52,14 +47,10 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 ).await()
                 Log.d(TAG, "got history: $recentHistory")
             } catch (e: Exception) {
-//                recentHistory = null
                 Log.e(TAG, e.toString())
             }
 
             withContext(Dispatchers.Main) {
-//                if (recentHistory != null) {
-//                    setRecentHistory(recentHistory)
-//                }
                 setStatus(SheetsStatus.DONE)
             }
         }

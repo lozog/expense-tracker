@@ -25,7 +25,7 @@ abstract class ExpenseRowDB : RoomDatabase() {
                     "expense_row_database"
                 )
 //                     DANGER: don't uncomment this unless you want to clear all data
-                    .fallbackToDestructiveMigration()
+//                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 // return instance
