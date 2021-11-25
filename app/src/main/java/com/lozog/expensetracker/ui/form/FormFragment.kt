@@ -31,7 +31,9 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class FormFragment : Fragment() {
-    private val sheetsViewModel: SheetsViewModel by viewModels()
+    private val sheetsViewModel: SheetsViewModel by viewModels {
+        SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+    }
     private var _binding: FragmentFormBinding? = null
 
     // This property is only valid between onCreateView and
@@ -305,6 +307,7 @@ class FormFragment : Fragment() {
             expenseCategoryText,
             expenseAmountText,
             expenseAmountOthersText,
+            "",
             expenseNotesText,
             currency,
             exchangeRate

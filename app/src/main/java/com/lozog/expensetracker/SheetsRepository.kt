@@ -5,11 +5,15 @@ import com.google.api.services.sheets.v4.model.ValueRange
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.SheetsInterface
+import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 
-class SheetsRepository {
+class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
+
+    val recentHistory: Flow<List<ExpenseRow>> = expenseRowDao.getAll()
 
     /********** CONCURRENCY **********/
     private val parentJob = Job()
@@ -21,7 +25,7 @@ class SheetsRepository {
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
 
-        private const val HISTORY_LENGTH = 10
+        private const val HISTORY_LENGTH = 25
 
         // January -> column C, etc
         // TODO: dynamically find month columns
@@ -124,7 +128,7 @@ class SheetsRepository {
     fun getRecentExpenseHistoryAsync(
         spreadsheetId: String,
         sheetName: String
-    ): Deferred<List<ExpenseRow>> = coroutineScope.async {
+    ) = coroutineScope.async {
         if (SheetsInterface.spreadsheetService == null) {
             throw NotSignedInException()
         }
@@ -143,6 +147,10 @@ class SheetsRepository {
         Log.d(TAG, "first row: ${values[0]}")
         Log.d(TAG, "last row: ${values.last()}")
 
-        return@async recentHistory
+        expenseRowDao.deleteAll()
+        recentHistory.forEachIndexed {i, it ->
+            it.row = values.size - ((HISTORY_LENGTH - 1) - i)
+            expenseRowDao.insert(it)
+        }
     }
 }

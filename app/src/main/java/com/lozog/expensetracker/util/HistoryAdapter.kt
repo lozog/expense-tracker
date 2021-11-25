@@ -14,6 +14,7 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
     }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
+        val expenseCategoryValueTextView: TextView = view.findViewById(R.id.historyExpenseCategoryValue)
         val expenseItemTextView: TextView = view.findViewById(R.id.historyExpenseItem)
         val expenseTotalTextView: TextView = view.findViewById(R.id.historyExpenseTotal)
     }
@@ -31,6 +32,7 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expenseRow: ExpenseRow = recentHistory[position]
         viewHolder.expenseDateTextView.text = expenseRow.expenseDate
+        viewHolder.expenseCategoryValueTextView.text = expenseRow.expenseCategoryValue
         viewHolder.expenseItemTextView.text = expenseRow.expenseItem
         viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
     }

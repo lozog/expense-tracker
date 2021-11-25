@@ -1,26 +1,34 @@
 package com.lozog.expensetracker.util.expenserow
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import androidx.work.Data
 import androidx.work.workDataOf
 
+@Entity
 data class ExpenseRow(
-    val expenseDate: String,
-    val expenseItem: String,
-    val expenseCategoryValue: String,
-    val expenseAmount: String,
-    val expenseAmountOthers: String,
-    val expenseNotes: String,
-    val currency: String,
-    val exchangeRate: String,
-    var expenseTotal: String = "",
-    var row: String? = null
-) {
+//    @ColumnInfo(name = "spreadsheet_id") val spreadsheetId: String,
+//    @ColumnInfo(name = "sheet_name") val sheetName: String,
+    @ColumnInfo(name = "expense_date") val expenseDate: String,
+    @ColumnInfo(name = "expense_item") val expenseItem: String,
+    @ColumnInfo(name = "expense_category_value") val expenseCategoryValue: String,
+    @ColumnInfo(name = "expense_amount") val expenseAmount: String,
+    @ColumnInfo(name = "expense_amount_others") val expenseAmountOthers: String,
+    @ColumnInfo(name = "expense_total") var expenseTotal: String,
+    @ColumnInfo(name = "expense_notes") val expenseNotes: String,
+    @ColumnInfo(name = "currency") val currency: String,
+    @ColumnInfo(name = "exchange_rate") val exchangeRate: String,
+    @ColumnInfo(name = "row") var row: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    ) {
     constructor(workData: Data) : this(
         workData.getString("expenseDate")!!,
         workData.getString("expenseItem")!!,
         workData.getString("expenseCategory")!!,
         workData.getString("expenseAmount")!!,
         workData.getString("expenseAmountOthers")!!,
+        workData.getString("expenseTotal")!!,
         workData.getString("expenseNotes")!!,
         workData.getString("currency")!!,
         workData.getString("exchangeRate")!!
@@ -32,10 +40,10 @@ data class ExpenseRow(
         input[2],
         input[3],
         input[4],
+        input[5],
         input.getOrElse(6) { "" },
         input.getOrElse(7) { "" },
         input.getOrElse(8) { "" },
-        expenseTotal=input.getOrElse(5) { "" },
     )
 
     // return as a List, to be sent to the spreadsheet
@@ -46,7 +54,7 @@ data class ExpenseRow(
             expenseCategoryValue,
             expenseAmount,
             expenseAmountOthers,
-            expenseTotal, // order matters because this is left to right in the sheet, so expenseTotal needs to go 6th (col F)
+            expenseTotal,
             expenseNotes,
             currency,
             exchangeRate
@@ -62,6 +70,7 @@ data class ExpenseRow(
             "expenseCategory" to expenseCategoryValue,
             "expenseAmount" to expenseAmount,
             "expenseAmountOthers" to expenseAmountOthers,
+            "expenseTotal" to expenseTotal,
             "expenseNotes" to expenseNotes,
             "currency" to currency,
             "exchangeRate" to exchangeRate,
