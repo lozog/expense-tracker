@@ -9,6 +9,7 @@
 
         <EditTextPreference
             app:key="categories"
+            android:defaultValue="@string/default_categories"
             app:title="@string/categories_list_pref_label"
             app:useSimpleSummaryProvider="true" />
 
@@ -31,12 +32,14 @@
     <PreferenceCategory app:title="@string/currency_prefs_header">
         <EditTextPreference
             app:key="currency"
+            android:defaultValue="@string/default_currency"
             app:title="@string/currency_pref_label"
             app:useSimpleSummaryProvider="true" />
 
         <!-- inputType to enforce numeric values is not working -->
         <EditTextPreference
             app:key="exchange_rate"
+            android:defaultValue="@string/default_exchange_rate"
             app:title="@string/exchange_rate_pref_label"
             android:inputType="numberDecimal"
             android:digits="0123456789."
