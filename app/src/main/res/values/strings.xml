@@ -48,27 +48,23 @@
     <!-- Preference Section Titles -->
     <string name="sheet_prefs_header">Sheet Settings</string>
     <string name="currency_prefs_header">Currency Defaults</string>
+    <string name="history_prefs_header">History Defaults</string>
 
-    <!-- Google Sheets Preferences -->
+    <!-- Preference Labels -->
     <string name="google_spreadsheet_id_pref_label">Google Spreadsheet Id</string>
     <string name="data_sheet_name_pref_label">Data Sheet Name</string>
     <string name="overview_sheet_name_pref_label">Overview Sheet Name</string>
-
-    <!-- Defaults preferences -->
     <string name="currency_pref_label">Currency</string>
     <string name="exchange_rate_pref_label">Exchange Rate</string>
-
-    <!-- Categories preferences -->
     <string name="categories_list_pref_label">Expense Categories (comma-separated)</string>
     <string name="monthly_summary_sheet_name_pref_label">Monthly Summary Sheet Name</string>
-
-    <!-- Request Queue preferences -->
-    <string name="request_queue_pref_key">request_queue_pref</string>
+    <string name="history_length_pref_label">History length</string>
 
     <!-- Defaults -->
     <string name="default_currency">CAD</string>
     <string name="default_exchange_rate">1</string>
     <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Household,Other Income</string>
+    <string name="default_history_length">25</string>
 
     <!-- Notifications -->
     <string name="notification_queued_requests_channel_name">Queued Requests</string>

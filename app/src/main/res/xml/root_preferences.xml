@@ -42,4 +42,12 @@
             android:digits="0123456789."
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/history_prefs_header">
+        <EditTextPreference
+            app:key="history_length"
+            android:defaultValue="@string/default_history_length"
+            app:title="@string/history_length_pref_label"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
 </PreferenceScreen>

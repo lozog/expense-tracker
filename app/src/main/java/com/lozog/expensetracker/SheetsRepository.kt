@@ -1,5 +1,6 @@
 package com.lozog.expensetracker
 
+import android.content.SharedPreferences
 import android.util.Log
 import com.google.api.services.sheets.v4.model.ValueRange
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
@@ -11,9 +12,12 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 
-class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
+class SheetsRepository(
+    private val expenseRowDao: ExpenseRowDao,
+    ) {
 
     val recentHistory: Flow<List<ExpenseRow>> = expenseRowDao.getAll()
+    private lateinit var sharedPreferences: SharedPreferences
 
     /********** CONCURRENCY **********/
     private val parentJob = Job()
@@ -24,8 +28,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
-
-        private const val HISTORY_LENGTH = 25
 
         // January -> column C, etc
         // TODO: dynamically find month columns
@@ -66,6 +68,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         )
     }
 
+    fun setPreferences(newPrefs: SharedPreferences) {
+        sharedPreferences = newPrefs
+    }
+
     /********** GOOGLE SHEETS METHODS **********/
 
     fun addExpenseRowToSheetAsync(
@@ -79,8 +85,13 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
                 throw NotSignedInException()
             }
 
-            val nextRow = SheetsInterface.spreadsheetService!!.spreadsheets().values()
-                .get(spreadsheetId, sheetName).execute().getValues().size + 1
+            val nextRow = SheetsInterface.spreadsheetService!!
+                .spreadsheets()
+                .values()
+                .get(spreadsheetId, sheetName)
+                .execute()
+                .getValues()
+                .size + 1
 
             val expenseTotal =
                 "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
@@ -93,8 +104,11 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             val requestBody = ValueRange()
             requestBody.setValues(rowData as List<List<String>>?)
 
-            val request = SheetsInterface.spreadsheetService!!.spreadsheets().values()
+            val request = SheetsInterface.spreadsheetService!!
+                .spreadsheets()
+                .values()
                 .append(spreadsheetId, sheetName, requestBody)
+
             request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
             request.insertDataOption = SHEETS_INSERT_DATA_OPTION
 
@@ -117,8 +131,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         }
 
         val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-        val data = SheetsInterface.spreadsheetService!!.spreadsheets().values()
-            .get(spreadsheetId, categorySpendingCell).execute().getValues()
+        val data = SheetsInterface.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, categorySpendingCell)
+            .execute()
+            .getValues()
 
         val spentSoFar = data[0][0]
 
@@ -129,11 +147,13 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         spreadsheetId: String,
         sheetName: String
     ) = coroutineScope.async {
+        Log.d(TAG, "getRecentExpenseHistoryAsync")
+
         if (SheetsInterface.spreadsheetService == null) {
             throw NotSignedInException()
         }
 
-        Log.d(TAG, "getRecentExpenseHistoryAsync")
+        val historyLength = sharedPreferences.getString("history_length", "25")?.toInt() ?: 25
 
         val res = SheetsInterface
             .spreadsheetService!!
@@ -142,14 +162,14 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             .get(spreadsheetId, sheetName)
             .execute()
         val values = res.getValues()
-        val recentHistory = values.takeLast(HISTORY_LENGTH).map{ value -> ExpenseRow(value as List<String>) }
+        val recentHistory = values.takeLast(historyLength).map{ value -> ExpenseRow(value as List<String>) }
 
         Log.d(TAG, "first row: ${values[0]}")
         Log.d(TAG, "last row: ${values.last()}")
 
         expenseRowDao.deleteAll()
         recentHistory.forEachIndexed {i, it ->
-            it.row = values.size - ((HISTORY_LENGTH - 1) - i)
+            it.row = values.size - ((historyLength - 1) - i)
             expenseRowDao.insert(it)
         }
     }
