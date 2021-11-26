@@ -1,5 +1,6 @@
 package com.lozog.expensetracker.util
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,9 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
     }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val detailButton: Button = view.findViewById(R.id.detailButton)
-//        val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
+        val deleteButton: Button = view.findViewById(R.id.deleteButton)
+
+        //        val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
 //        val expenseCategoryValueTextView: TextView = view.findViewById(R.id.historyExpenseCategoryValue)
         val expenseItemTextView: TextView = view.findViewById(R.id.historyExpenseItem)
         val expenseTotalTextView: TextView = view.findViewById(R.id.historyExpenseTotal)
@@ -45,6 +48,10 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
 //            Log.d(TAG, "clicked row ${expenseRow.row}")
             val action = HistoryFragmentDirections.actionNavigationHistoryToDetailFragment(expenseRow.row)
             it.findNavController().navigate(action)
+        }
+
+        viewHolder.deleteButton.setOnClickListener {
+            Log.d(TAG, "deleting row ${expenseRow.row}")
         }
     }
 

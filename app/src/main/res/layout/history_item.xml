@@ -58,7 +58,19 @@
         android:textColor="#000000"
         android:textSize="14sp"
         android:layout_marginEnd="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/deleteButton"
         app:layout_constraintTop_toTopOf="parent"/>
+
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="60dp"
+        android:layout_height="32dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Del"
+        android:backgroundTint="@color/colorAccent"
+        android:textSize="11sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
