@@ -45,7 +45,6 @@ class HistoryFragment: Fragment() {
         val root: View = binding.root
         mainActivity = activity as MainActivity
 
-        updateHistoryButton = binding.updateHistoryButton
         recentHistoryView = binding.recentHistory
         recentHistoryView.layoutManager = LinearLayoutManager(mainActivity)
         recentHistoryView.adapter = historyAdapter
@@ -69,6 +68,7 @@ class HistoryFragment: Fragment() {
             }
         })
 
+        updateHistoryButton = binding.updateHistoryButton
         updateHistoryButton.setOnClickListener{view ->
             updateHistory(view)
         }
