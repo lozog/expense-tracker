@@ -17,27 +17,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/historyExpenseDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="start"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintStart_toEndOf="@id/detailButton"
-        app:layout_constraintTop_toTopOf="parent" />
+<!--    <TextView-->
+<!--        android:id="@+id/historyExpenseDate"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:gravity="start"-->
+<!--        android:textColor="#000000"-->
+<!--        android:textSize="14sp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        app:layout_constraintStart_toEndOf="@id/detailButton"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
-    <TextView
-        android:id="@+id/historyExpenseCategoryValue"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:gravity="start"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:layout_marginStart="5dp"
-        app:layout_constraintStart_toEndOf="@id/historyExpenseDate"
-        app:layout_constraintTop_toTopOf="parent" />
+<!--    <TextView-->
+<!--        android:id="@+id/historyExpenseCategoryValue"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:gravity="start"-->
+<!--        android:textColor="#000000"-->
+<!--        android:textSize="14sp"-->
+<!--        android:layout_marginStart="5dp"-->
+<!--        app:layout_constraintStart_toEndOf="@id/historyExpenseDate"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <TextView
         android:id="@+id/historyExpenseItem"
@@ -47,7 +47,7 @@
         android:textColor="#000000"
         android:textSize="14sp"
         android:layout_marginStart="5dp"
-        app:layout_constraintStart_toEndOf="@id/historyExpenseCategoryValue"
+        app:layout_constraintStart_toEndOf="@id/detailButton"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
