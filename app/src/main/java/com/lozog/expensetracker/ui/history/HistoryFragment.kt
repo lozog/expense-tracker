@@ -40,7 +40,6 @@ class HistoryFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val root: View = binding.root
         mainActivity = activity as MainActivity
@@ -100,10 +99,7 @@ class HistoryFragment: Fragment() {
 
         try {
             Log.d(TAG, "calling sheetsViewModel.getRecentExpenseHistory")
-            sheetsViewModel.getRecentExpenseHistory(
-                spreadsheetId,
-                sheetName
-            )
+            sheetsViewModel.getRecentExpenseHistory()
         } catch (e: Exception) {
             Log.d(TAG, "exception: $e")
             sheetsViewModel.setStatusText(e.toString())

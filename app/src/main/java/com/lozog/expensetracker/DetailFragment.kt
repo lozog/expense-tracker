@@ -6,9 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.navigation.fragment.navArgs
+import androidx.fragment.app.viewModels
 import com.lozog.expensetracker.databinding.FragmentDetailBinding
+import com.lozog.expensetracker.util.HistoryAdapter
+import com.lozog.expensetracker.util.expenserow.ExpenseRow
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -20,9 +21,13 @@ private const val ARG_PARAM1 = "row"
  * create an instance of this fragment.
  */
 class DetailFragment : Fragment() {
-    private var row: Int? = null
+    private var row: Int = 0
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
+    private val sheetsViewModel: SheetsViewModel by viewModels {
+        SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+    }
+    private lateinit var expenseRow: ExpenseRow
 
     companion object {
         private const val TAG = "DETAIL_FRAGMENT"
@@ -42,11 +47,16 @@ class DetailFragment : Fragment() {
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        // Inflate the layout for this fragment
         val detailText = binding.detailText
-//        val row = args.row
-        Log.d(TAG, "$row")
-        detailText.text = row.toString()
+//        Log.d(TAG, "$expenseRow")
+
+        sheetsViewModel.getExpenseRowByRow(row)
+
+        sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner, {
+            expenseRow = it
+            detailText.text = expenseRow.toString()
+        })
+
 
 //        return inflater.inflate(R.layout.fragment_detail, container, false)
         return root

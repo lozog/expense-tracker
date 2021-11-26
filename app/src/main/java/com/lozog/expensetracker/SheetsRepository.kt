@@ -69,6 +69,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         sharedPreferences = newPrefs
     }
 
+    fun getExpenseRowByRowAsync(row: Int): Deferred<ExpenseRow> = coroutineScope.async {
+        return@async expenseRowDao.getByRow(row)
+    }
+
     /********** GOOGLE SHEETS METHODS **********/
 
     fun addExpenseRowToSheetAsync(
