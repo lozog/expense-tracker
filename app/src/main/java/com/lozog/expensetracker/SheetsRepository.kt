@@ -2,8 +2,7 @@ package com.lozog.expensetracker
 
 import android.content.SharedPreferences
 import android.util.Log
-import com.google.api.services.sheets.v4.model.ClearValuesRequest
-import com.google.api.services.sheets.v4.model.ValueRange
+import com.google.api.services.sheets.v4.model.*
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.SheetsInterface
@@ -181,14 +180,28 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         }
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val sheetName = sharedPreferences.getString("data_sheet_name", null)
+//        val sheetName = sharedPreferences.getString("data_sheet_name", null)
+        val sheetId = 1283738573 // TODO: dynamically get sheetId
 
-        val rowRange = "'$sheetName'!$row:$row"
+        val deleteRequest: Request = Request()
+            .setDeleteDimension(
+                DeleteDimensionRequest()
+                    .setRange(
+                        DimensionRange()
+                            .setSheetId(sheetId)
+                            .setDimension("ROWS")
+                            .setStartIndex(row-1)
+                            .setEndIndex(row)
+                    )
+            )
+        val updateRequest = BatchUpdateSpreadsheetRequest()
+        updateRequest.requests = listOf(
+            deleteRequest
+        )
 
-        val request = SheetsInterface.spreadsheetService!!
+        SheetsInterface.spreadsheetService!!
             .spreadsheets()
-            .values()
-            .clear(spreadsheetId, rowRange, ClearValuesRequest())
+            .batchUpdate(spreadsheetId, updateRequest)
             .execute()
     }
 }
