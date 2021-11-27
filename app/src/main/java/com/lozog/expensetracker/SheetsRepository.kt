@@ -2,6 +2,7 @@ package com.lozog.expensetracker
 
 import android.content.SharedPreferences
 import android.util.Log
+import com.google.api.services.sheets.v4.model.ClearValuesRequest
 import com.google.api.services.sheets.v4.model.ValueRange
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
@@ -183,18 +184,11 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
         val rowRange = "'$sheetName'!$row:$row"
-        val emptyRow = listOf(
-            ExpenseRow.emptyExpenseRow().toList()
-        )
-
-        val valueRange = ValueRange()
-        valueRange.setValues(emptyRow)
 
         val request = SheetsInterface.spreadsheetService!!
             .spreadsheets()
             .values()
-            .update(spreadsheetId, rowRange, valueRange)
-        request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
-        request.execute()
+            .clear(spreadsheetId, rowRange, ClearValuesRequest())
+            .execute()
     }
 }
