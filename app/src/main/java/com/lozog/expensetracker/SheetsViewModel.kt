@@ -18,6 +18,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
     val recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.recentHistory.asLiveData()
+    val detailExpenseRow = MutableLiveData<ExpenseRow>()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
@@ -31,10 +32,15 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         status.value = SheetsStatus.DONE
     }
 
-    fun getRecentExpenseHistory(
-        spreadsheetId: String,
-        sheetName: String
-    ) {
+    fun getExpenseRowByRow(row: Int) {
+        var expenseRow: ExpenseRow
+        viewModelScope.launch (Dispatchers.Main){
+            expenseRow = sheetsRepository.getExpenseRowByRowAsync(row).await()
+            detailExpenseRow.value = expenseRow
+        }
+    }
+
+    fun getRecentExpenseHistory() {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
 //            var recentHistory: List<ExpenseRow>?
@@ -91,6 +97,13 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 setStatusText(statusText)
                 setStatus(SheetsStatus.DONE)
             }
+        }
+    }
+
+    fun deleteRowAsync(row: Int) {
+        viewModelScope.launch (Dispatchers.IO) {
+            sheetsRepository.deleteRowAsync(row).await()
+            sheetsRepository.getRecentExpenseHistoryAsync().await()
         }
     }
 }

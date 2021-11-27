@@ -2,7 +2,7 @@ package com.lozog.expensetracker
 
 import android.content.SharedPreferences
 import android.util.Log
-import com.google.api.services.sheets.v4.model.ValueRange
+import com.google.api.services.sheets.v4.model.*
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.SheetsInterface
@@ -67,6 +67,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
     fun setPreferences(newPrefs: SharedPreferences) {
         sharedPreferences = newPrefs
+    }
+
+    fun getExpenseRowByRowAsync(row: Int): Deferred<ExpenseRow> = coroutineScope.async {
+        return@async expenseRowDao.getByRow(row)
     }
 
     /********** GOOGLE SHEETS METHODS **********/
@@ -168,5 +172,36 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             it.row = values.size - ((historyLength - 1) - i)
             expenseRowDao.insert(it)
         }
+    }
+
+    fun deleteRowAsync(row: Int) = coroutineScope.async {
+        if (SheetsInterface.spreadsheetService == null) {
+            throw NotSignedInException()
+        }
+
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+//        val sheetName = sharedPreferences.getString("data_sheet_name", null)
+        val sheetId = 1283738573 // TODO: dynamically get sheetId
+
+        val deleteRequest: Request = Request()
+            .setDeleteDimension(
+                DeleteDimensionRequest()
+                    .setRange(
+                        DimensionRange()
+                            .setSheetId(sheetId)
+                            .setDimension("ROWS")
+                            .setStartIndex(row-1)
+                            .setEndIndex(row)
+                    )
+            )
+        val updateRequest = BatchUpdateSpreadsheetRequest()
+        updateRequest.requests = listOf(
+            deleteRequest
+        )
+
+        SheetsInterface.spreadsheetService!!
+            .spreadsheets()
+            .batchUpdate(spreadsheetId, updateRequest)
+            .execute()
     }
 }

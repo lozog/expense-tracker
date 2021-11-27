@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -40,6 +41,7 @@ import com.lozog.expensetracker.util.SheetsInterface
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: MainActivityBinding
+    private lateinit var navController: NavController
 
     /********** GOOGLE SIGN-IN **********/
     lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -88,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -123,6 +125,10 @@ class MainActivity : AppCompatActivity() {
         if (account != null) {
             onSignInSuccess(account)
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     private fun onActivityResult(requestCode: Int, result: ActivityResult) {

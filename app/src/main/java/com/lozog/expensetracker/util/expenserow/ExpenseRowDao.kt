@@ -11,6 +11,9 @@ interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow ORDER BY `row` DESC")
     fun getAll(): Flow<List<ExpenseRow>>
 
+    @Query("SELECT * FROM expenseRow WHERE `row`=(:row)")
+    fun getByRow(row: Int): ExpenseRow
+
     @Query("SELECT * FROM expenseRow WHERE id IN (:expenseRowIds)")
     fun loadAllByIds(expenseRowIds: IntArray): List<ExpenseRow>
 

@@ -15,7 +15,16 @@
         android:id="@+id/navigation_history"
         android:name="com.lozog.expensetracker.ui.history.HistoryFragment"
         android:label="@string/nav_history"
-        tools:layout="@layout/fragment_history"/>
+        tools:layout="@layout/fragment_history">
+        <action
+            android:id="@+id/action_navigation_history_to_detailFragment"
+            app:destination="@id/detailFragment">
+            <argument
+                android:name="row"
+                app:argType="integer"
+                android:defaultValue="0" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_settings"
@@ -28,5 +37,10 @@
         android:name="com.lozog.expensetracker.ui.account.AccountFragment"
         android:label="@string/nav_account"
         tools:layout="@layout/fragment_account"/>
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.lozog.expensetracker.DetailFragment"
+        android:label="@string/nav_detail"
+        tools:layout="@layout/fragment_detail" />
 
 </navigation>

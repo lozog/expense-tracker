@@ -33,25 +33,25 @@ class HistoryFragment: Fragment() {
 
     private lateinit var updateHistoryButton: Button
     private lateinit var recentHistoryView: RecyclerView
-    private var historyAdapter = HistoryAdapter(listOf())
+    private var historyAdapter = HistoryAdapter(listOf()) { }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val root: View = binding.root
         mainActivity = activity as MainActivity
 
-        updateHistoryButton = binding.updateHistoryButton
         recentHistoryView = binding.recentHistory
         recentHistoryView.layoutManager = LinearLayoutManager(mainActivity)
         recentHistoryView.adapter = historyAdapter
 
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
-            historyAdapter = HistoryAdapter(it)
+            historyAdapter = HistoryAdapter(it) { expenseRow ->
+                sheetsViewModel.deleteRowAsync(expenseRow.row)
+            }
             recentHistoryView.adapter = historyAdapter
         })
 
@@ -69,6 +69,7 @@ class HistoryFragment: Fragment() {
             }
         })
 
+        updateHistoryButton = binding.updateHistoryButton
         updateHistoryButton.setOnClickListener{view ->
             updateHistory(view)
         }
@@ -100,10 +101,7 @@ class HistoryFragment: Fragment() {
 
         try {
             Log.d(TAG, "calling sheetsViewModel.getRecentExpenseHistory")
-            sheetsViewModel.getRecentExpenseHistory(
-                spreadsheetId,
-                sheetName
-            )
+            sheetsViewModel.getRecentExpenseHistory()
         } catch (e: Exception) {
             Log.d(TAG, "exception: $e")
             sheetsViewModel.setStatusText(e.toString())
