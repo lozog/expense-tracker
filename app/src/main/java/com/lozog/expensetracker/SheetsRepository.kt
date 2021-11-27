@@ -173,4 +173,30 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             expenseRowDao.insert(it)
         }
     }
+
+    fun deleteRowAsync(row: Int) = coroutineScope.async {
+        if (SheetsInterface.spreadsheetService == null) {
+            throw NotSignedInException()
+        }
+
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val sheetName = sharedPreferences.getString("data_sheet_name", null)
+
+        val rowRange = "'$sheetName'!$row:$row"
+        val emptyRow = listOf(
+            listOf(
+                "","","","","","","","",""
+            )
+        )
+
+        val valueRange = ValueRange()
+        valueRange.setValues(emptyRow)
+
+        val request = SheetsInterface.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .update(spreadsheetId, rowRange, valueRange)
+        request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
+        request.execute()
+    }
 }

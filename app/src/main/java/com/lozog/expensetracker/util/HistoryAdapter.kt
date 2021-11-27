@@ -9,10 +9,14 @@ import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.lozog.expensetracker.R
+import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.ui.history.HistoryFragmentDirections
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 
-class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
+class HistoryAdapter(
+    private val recentHistory: List<ExpenseRow>,
+    private val onItemClicked: (ExpenseRow) -> Unit
+): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     companion object {
         private const val TAG = "HISTORY_ADAPTER"
     }
@@ -52,6 +56,7 @@ class HistoryAdapter(private val recentHistory: List<ExpenseRow>): RecyclerView.
 
         viewHolder.deleteButton.setOnClickListener {
             Log.d(TAG, "deleting row ${expenseRow.row}")
+            onItemClicked(expenseRow)
         }
     }
 

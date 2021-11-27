@@ -33,7 +33,7 @@ class HistoryFragment: Fragment() {
 
     private lateinit var updateHistoryButton: Button
     private lateinit var recentHistoryView: RecyclerView
-    private var historyAdapter = HistoryAdapter(listOf())
+    private var historyAdapter = HistoryAdapter(listOf()) { }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +49,9 @@ class HistoryFragment: Fragment() {
         recentHistoryView.adapter = historyAdapter
 
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
-            historyAdapter = HistoryAdapter(it)
+            historyAdapter = HistoryAdapter(it) { expenseRow ->
+                sheetsViewModel.deleteRowAsync(expenseRow.row)
+            }
             recentHistoryView.adapter = historyAdapter
         })
 

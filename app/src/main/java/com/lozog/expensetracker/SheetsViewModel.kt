@@ -99,6 +99,13 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             }
         }
     }
+
+    fun deleteRowAsync(row: Int) {
+        viewModelScope.launch (Dispatchers.IO) {
+            sheetsRepository.deleteRowAsync(row).await()
+            sheetsRepository.getRecentExpenseHistoryAsync().await()
+        }
+    }
 }
 
 class SheetsViewModelFactory(private val sheetsRepository: SheetsRepository) : ViewModelProvider.Factory {
