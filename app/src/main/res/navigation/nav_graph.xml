@@ -41,6 +41,6 @@
         android:id="@+id/detailFragment"
         android:name="com.lozog.expensetracker.DetailFragment"
         android:label="@string/nav_detail"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_form" />
 
 </navigation>
