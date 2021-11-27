@@ -184,9 +184,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
         val rowRange = "'$sheetName'!$row:$row"
         val emptyRow = listOf(
-            listOf(
-                "","","","","","","","",""
-            )
+            ExpenseRow.emptyExpenseRow().toList()
         )
 
         val valueRange = ValueRange()

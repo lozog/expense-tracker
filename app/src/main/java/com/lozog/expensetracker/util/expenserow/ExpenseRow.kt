@@ -20,6 +20,22 @@ data class ExpenseRow(
     @ColumnInfo(name = "row") var row: Int = 0,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     ) {
+    companion object {
+        fun emptyExpenseRow(): ExpenseRow {
+            return ExpenseRow(
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            )
+        }
+    }
+
     constructor(workData: Data) : this(
         workData.getString("expenseDate")!!,
         workData.getString("expenseItem")!!,
