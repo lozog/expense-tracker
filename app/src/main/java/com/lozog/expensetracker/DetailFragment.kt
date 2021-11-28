@@ -38,13 +38,29 @@ class DetailFragment : Fragment() {
     ): View {
         _binding = FragmentFormBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        val detailText = binding.statusText
+        val statusText = binding.statusText
+        val expenseDate = binding.expenseDate
+        val expenseItem = binding.expenseItem
+        val expenseCategory = binding.expenseCategory
+        val expenseAmount = binding.expenseAmount
+        val expenseAmountOthers = binding.expenseAmountOthers
+        val expenseNotes = binding.expenseNotes
+        val currencyLabel = binding.currencyLabel
+        val currencyExchangeRate = binding.currencyExchangeRate
 
         sheetsViewModel.getExpenseRowByRow(row)
 
         sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner, {
             expenseRow = it
-            detailText.text = expenseRow.toString()
+            statusText.text = expenseRow.toString()
+            expenseDate.setText(expenseRow.expenseDate)
+            expenseItem.setText(expenseRow.expenseItem)
+            expenseCategory.setText(expenseRow.expenseCategoryValue)
+            expenseAmount.setText(expenseRow.expenseAmount)
+            expenseAmountOthers.setText(expenseRow.expenseAmountOthers)
+            expenseNotes.setText(expenseRow.expenseNotes)
+            currencyLabel.setText(expenseRow.currency)
+            currencyExchangeRate.setText(expenseRow.exchangeRate)
         })
 
         return root
