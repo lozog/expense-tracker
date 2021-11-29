@@ -292,7 +292,8 @@ class FormFragment : Fragment() {
             "",
             expenseNotesText,
             currency,
-            exchangeRate
+            exchangeRate,
+            "PENDING"
         )
 
         if (ConnectivityHelper.isInternetConnected(mainActivity)) {
@@ -300,9 +301,7 @@ class FormFragment : Fragment() {
 
             try {
                 Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
-                sheetsViewModel.addExpenseRowToSheetAsync(
-                    expenseRow
-                )
+                sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
             } catch (e: Exception) {
                 Log.d(TAG, "exception: $e")
                 sheetsViewModel.setStatusText(e.toString())

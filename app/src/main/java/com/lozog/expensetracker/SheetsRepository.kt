@@ -13,7 +13,7 @@ import java.util.*
 
 
 class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
-    val recentHistory: Flow<List<ExpenseRow>> = expenseRowDao.getAll()
+    lateinit var recentHistory: Flow<List<ExpenseRow>>
     private lateinit var sharedPreferences: SharedPreferences
 
     /********** CONCURRENCY **********/
@@ -67,9 +67,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
     fun setPreferences(newPrefs: SharedPreferences) {
         sharedPreferences = newPrefs
+        recentHistory = expenseRowDao.getN(sharedPreferences.getString("history_length", "5")!!.toInt())
     }
 
-    fun getExpenseRowByRowAsync(row: Int): Deferred<ExpenseRow> = coroutineScope.async {
+    fun getExpenseRowByRowAsync(row: Int): Deferred<List<ExpenseRow>> = coroutineScope.async {
         return@async expenseRowDao.getByRow(row)
     }
 
@@ -79,6 +80,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         expenseRow: ExpenseRow
     ) = coroutineScope.async {
         Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
+        val expenseRowId = expenseRowDao.insert(expenseRow)
+        expenseRow.id = expenseRowId.toInt()
 
         if (SheetsInterface.spreadsheetService == null) {
             throw NotSignedInException()
@@ -95,26 +98,27 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             .getValues()
             .size + 1
 
-        val expenseTotal =
+        val expenseTotal = // TODO: make this a pref string
             "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
-
         expenseRow.expenseTotal = expenseTotal
 
-        val rowData = mutableListOf(
+        val rowData = listOf(
             expenseRow.toList()
         )
         val requestBody = ValueRange()
-        requestBody.setValues(rowData as List<List<String>>?)
-
+        requestBody.setValues(rowData)
         val request = SheetsInterface.spreadsheetService!!
             .spreadsheets()
             .values()
             .append(spreadsheetId, sheetName, requestBody)
-
         request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
         request.insertDataOption = SHEETS_INSERT_DATA_OPTION
-
         request.execute()
+
+        expenseRow.row = nextRow
+        expenseRow.syncStatus = "DONE"
+        expenseRowDao.update(expenseRow)
+
         Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync() done")
     }
 
@@ -153,25 +157,25 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
-        val historyLength = sharedPreferences.getString("history_length", "25")?.toInt() ?: 25
+//        val historyLength = sharedPreferences.getString("history_length", "25")?.toInt() ?: 25
 
-        val res = SheetsInterface
+        val values = SheetsInterface
             .spreadsheetService!!
             .spreadsheets()
             .values()
             .get(spreadsheetId, sheetName)
             .execute()
-        val values = res.getValues()
-        val recentHistory = values.takeLast(historyLength).map{ value -> ExpenseRow(value as List<String>) }
+            .getValues()
 
-        Log.d(TAG, "first row: ${values[0]}")
-        Log.d(TAG, "last row: ${values.last()}")
-
-        expenseRowDao.deleteAll()
-        recentHistory.forEachIndexed {i, it ->
-            it.row = values.size - ((historyLength - 1) - i)
-            expenseRowDao.insert(it)
+//        expenseRowDao.deleteAllDone()
+        val allExpensesFromSheet = values.map{ value -> ExpenseRow(value as List<String>) }
+        allExpensesFromSheet.forEachIndexed {i, expenseRow ->
+            // go through each one. make sure it's in the DB
+            expenseRow.row = i + 1
+            expenseRow.syncStatus = "DONE"
         }
+        expenseRowDao.deleteAllDoneAndInsertMany(allExpensesFromSheet)
+
     }
 
     fun deleteRowAsync(row: Int) = coroutineScope.async {

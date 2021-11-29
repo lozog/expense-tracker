@@ -192,7 +192,8 @@ class DetailFragment : Fragment() {
             "",
             expenseNotesText,
             currency,
-            exchangeRate
+            exchangeRate,
+            "UPDATED"
         )
 
         if (ConnectivityHelper.isInternetConnected(mainActivity)) {
