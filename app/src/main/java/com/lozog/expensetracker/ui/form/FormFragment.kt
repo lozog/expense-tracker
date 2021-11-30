@@ -296,49 +296,58 @@ class FormFragment : Fragment() {
             "PENDING"
         )
 
-        if (ConnectivityHelper.isInternetConnected(mainActivity)) {
-            Log.d(TAG, "internet")
-
-            try {
-                Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
-                sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
-            } catch (e: Exception) {
-                Log.d(TAG, "exception: $e")
-                sheetsViewModel.setStatusText(e.toString())
-            }
-        } else {
-            Log.d(TAG, "no internet")
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-
-            val sheetsWorkRequest: OneTimeWorkRequest =
-                OneTimeWorkRequestBuilder<SheetsWorker>()
-                    .setConstraints(constraints)
-                    .setInputData(expenseRow.toWorkData())
-                    .setBackoffCriteria(
-                        BackoffPolicy.LINEAR,
-                        OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
-                        TimeUnit.MILLISECONDS)
-                    .build()
-
-            WorkManager
-                .getInstance(mainActivity)
-                .enqueueUniqueWork(
-                    UUID.randomUUID().toString(),
-                    ExistingWorkPolicy.APPEND,
-                    sheetsWorkRequest
-                )
-
-            WorkManager
-                .getInstance(mainActivity)
-                .getWorkInfoByIdLiveData(sheetsWorkRequest.id)
-                .observe(viewLifecycleOwner, { workInfo: WorkInfo ->
-                    workManagerObserver(workInfo)
-                })
-
-            sheetsViewModel.resetView()
-            sheetsViewModel.setStatusText("no internet - $expenseItemText request queued")
+        try {
+            Log.d(TAG, "addExpenseRowToSheetAsync")
+            sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
+        } catch (e: Exception) {
+            Log.d(TAG, "exception: $e")
+            sheetsViewModel.setStatusText(e.toString())
         }
+
+//        if (ConnectivityHelper.isInternetConnected(mainActivity)) {
+//            Log.d(TAG, "internet")
+//
+//            try {
+//                Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
+//                sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
+//            } catch (e: Exception) {
+//                Log.d(TAG, "exception: $e")
+//                sheetsViewModel.setStatusText(e.toString())
+//            }
+//        } else {
+//            Log.d(TAG, "no internet")
+//            val constraints = Constraints.Builder()
+//                .setRequiredNetworkType(NetworkType.CONNECTED)
+//                .build()
+//
+//            val sheetsWorkRequest: OneTimeWorkRequest =
+//                OneTimeWorkRequestBuilder<SheetsWorker>()
+//                    .setConstraints(constraints)
+//                    .setInputData(expenseRow.toWorkData())
+//                    .setBackoffCriteria(
+//                        BackoffPolicy.LINEAR,
+//                        OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
+//                        TimeUnit.MILLISECONDS)
+//                    .build()
+//
+//            WorkManager
+//                .getInstance(mainActivity)
+//                .enqueueUniqueWork(
+//                    UUID.randomUUID().toString(),
+//                    ExistingWorkPolicy.APPEND,
+//                    sheetsWorkRequest
+//                )
+//
+//            WorkManager
+//                .getInstance(mainActivity)
+//                .getWorkInfoByIdLiveData(sheetsWorkRequest.id)
+//                .observe(viewLifecycleOwner, { workInfo: WorkInfo ->
+//                    workManagerObserver(workInfo)
+//                })
+//
+//            sheetsViewModel.resetView()
+//            sheetsViewModel.setStatusText("no internet - $expenseItemText request queued")
+//        }
+
     }
 }

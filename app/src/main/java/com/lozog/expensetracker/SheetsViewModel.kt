@@ -64,9 +64,8 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             var statusText: String
 
             try {
-                sheetsRepository.addExpenseRowToSheetAsync(
-                    expenseRow
-                ).await()
+                Log.d(TAG, "addExpenseRowToSheetAsync")
+                sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
                 sheetsRepository.getRecentExpenseHistoryAsync().await()
 
@@ -88,6 +87,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 statusText = "not signed in"
             } catch (e: Exception) {
                 statusText = "something went wrong"
+                throw e
             }
 
             withContext(Dispatchers.Main) {
