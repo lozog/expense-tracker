@@ -113,7 +113,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         Log.d(TAG, "addExpenseRowToSheetAsync")
-        Log.d(TAG, "${expenseRow.id}")
         if (expenseRow.id == 0) { // already in DB
             val expenseRowId = expenseRowDao.insert(expenseRow)
             expenseRow.id = expenseRowId.toInt()
