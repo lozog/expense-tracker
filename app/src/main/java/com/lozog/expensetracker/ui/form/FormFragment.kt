@@ -123,8 +123,8 @@ class FormFragment : Fragment() {
 
         sheetsViewModel.statusText.observe(viewLifecycleOwner, {
             statusTextView.text = it
-            Snackbar.make(expenseSubmitButton, it, Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+//            Snackbar.make(expenseSubmitButton, it, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
         })
 
         return root
