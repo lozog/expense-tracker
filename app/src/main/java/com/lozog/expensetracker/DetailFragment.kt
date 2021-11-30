@@ -47,7 +47,7 @@ class DetailFragment : Fragment() {
     private lateinit var statusTextView: TextView
 
     companion object {
-        private const val TAG = "DETAIL_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER DETAIL_FRAGMENT"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

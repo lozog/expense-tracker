@@ -29,7 +29,7 @@ class SummaryWidget : AppWidgetProvider() {
     private var summarySheetName: String? = ""
 
     companion object {
-        private const val TAG = "SUMMARY_WIDGET"
+        private const val TAG = "EXPENSE_TRACKER SUMMARY_WIDGET"
         private const val ACTION_UPDATE = "action.UPDATE"
         private const val SHEETS_MAJOR_DIMENSION = "COLUMNS"
 

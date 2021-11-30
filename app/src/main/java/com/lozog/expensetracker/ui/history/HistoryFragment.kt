@@ -19,7 +19,7 @@ import com.lozog.expensetracker.util.SheetsStatus
 
 class HistoryFragment: Fragment() {
     companion object {
-        private const val TAG = "HISTORY_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER HISTORY_FRAGMENT"
     }
     private var _binding: FragmentHistoryBinding? = null
     private lateinit var mainActivity: MainActivity

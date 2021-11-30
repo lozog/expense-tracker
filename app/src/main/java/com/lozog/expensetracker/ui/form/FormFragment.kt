@@ -43,7 +43,7 @@ class FormFragment : Fragment() {
     private lateinit var mainActivity: MainActivity
 
     companion object {
-        private const val TAG = "FORM_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER FORM_FRAGMENT"
     }
 
     /********** UI Widgets **********/

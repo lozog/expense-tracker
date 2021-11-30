@@ -12,7 +12,7 @@ class SheetsWorker(
     appContext: Context, workerParams: WorkerParameters
 ): CoroutineWorker(appContext, workerParams) {
     companion object {
-        private const val TAG = "SHEETS_WORKER"
+        private const val TAG = "EXPENSE_TRACKER SHEETS_WORKER"
     }
     private val sheetsRepository = (applicationContext as ExpenseTrackerApplication).sheetsRepository
 

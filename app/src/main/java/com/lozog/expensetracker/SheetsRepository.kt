@@ -21,7 +21,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
     private val coroutineScope = CoroutineScope(Dispatchers.IO + parentJob)
 
     companion object {
-        private const val TAG = "SHEETS_REPOSITORY"
+        private const val TAG = "EXPENSE_TRACKER SHEETS_REPOSITORY"
 
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"

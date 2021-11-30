@@ -12,7 +12,7 @@ import java.io.IOException
 
 class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
-        private const val TAG = "SHEETS_VIEW_MODEL"
+        private const val TAG = "EXPENSE_TRACKER SHEETS_VIEW_MODEL"
     }
 
     val status = MutableLiveData<SheetsStatus>()
