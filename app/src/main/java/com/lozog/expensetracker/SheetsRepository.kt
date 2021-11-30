@@ -236,6 +236,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             throw NotSignedInException()
         }
 
+        expenseRowDao.setDeleted(row)
+
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
 //        val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val sheetId = 1283738573 // TODO: dynamically get sheetId
