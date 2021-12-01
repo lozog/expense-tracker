@@ -5,12 +5,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseRowDao {
-    @Query("SELECT * FROM expenseRow WHERE sync_status!='DELETED' ORDER BY `row` DESC LIMIT (:historyLength)")
-    fun getN(historyLength: Int): Flow<List<ExpenseRow>>
+    @Query("SELECT * FROM expenseRow WHERE sync_status!=(:syncStatusDeleted) ORDER BY `row` DESC LIMIT (:historyLength)")
+    fun getN(historyLength: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Flow<List<ExpenseRow>>
     // TODO: rename getHistory
 
-    @Query("SELECT * FROM expenseRow WHERE sync_status='PENDING' ORDER BY `row` DESC")
-    fun getAllPending(): List<ExpenseRow>
+    @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `row` DESC")
+    fun getAllPending(syncStatusPending: String = ExpenseRow.STATUS_PENDING): List<ExpenseRow>
 
     @Query("SELECT * FROM expenseRow WHERE `row`=(:row)")
     fun getByRow(row: Int): List<ExpenseRow>
@@ -18,8 +18,8 @@ interface ExpenseRowDao {
     @Update(onConflict=OnConflictStrategy.REPLACE)
     fun update(expenseRow: ExpenseRow): Int
 
-    @Query("UPDATE expenseRow SET sync_status='DELETED' WHERE `row`=(:row)")
-    fun setDeleted(row: Int): Int
+    @Query("UPDATE expenseRow SET sync_status=(:syncStatusDeleted) WHERE `row`=(:row)")
+    fun setDeleted(row: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Int
 
     @Insert
     fun insert(expenseRow: ExpenseRow): Long
@@ -30,8 +30,11 @@ interface ExpenseRowDao {
     @Delete
     fun delete(expenseRow: ExpenseRow)
 
-    @Query("DELETE FROM expenseRow WHERE sync_status='DONE' OR sync_status='DELETED'")
-    fun deleteAllDone()
+    @Query("DELETE FROM expenseRow WHERE sync_status=(:syncStatusDone) OR sync_status=(:syncStatusDeleted)")
+    fun deleteAllDone(
+        syncStatusDone: String = ExpenseRow.STATUS_DONE,
+        syncStatusDeleted: String = ExpenseRow.STATUS_DELETED
+    )
 
     @Transaction
     fun deleteAllDoneAndInsertMany(expenseRows: List<ExpenseRow>) {

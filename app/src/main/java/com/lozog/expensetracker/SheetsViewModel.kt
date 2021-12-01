@@ -64,7 +64,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             var statusText: String
 
             try {
-                Log.d(TAG, "addExpenseRowToSheetAsync")
+//                Log.d(TAG, "addExpenseRowToSheetAsync")
                 sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
                 sheetsRepository.getRecentExpenseHistoryAsync().await()

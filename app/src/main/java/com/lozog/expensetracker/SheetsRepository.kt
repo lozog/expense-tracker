@@ -107,7 +107,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         request.execute()
 
         expenseRow.row = nextRow
-        expenseRow.syncStatus = "DONE"
+        expenseRow.syncStatus = ExpenseRow.STATUS_DONE
         expenseRowDao.update(expenseRow)
     }
 
@@ -226,7 +226,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         allExpensesFromSheet.forEachIndexed {i, expenseRow ->
             // go through each one. make sure it's in the DB
             expenseRow.row = i + 1
-            expenseRow.syncStatus = "DONE"
+            expenseRow.syncStatus = ExpenseRow.STATUS_DONE
         }
         expenseRowDao.deleteAllDoneAndInsertMany(allExpensesFromSheet)
     }

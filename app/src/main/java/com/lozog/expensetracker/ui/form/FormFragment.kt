@@ -242,7 +242,7 @@ class FormFragment : Fragment() {
             expenseNotesText,
             currency,
             exchangeRate,
-            "PENDING"
+            ExpenseRow.STATUS_PENDING
         )
 
         try {
