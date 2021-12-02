@@ -3,6 +3,7 @@ package com.lozog.expensetracker
 import android.content.SharedPreferences
 import android.util.Log
 import com.google.api.services.sheets.v4.model.*
+import com.lozog.expensetracker.util.ConnectivityHelper
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.SheetsInterface
@@ -12,8 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 
-class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
-    val recentHistory: Flow<List<ExpenseRow>> = expenseRowDao.getAll()
+class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val application: ExpenseTrackerApplication) {
+    lateinit var recentHistory: Flow<List<ExpenseRow>>
     private lateinit var sharedPreferences: SharedPreferences
 
     /********** CONCURRENCY **********/
@@ -21,7 +22,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
     private val coroutineScope = CoroutineScope(Dispatchers.IO + parentJob)
 
     companion object {
-        private const val TAG = "SHEETS_REPOSITORY"
+        private const val TAG = "EXPENSE_TRACKER SHEETS_REPOSITORY"
 
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
@@ -67,23 +68,16 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
 
     fun setPreferences(newPrefs: SharedPreferences) {
         sharedPreferences = newPrefs
+        recentHistory = expenseRowDao.getN(sharedPreferences.getString("history_length", "5")!!.toInt())
     }
 
-    fun getExpenseRowByRowAsync(row: Int): Deferred<ExpenseRow> = coroutineScope.async {
+    fun getExpenseRowByRowAsync(row: Int): Deferred<List<ExpenseRow>> = coroutineScope.async {
         return@async expenseRowDao.getByRow(row)
     }
 
     /********** GOOGLE SHEETS METHODS **********/
 
-    fun addExpenseRowToSheetAsync(
-        expenseRow: ExpenseRow
-    ) = coroutineScope.async {
-        Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync()")
-
-        if (SheetsInterface.spreadsheetService == null) {
-            throw NotSignedInException()
-        }
-
+    fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
@@ -95,32 +89,84 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             .getValues()
             .size + 1
 
-        val expenseTotal =
+        val expenseTotal = // TODO: make this a pref string
             "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
-
         expenseRow.expenseTotal = expenseTotal
 
-        val rowData = mutableListOf(
+        val rowData = listOf(
             expenseRow.toList()
         )
         val requestBody = ValueRange()
-        requestBody.setValues(rowData as List<List<String>>?)
-
+        requestBody.setValues(rowData)
         val request = SheetsInterface.spreadsheetService!!
             .spreadsheets()
             .values()
             .append(spreadsheetId, sheetName, requestBody)
-
         request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
         request.insertDataOption = SHEETS_INSERT_DATA_OPTION
-
         request.execute()
-        Log.d(TAG, "sheetsRepository.addExpenseRowToSheetAsync() done")
+
+        expenseRow.row = nextRow
+        expenseRow.syncStatus = ExpenseRow.STATUS_DONE
+        expenseRowDao.update(expenseRow)
     }
 
+    fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
+        Log.d(TAG, "addExpenseRowToSheetAsync")
+        if (expenseRow.id == 0) { // already in DB
+            val expenseRowId = expenseRowDao.insert(expenseRow)
+            expenseRow.id = expenseRowId.toInt()
+        }
+
+        // TODO: if no internet, skip
+        if (!ConnectivityHelper.isInternetConnected(application)) {
+            Log.d(TAG, "addExpenseRowToSheetAsync - no internet")
+            return@async
+
+            // TODO: this doesn't work
+//            throw NoInternetException()
+        }
+
+
+        if (SheetsInterface.spreadsheetService == null) {
+            Log.d(TAG, "addExpenseRowToSheetAsync - no spreadsheetservice")
+            return@async
+
+            // TODO: this doesn't work
+//            throw NotSignedInException()
+        }
+
+        sendExpenseRowAsync(expenseRow).await()
+
+        Log.d(TAG, "addExpenseRowToSheetAsync done")
+    }
+
+    fun addExpenseRowsAsync(expenseRows: List<ExpenseRow>) = coroutineScope.async {
+        expenseRows.forEach {
+            addExpenseRowAsync(it).await()
+        }
+    }
+
+    // TODO: rename (fetchCategorySpendingAsync)
     fun getCategorySpendingAsync(
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
+        if (!ConnectivityHelper.isInternetConnected(application)) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            return@async "no internet"
+
+            // TODO: this doesn't work
+//            throw NoInternetException()
+        }
+
+        if (SheetsInterface.spreadsheetService == null) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            return@async "no spreadsheetservice"
+
+            // TODO: this doesn't work
+//            throw NotSignedInException()
+        }
+
         val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
         val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
@@ -144,40 +190,53 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
         return@async "$spentSoFar"
     }
 
+    // TODO: rename (fetchExpenseRowsFromSheetAsync)
     fun getRecentExpenseHistoryAsync() = coroutineScope.async {
         Log.d(TAG, "getRecentExpenseHistoryAsync")
 
+        if (!ConnectivityHelper.isInternetConnected(application)) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            return@async
+
+            // TODO: this doesn't work
+//            throw NoInternetException()
+        }
+
         if (SheetsInterface.spreadsheetService == null) {
-            throw NotSignedInException()
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            return@async
+
+            // TODO: this doesn't work
+//            throw NotSignedInException()
         }
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
-        val historyLength = sharedPreferences.getString("history_length", "25")?.toInt() ?: 25
+//        val historyLength = sharedPreferences.getString("history_length", "25")?.toInt() ?: 25
 
-        val res = SheetsInterface
+        val values = SheetsInterface
             .spreadsheetService!!
             .spreadsheets()
             .values()
             .get(spreadsheetId, sheetName)
             .execute()
-        val values = res.getValues()
-        val recentHistory = values.takeLast(historyLength).map{ value -> ExpenseRow(value as List<String>) }
+            .getValues()
 
-        Log.d(TAG, "first row: ${values[0]}")
-        Log.d(TAG, "last row: ${values.last()}")
-
-        expenseRowDao.deleteAll()
-        recentHistory.forEachIndexed {i, it ->
-            it.row = values.size - ((historyLength - 1) - i)
-            expenseRowDao.insert(it)
+        val allExpensesFromSheet = values.map{ value -> ExpenseRow(value as List<String>) }
+        allExpensesFromSheet.forEachIndexed {i, expenseRow ->
+            // go through each one. make sure it's in the DB
+            expenseRow.row = i + 1
+            expenseRow.syncStatus = ExpenseRow.STATUS_DONE
         }
+        expenseRowDao.deleteAllDoneAndInsertMany(allExpensesFromSheet)
     }
 
     fun deleteRowAsync(row: Int) = coroutineScope.async {
         if (SheetsInterface.spreadsheetService == null) {
             throw NotSignedInException()
         }
+
+        expenseRowDao.setDeleted(row)
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
 //        val sheetName = sharedPreferences.getString("data_sheet_name", null)
@@ -203,5 +262,21 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao) {
             .spreadsheets()
             .batchUpdate(spreadsheetId, updateRequest)
             .execute()
+    }
+
+    fun sendPendingRowsToSheetAsync() = coroutineScope.async {
+        Log.d(TAG, "sendPendingRowsToSheetAsync")
+        val pendingExpenseRows = expenseRowDao.getAllPending()
+
+        try {
+            coroutineScope {
+                addExpenseRowsAsync(pendingExpenseRows).await()
+                getRecentExpenseHistoryAsync()
+            }
+        } catch (e: Exception) {
+            // TODO: this doesn't work
+            Log.d(TAG, "caught $e")
+            throw e
+        }
     }
 }

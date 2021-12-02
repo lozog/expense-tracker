@@ -18,7 +18,7 @@ class HistoryAdapter(
     private val onItemClicked: (ExpenseRow) -> Unit
 ): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     companion object {
-        private const val TAG = "HISTORY_ADAPTER"
+        private const val TAG = "EXPENSE_TRACKER HISTORY_ADAPTER"
     }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val detailButton: Button = view.findViewById(R.id.detailButton)

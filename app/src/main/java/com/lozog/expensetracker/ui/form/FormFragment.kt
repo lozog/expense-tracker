@@ -43,7 +43,7 @@ class FormFragment : Fragment() {
     private lateinit var mainActivity: MainActivity
 
     companion object {
-        private const val TAG = "FORM_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER FORM_FRAGMENT"
     }
 
     /********** UI Widgets **********/
@@ -123,8 +123,8 @@ class FormFragment : Fragment() {
 
         sheetsViewModel.statusText.observe(viewLifecycleOwner, {
             statusTextView.text = it
-            Snackbar.make(expenseSubmitButton, it, Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+//            Snackbar.make(expenseSubmitButton, it, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
         })
 
         return root
@@ -174,57 +174,6 @@ class FormFragment : Fragment() {
         expenseNotes.setText("")
         currencyLabel.setText("")
         currencyExchangeRate.setText("")
-    }
-
-    private fun workManagerObserver(workInfo: WorkInfo?) {
-        if (workInfo != null) {
-            when (workInfo.state) {
-                WorkInfo.State.SUCCEEDED -> {
-                    Log.d(TAG, getString(
-                        R.string.notification_queued_requests_content,
-                        workInfo.outputData.getString("expenseItem")
-                    ))
-
-                    // send notification
-                    val builder = NotificationCompat
-                        .Builder(mainActivity, MainActivity.QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_stat_notify)
-                        .setContentTitle(getString(R.string.notification_queued_requests_title))
-                        .setContentText(
-                            getString(
-                                R.string.notification_queued_requests_content,
-                                workInfo.outputData.getString("expenseItem")
-                            )
-                        )
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-                    with(NotificationManagerCompat.from(mainActivity)) {
-                        // notificationId is a unique int for each notification that you must define
-                        val notificationId = 0 // I'm using the same id for each notification, so it only shows the last one
-                        notify(notificationId, builder.build())
-                    }
-
-                }
-                WorkInfo.State.FAILED -> {
-                    // TODO: this doesn't actually send a notification on worker failure
-                    val builder = NotificationCompat
-                        .Builder(mainActivity, MainActivity.QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_stat_notify)
-                        .setContentTitle("Request failed")
-                        .setContentText(
-                            "Failed to send ${workInfo.outputData.getString("expenseItem")} to sheet"
-                        )
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-                    with(NotificationManagerCompat.from(mainActivity)) {
-                        // notificationId is a unique int for each notification that you must define
-                        val notificationId = 0 // I'm using the same id for each notification, so it only shows the last one
-                        notify(notificationId, builder.build())
-                    }
-                }
-                else -> {}
-            }
-        }
     }
 
     private fun submitExpense(view: View) {
@@ -292,54 +241,16 @@ class FormFragment : Fragment() {
             "",
             expenseNotesText,
             currency,
-            exchangeRate
+            exchangeRate,
+            ExpenseRow.STATUS_PENDING
         )
 
-        if (ConnectivityHelper.isInternetConnected(mainActivity)) {
-            Log.d(TAG, "internet")
-
-            try {
-                Log.d(TAG, "calling sheetsViewModel.addExpenseRowToSheetAsync")
-                sheetsViewModel.addExpenseRowToSheetAsync(
-                    expenseRow
-                )
-            } catch (e: Exception) {
-                Log.d(TAG, "exception: $e")
-                sheetsViewModel.setStatusText(e.toString())
-            }
-        } else {
-            Log.d(TAG, "no internet")
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-
-            val sheetsWorkRequest: OneTimeWorkRequest =
-                OneTimeWorkRequestBuilder<SheetsWorker>()
-                    .setConstraints(constraints)
-                    .setInputData(expenseRow.toWorkData())
-                    .setBackoffCriteria(
-                        BackoffPolicy.LINEAR,
-                        OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
-                        TimeUnit.MILLISECONDS)
-                    .build()
-
-            WorkManager
-                .getInstance(mainActivity)
-                .enqueueUniqueWork(
-                    UUID.randomUUID().toString(),
-                    ExistingWorkPolicy.APPEND,
-                    sheetsWorkRequest
-                )
-
-            WorkManager
-                .getInstance(mainActivity)
-                .getWorkInfoByIdLiveData(sheetsWorkRequest.id)
-                .observe(viewLifecycleOwner, { workInfo: WorkInfo ->
-                    workManagerObserver(workInfo)
-                })
-
-            sheetsViewModel.resetView()
-            sheetsViewModel.setStatusText("no internet - $expenseItemText request queued")
+        try {
+            Log.d(TAG, "addExpenseRowToSheetAsync")
+            sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
+        } catch (e: Exception) {
+            Log.d(TAG, "exception: $e")
+            sheetsViewModel.setStatusText(e.toString())
         }
     }
 }

@@ -17,9 +17,16 @@ data class ExpenseRow(
     @ColumnInfo(name = "expense_notes") val expenseNotes: String,
     @ColumnInfo(name = "currency") val currency: String,
     @ColumnInfo(name = "exchange_rate") val exchangeRate: String,
+    @ColumnInfo(name = "sync_status") var syncStatus: String = STATUS_DONE,
     @ColumnInfo(name = "row") var row: Int = 0,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
     ) {
+    companion object {
+        const val STATUS_DONE = "DONE"
+        const val STATUS_DELETED = "DELETED"
+        const val STATUS_PENDING = "PENDING"
+    }
+
     constructor(workData: Data) : this(
         workData.getString("expenseDate")!!,
         workData.getString("expenseItem")!!,
