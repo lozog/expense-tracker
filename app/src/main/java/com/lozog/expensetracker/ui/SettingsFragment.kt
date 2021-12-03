@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.ui.settings
+package com.lozog.expensetracker.ui
 
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat

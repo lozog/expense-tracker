@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.ui.history
+package com.lozog.expensetracker.ui
 
 import android.os.Bundle
 import android.util.Log

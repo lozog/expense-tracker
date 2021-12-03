@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.ui.form
+package com.lozog.expensetracker.ui
 
 import android.app.AlertDialog
 import android.content.Context
@@ -11,24 +11,19 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
-import androidx.work.*
 import com.google.android.material.snackbar.Snackbar
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import com.lozog.expensetracker.SheetsViewModel
-import com.lozog.expensetracker.util.ConnectivityHelper
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class FormFragment : Fragment() {
     private val sheetsViewModel: SheetsViewModel by viewModels {

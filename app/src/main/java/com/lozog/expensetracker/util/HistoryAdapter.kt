@@ -10,7 +10,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.lozog.expensetracker.R
 import com.lozog.expensetracker.SheetsViewModel
-import com.lozog.expensetracker.ui.history.HistoryFragmentDirections
+import com.lozog.expensetracker.ui.HistoryFragmentDirections
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import java.text.NumberFormat
 import java.util.*

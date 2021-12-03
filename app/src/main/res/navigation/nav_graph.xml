@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_form"
-        android:name="com.lozog.expensetracker.ui.form.FormFragment"
+        android:name="com.lozog.expensetracker.ui.FormFragment"
         android:label="Expense Tracker"
         tools:layout="@layout/fragment_form" />
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.lozog.expensetracker.ui.history.HistoryFragment"
+        android:name="com.lozog.expensetracker.ui.HistoryFragment"
         android:label="@string/nav_history"
         tools:layout="@layout/fragment_history">
         <action
@@ -28,7 +28,7 @@
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.lozog.expensetracker.ui.settings.SettingsFragment"
+        android:name="com.lozog.expensetracker.ui.SettingsFragment"
         android:label="@string/nav_settings"
         tools:layout="@layout/fragment_settings"/>
 
@@ -39,7 +39,7 @@
         tools:layout="@layout/fragment_account"/>
     <fragment
         android:id="@+id/detailFragment"
-        android:name="com.lozog.expensetracker.DetailFragment"
+        android:name="com.lozog.expensetracker.ui.DetailFragment"
         android:label="@string/nav_detail"
         tools:layout="@layout/fragment_form" />
 
