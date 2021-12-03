@@ -27,18 +27,6 @@ data class ExpenseRow(
         const val STATUS_PENDING = "PENDING"
     }
 
-    constructor(workData: Data) : this(
-        workData.getString("expenseDate")!!,
-        workData.getString("expenseItem")!!,
-        workData.getString("expenseCategory")!!,
-        workData.getString("expenseAmount")!!,
-        workData.getString("expenseAmountOthers")!!,
-        workData.getString("expenseTotal")!!,
-        workData.getString("expenseNotes")!!,
-        workData.getString("currency")!!,
-        workData.getString("exchangeRate")!!
-    )
-
     constructor(input: List<String>) : this(
         input[0],
         input[1],
@@ -63,20 +51,6 @@ data class ExpenseRow(
             expenseNotes,
             currency,
             exchangeRate
-        )
-    }
-
-    fun toWorkData(): Data {
-        return workDataOf(
-            "expenseDate" to expenseDate,
-            "expenseItem" to expenseItem,
-            "expenseCategory" to expenseCategoryValue,
-            "expenseAmount" to expenseAmount,
-            "expenseAmountOthers" to expenseAmountOthers,
-            "expenseTotal" to expenseTotal,
-            "expenseNotes" to expenseNotes,
-            "currency" to currency,
-            "exchangeRate" to exchangeRate,
         )
     }
 }
