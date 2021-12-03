@@ -36,7 +36,6 @@ import com.google.api.services.sheets.v4.SheetsScopes
 import java.util.*
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
 import com.lozog.expensetracker.ui.account.AccountViewModel
-import com.lozog.expensetracker.util.SheetsInterface
 
 class MainActivity : AppCompatActivity() {
 
@@ -182,8 +181,8 @@ class MainActivity : AppCompatActivity() {
                         val accountViewModel: AccountViewModel by viewModels()
                         accountViewModel.setSignInStatus("not signed in")
 
-                        SheetsInterface.googleAccount = null
-                        SheetsInterface.spreadsheetService = null
+                        (applicationContext as ExpenseTrackerApplication).googleAccount = null
+                        (applicationContext as ExpenseTrackerApplication).spreadsheetService = null
                     }
             }
         }
@@ -214,8 +213,8 @@ class MainActivity : AppCompatActivity() {
             .setApplicationName(getString(R.string.app_name))
             .build()
 
-        SheetsInterface.googleAccount = account
-        SheetsInterface.spreadsheetService = sheetService
+        (applicationContext as ExpenseTrackerApplication).googleAccount = account
+        (applicationContext as ExpenseTrackerApplication).spreadsheetService = sheetService
 
         val accountViewModel: AccountViewModel by viewModels()
         accountViewModel.setSignInStatus("signed into account: ${account.email}")

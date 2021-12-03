@@ -11,7 +11,6 @@ import android.widget.RemoteViews
 import androidx.preference.PreferenceManager
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse
-import com.lozog.expensetracker.util.SheetsInterface
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -96,7 +95,7 @@ class SummaryWidget : AppWidgetProvider() {
 
             coroutineScope.launch(Dispatchers.Main)  {
                 try {
-                    val response = spreadsheetId.let { getMonthlyCategoryAmountsAsync(it).await() }
+                    val response = spreadsheetId.let { getMonthlyCategoryAmountsAsync(it, context).await() }
 
                     val categoriesFromSheet = response.valueRanges[0]["values"] as List<List<String>>
                     val targetsFromSheet = response.valueRanges[1]["values"] as List<List<String>>
@@ -144,7 +143,8 @@ class SummaryWidget : AppWidgetProvider() {
     }
 
     private fun getMonthlyCategoryAmountsAsync(
-        spreadsheetId: String
+        spreadsheetId: String,
+        context: Context
     ): Deferred<BatchGetValuesResponse> = coroutineScope.async (Dispatchers.IO) {
         val categoryLabelsRange = "'${summarySheetName}'!A${FIRST_DATA_ROW}:A"
         val categoryTargetRange = "'${summarySheetName}'!B${FIRST_DATA_ROW}:B"
@@ -154,11 +154,15 @@ class SummaryWidget : AppWidgetProvider() {
         Log.d(TAG, "month: ${Calendar.getInstance().get(Calendar.MONTH)}}")
         val categoryValuesRange = "'${summarySheetName}'!${curMonthColumn}${FIRST_DATA_ROW}:${curMonthColumn}"
 
-        if (SheetsInterface.spreadsheetService == null) {
+        if ((context.applicationContext as ExpenseTrackerApplication).spreadsheetService == null) {
             throw Exception("spreadsheet service is null")
         }
 
-        val request = SheetsInterface.spreadsheetService!!.spreadsheets().values().batchGet(spreadsheetId)
+        val request = (context.applicationContext as ExpenseTrackerApplication)
+            .spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .batchGet(spreadsheetId)
         request.ranges = mutableListOf(categoryLabelsRange, categoryTargetRange, categoryValuesRange) // this order is important - matches the order of the result
         request.majorDimension = SHEETS_MAJOR_DIMENSION
 

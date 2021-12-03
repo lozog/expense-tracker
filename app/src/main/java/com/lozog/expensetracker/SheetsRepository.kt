@@ -6,7 +6,6 @@ import com.google.api.services.sheets.v4.model.*
 import com.lozog.expensetracker.util.ConnectivityHelper
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
-import com.lozog.expensetracker.util.SheetsInterface
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -85,7 +84,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
          if (expenseRow.row == 0) {
              newRow = true
-             row = SheetsInterface.spreadsheetService!!
+             row = application.spreadsheetService!!
                 .spreadsheets()
                 .values()
                 .get(spreadsheetId, sheetName)
@@ -108,7 +107,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         if (newRow) {
             // Log.d(TAG, "inserting a new row")
-            SheetsInterface.spreadsheetService!!
+            application.spreadsheetService!!
                 .spreadsheets()
                 .values()
                 .append(spreadsheetId, sheetName, requestBody)
@@ -120,7 +119,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         } else {
             // Log.d(TAG, "updating row $row - $expenseRow")
 
-            SheetsInterface.spreadsheetService!!
+            application.spreadsheetService!!
                 .spreadsheets()
                 .values()
                 .update(spreadsheetId, "'$sheetName'!$row:$row", requestBody)
@@ -149,7 +148,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
 
-        if (SheetsInterface.spreadsheetService == null) {
+        if (application.spreadsheetService == null) {
             Log.d(TAG, "addExpenseRowToSheetAsync - no spreadsheetservice")
             return@async
 
@@ -180,7 +179,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 //            throw NoInternetException()
         }
 
-        if (SheetsInterface.spreadsheetService == null) {
+        if (application.spreadsheetService == null) {
             Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
             return@async "no spreadsheetservice"
 
@@ -199,7 +198,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-        val data = SheetsInterface.spreadsheetService!!
+        val data = application.spreadsheetService!!
             .spreadsheets()
             .values()
             .get(spreadsheetId, categorySpendingCell)
@@ -223,7 +222,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 //            throw NoInternetException()
         }
 
-        if (SheetsInterface.spreadsheetService == null) {
+        if (application.spreadsheetService == null) {
             Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
             return@async
 
@@ -234,7 +233,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
-        val values = SheetsInterface
+        val values = application
             .spreadsheetService!!
             .spreadsheets()
             .values()
@@ -254,7 +253,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun deleteRowAsync(row: Int) = coroutineScope.async {
-        if (SheetsInterface.spreadsheetService == null) {
+        if (application.spreadsheetService == null) {
             throw NotSignedInException()
         }
 
@@ -280,7 +279,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             deleteRequest
         )
 
-        SheetsInterface.spreadsheetService!!
+        application.spreadsheetService!!
             .spreadsheets()
             .batchUpdate(spreadsheetId, updateRequest)
             .execute()
