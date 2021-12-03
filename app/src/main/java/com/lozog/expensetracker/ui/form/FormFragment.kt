@@ -107,16 +107,12 @@ class FormFragment : Fragment() {
 
         sheetsViewModel.status.observe(viewLifecycleOwner, {
             when (it) {
-                SheetsStatus.IN_PROGRESS -> {
-                    expenseSubmitButton.text = getString(R.string.button_expense_submitting)
-                }
+                SheetsStatus.IN_PROGRESS -> expenseSubmitButton.text = getString(R.string.button_expense_submitting)
                 SheetsStatus.DONE -> {
                     clearInputs()
                     expenseSubmitButton.text = getString(R.string.button_expense_submit)
                 }
-                null -> {
-                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
-                }
+                null -> expenseSubmitButton.text = getString(R.string.button_expense_submit)
             }
         })
 
@@ -177,9 +173,6 @@ class FormFragment : Fragment() {
 
     private fun submitExpense(view: View) {
         hideKeyboard(view)
-
-        // TODO: observe sheetsViewModel
-        submitButton.text = getString(R.string.button_expense_submitting)
 
         if (!validateInput()) {
             sheetsViewModel.resetView()

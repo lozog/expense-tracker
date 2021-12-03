@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.lozog.expensetracker.databinding.FragmentFormBinding
+import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 
 private const val ROW_PARAM = "row"
@@ -103,6 +104,14 @@ class DetailFragment : Fragment() {
             updateExpense(view)
         }
 
+        sheetsViewModel.status.observe(viewLifecycleOwner, {
+            when (it) {
+                SheetsStatus.IN_PROGRESS -> submitButton.text = getString(R.string.button_expense_submitting)
+                SheetsStatus.DONE -> submitButton.text = getString(R.string.button_expense_submit)
+                null -> submitButton.text = getString(R.string.button_expense_submit)
+            }
+        })
+
         return root
     }
 
@@ -138,9 +147,6 @@ class DetailFragment : Fragment() {
 
     private fun updateExpense(view: View) {
         hideKeyboard(view)
-
-        // TODO: observe sheetsViewModel
-        submitButton.text = getString(R.string.button_expense_submitting)
 
         if (!validateInput()) {
             sheetsViewModel.resetView()
