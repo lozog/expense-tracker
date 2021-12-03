@@ -8,15 +8,15 @@ import androidx.work.workDataOf
 
 @Entity
 data class ExpenseRow(
-    @ColumnInfo(name = "expense_date") val expenseDate: String,
-    @ColumnInfo(name = "expense_item") val expenseItem: String,
-    @ColumnInfo(name = "expense_category_value") val expenseCategoryValue: String,
-    @ColumnInfo(name = "expense_amount") val expenseAmount: String,
-    @ColumnInfo(name = "expense_amount_others") val expenseAmountOthers: String,
+    @ColumnInfo(name = "expense_date") var expenseDate: String,
+    @ColumnInfo(name = "expense_item") var expenseItem: String,
+    @ColumnInfo(name = "expense_category_value") var expenseCategoryValue: String,
+    @ColumnInfo(name = "expense_amount") var expenseAmount: String,
+    @ColumnInfo(name = "expense_amount_others") var expenseAmountOthers: String,
     @ColumnInfo(name = "expense_total") var expenseTotal: String,
-    @ColumnInfo(name = "expense_notes") val expenseNotes: String,
-    @ColumnInfo(name = "currency") val currency: String,
-    @ColumnInfo(name = "exchange_rate") val exchangeRate: String,
+    @ColumnInfo(name = "expense_notes") var expenseNotes: String,
+    @ColumnInfo(name = "currency") var currency: String,
+    @ColumnInfo(name = "exchange_rate") var exchangeRate: String,
     @ColumnInfo(name = "sync_status") var syncStatus: String = STATUS_DONE,
     @ColumnInfo(name = "row") var row: Int = 0,
     @PrimaryKey(autoGenerate = true) var id: Int = 0,

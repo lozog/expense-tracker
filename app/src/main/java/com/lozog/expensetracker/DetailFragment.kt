@@ -1,5 +1,6 @@
 package com.lozog.expensetracker
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -12,15 +13,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.preference.PreferenceManager
-import androidx.work.*
-import com.google.android.material.snackbar.Snackbar
 import com.lozog.expensetracker.databinding.FragmentFormBinding
-import com.lozog.expensetracker.ui.form.FormFragment
-import com.lozog.expensetracker.util.ConnectivityHelper
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 private const val ROW_PARAM = "row"
 
@@ -64,6 +58,7 @@ class DetailFragment : Fragment() {
         _binding = FragmentFormBinding.inflate(inflater, container, false)
         mainActivity = activity as MainActivity
         val root: View = binding.root
+
         statusTextView = binding.statusText
         expenseDate = binding.expenseDate
         expenseItem = binding.expenseItem
@@ -75,11 +70,25 @@ class DetailFragment : Fragment() {
         currencyExchangeRate = binding.currencyExchangeRate
         submitButton = binding.expenseSubmitButton
 
+        expenseCategory.setOnClickListener{view ->
+            when (view.id) {
+                R.id.expenseCategory -> {
+                    val builder = AlertDialog.Builder(mainActivity)
+                    builder.setTitle(R.string.expense_category)
+                    builder.setItems(R.array.categories) {_, which ->
+                        expenseCategory.text = SheetsRepository.CATEGORIES[which]
+                    }
+                    val dialog = builder.create()
+                    dialog.show()
+                }
+            }
+        }
+
         sheetsViewModel.getExpenseRowByRow(row)
 
         sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner, {
             expenseRow = it
-            statusTextView.text = expenseRow.toString()
+
             expenseDate.setText(expenseRow.expenseDate)
             expenseItem.setText(expenseRow.expenseItem)
             expenseCategory.text = expenseRow.expenseCategoryValue
@@ -138,68 +147,28 @@ class DetailFragment : Fragment() {
             return
         }
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity)
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val dataSheetName = sharedPreferences.getString("data_sheet_name", null)
-        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
-
-        // TODO: move to validatePrefs()
-        if (spreadsheetId == null || spreadsheetId == "") {
-            Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            sheetsViewModel.resetView()
-            return
-        }
-
-        if (dataSheetName == null || dataSheetName == "") {
-            Snackbar.make(view, getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            sheetsViewModel.resetView()
-            return
-        }
-
-        if (overviewSheetName == null || overviewSheetName == "") {
-            Snackbar.make(view, getString(R.string.form_no_overview_sheet_name), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            sheetsViewModel.resetView()
-            return
-        }
-
-        var currency = currencyLabel.text.toString()
-        var exchangeRate = currencyExchangeRate.text.toString()
-
-        if (currency == "") {
-            currency = sharedPreferences.getString("currency", null)?: ""
-        }
-
-        if (exchangeRate == "") {
-            exchangeRate = sharedPreferences.getString("exchange_rate", null)?: ""
-        }
-
         val expenseDateText = expenseDate.text.toString()
         val expenseItemText = expenseItem.text.toString()
         val expenseCategoryText = expenseCategory.text.toString()
         val expenseAmountText = expenseAmount.text.toString()
         val expenseAmountOthersText = expenseAmountOthers.text.toString()
         val expenseNotesText = expenseNotes.text.toString()
+        val currency = currencyLabel.text.toString()
+        val exchangeRate = currencyExchangeRate.text.toString()
 
-        val expenseRow = ExpenseRow(
-            expenseDateText,
-            expenseItemText,
-            expenseCategoryText,
-            expenseAmountText,
-            expenseAmountOthersText,
-            "",
-            expenseNotesText,
-            currency,
-            exchangeRate,
-            "UPDATED"
-        )
+        expenseRow.expenseDate = expenseDateText
+        expenseRow.expenseItem = expenseItemText
+        expenseRow.expenseCategoryValue = expenseCategoryText
+        expenseRow.expenseAmount = expenseAmountText
+        expenseRow.expenseAmountOthers = expenseAmountOthersText
+        // expenseRow.expenseDate = ""
+        expenseRow.expenseNotes = expenseNotesText
+        expenseRow.currency = currency
+        expenseRow.exchangeRate = exchangeRate
+        expenseRow.syncStatus = ExpenseRow.STATUS_PENDING
 
         try {
-            Log.d(TAG, "calling sheetsViewModel.updateExpenseRowAsync")
-//                sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
-//                sheetsViewModel.updateExpenseRowAsync(expenseRow)
+           sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
         } catch (e: Exception) {
             Log.d(TAG, "exception: $e")
             sheetsViewModel.setStatusText(e.toString())

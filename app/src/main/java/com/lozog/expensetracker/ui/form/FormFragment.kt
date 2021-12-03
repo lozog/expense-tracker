@@ -90,7 +90,6 @@ class FormFragment : Fragment() {
                     val builder = AlertDialog.Builder(mainActivity)
                     builder.setTitle(R.string.expense_category)
                     builder.setItems(R.array.categories) {_, which ->
-//                        Log.d(TAG, "chose ${MainActivity.CATEGORIES[which]} as the category")
                         expenseCategory.text = SheetsRepository.CATEGORIES[which]
                     }
                     val dialog = builder.create()

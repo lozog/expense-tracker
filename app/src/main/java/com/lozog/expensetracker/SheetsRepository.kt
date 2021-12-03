@@ -80,17 +80,24 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
+        val row: Int;
+        var newRow = false
 
-        val nextRow = SheetsInterface.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .get(spreadsheetId, sheetName)
-            .execute()
-            .getValues()
-            .size + 1
+         if (expenseRow.row == 0) {
+             newRow = true
+             row = SheetsInterface.spreadsheetService!!
+                .spreadsheets()
+                .values()
+                .get(spreadsheetId, sheetName)
+                .execute()
+                .getValues()
+                .size + 1
+        } else {
+            row = expenseRow.row
+         }
 
-        val expenseTotal = // TODO: make this a pref string
-            "=(\$D$nextRow - \$E$nextRow)*IF(NOT(ISBLANK(\$I$nextRow)), \$I$nextRow, 1)"
+        val expenseTotal =
+            "=(\$D$row - \$E$row)*IF(NOT(ISBLANK(\$I$row)), \$I$row, 1)"
         expenseRow.expenseTotal = expenseTotal
 
         val rowData = listOf(
@@ -98,15 +105,30 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         )
         val requestBody = ValueRange()
         requestBody.setValues(rowData)
-        val request = SheetsInterface.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .append(spreadsheetId, sheetName, requestBody)
-        request.valueInputOption = SHEETS_VALUE_INPUT_OPTION
-        request.insertDataOption = SHEETS_INSERT_DATA_OPTION
-        request.execute()
 
-        expenseRow.row = nextRow
+        if (newRow) {
+            Log.d(TAG, "inserting a new row")
+            val request = SheetsInterface.spreadsheetService!!
+                .spreadsheets()
+                .values()
+                .append(spreadsheetId, sheetName, requestBody)
+                .setValueInputOption(SHEETS_VALUE_INPUT_OPTION)
+                .setInsertDataOption(SHEETS_INSERT_DATA_OPTION)
+                .execute()
+
+            expenseRow.row = row
+        } else {
+            // TODO: update instead of append
+            Log.d(TAG, "updating row $row - $expenseRow")
+
+            val request = SheetsInterface.spreadsheetService!!
+                .spreadsheets()
+                .values()
+                .update(spreadsheetId, "'$sheetName'!$row:$row", requestBody)
+                .setValueInputOption(SHEETS_VALUE_INPUT_OPTION)
+                .execute()
+        }
+
         expenseRow.syncStatus = ExpenseRow.STATUS_DONE
         expenseRowDao.update(expenseRow)
     }
@@ -212,7 +234,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
-//        val historyLength = sharedPreferences.getString("history_length", "25")?.toInt() ?: 25
 
         val values = SheetsInterface
             .spreadsheetService!!
