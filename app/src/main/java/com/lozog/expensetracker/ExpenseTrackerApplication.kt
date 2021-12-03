@@ -8,7 +8,7 @@ import com.lozog.expensetracker.util.expenserow.ExpenseRowDB
 
 class ExpenseTrackerApplication : Application() {
 
-    val database by lazy { ExpenseRowDB.getDatabase(this) }
+    private val database by lazy { ExpenseRowDB.getDatabase(this) }
     val sheetsRepository by lazy { SheetsRepository(database.expenseRowDao(), this) }
     var googleAccount: GoogleSignInAccount? = null
     var spreadsheetService: Sheets? = null
