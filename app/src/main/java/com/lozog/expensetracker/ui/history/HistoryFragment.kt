@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.ui
+package com.lozog.expensetracker.ui.history
 
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
-import com.lozog.expensetracker.util.HistoryAdapter
 import com.lozog.expensetracker.util.SheetsStatus
 
 class HistoryFragment: Fragment() {

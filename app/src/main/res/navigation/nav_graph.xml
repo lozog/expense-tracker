@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.lozog.expensetracker.ui.HistoryFragment"
+        android:name="com.lozog.expensetracker.ui.history.HistoryFragment"
         android:label="@string/nav_history"
         tools:layout="@layout/fragment_history">
         <action

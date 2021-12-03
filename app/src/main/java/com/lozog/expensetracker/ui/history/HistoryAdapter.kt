@@ -1,4 +1,4 @@
-package com.lozog.expensetracker.util
+package com.lozog.expensetracker.ui.history
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,11 +9,8 @@ import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.lozog.expensetracker.R
-import com.lozog.expensetracker.SheetsViewModel
-import com.lozog.expensetracker.ui.HistoryFragmentDirections
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import java.text.NumberFormat
-import java.util.*
 
 class HistoryAdapter(
     private val recentHistory: List<ExpenseRow>,
