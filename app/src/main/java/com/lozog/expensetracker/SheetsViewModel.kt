@@ -67,13 +67,12 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 //                Log.d(TAG, "addExpenseRowToSheetAsync")
                 sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
-                sheetsRepository.getRecentExpenseHistoryAsync().await()
-
                 val spentSoFar = sheetsRepository
                     .getCategorySpendingAsync(expenseRow.expenseCategoryValue)
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"
+                sheetsRepository.getRecentExpenseHistoryAsync()
             } catch (e: UserRecoverableAuthIOException) {
 //                Log.e(TAG, getString(R.string.status_need_permission))
 //                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
