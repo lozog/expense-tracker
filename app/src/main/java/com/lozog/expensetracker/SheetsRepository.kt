@@ -107,8 +107,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         requestBody.setValues(rowData)
 
         if (newRow) {
-            Log.d(TAG, "inserting a new row")
-            val request = SheetsInterface.spreadsheetService!!
+            // Log.d(TAG, "inserting a new row")
+            SheetsInterface.spreadsheetService!!
                 .spreadsheets()
                 .values()
                 .append(spreadsheetId, sheetName, requestBody)
@@ -118,10 +118,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
             expenseRow.row = row
         } else {
-            // TODO: update instead of append
-            Log.d(TAG, "updating row $row - $expenseRow")
+            // Log.d(TAG, "updating row $row - $expenseRow")
 
-            val request = SheetsInterface.spreadsheetService!!
+            SheetsInterface.spreadsheetService!!
                 .spreadsheets()
                 .values()
                 .update(spreadsheetId, "'$sheetName'!$row:$row", requestBody)
@@ -240,10 +239,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .spreadsheets()
             .values()
             .get(spreadsheetId, sheetName)
+            .setValueRenderOption("UNFORMATTED_VALUE")
+            .setDateTimeRenderOption("FORMATTED_STRING")
             .execute()
             .getValues()
 
-        val allExpensesFromSheet = values.map{ value -> ExpenseRow(value as List<String>) }
+        val allExpensesFromSheet = values.map { value -> ExpenseRow(value) }
         allExpensesFromSheet.forEachIndexed {i, expenseRow ->
             // go through each one. make sure it's in the DB
             expenseRow.row = i + 1

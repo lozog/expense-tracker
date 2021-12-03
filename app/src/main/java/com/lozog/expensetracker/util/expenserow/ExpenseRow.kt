@@ -27,16 +27,16 @@ data class ExpenseRow(
         const val STATUS_PENDING = "PENDING"
     }
 
-    constructor(input: List<String>) : this(
-        input[0],
-        input[1],
-        input[2],
-        input[3],
-        input[4],
-        input[5],
-        input.getOrElse(6) { "" },
-        input.getOrElse(7) { "" },
-        input.getOrElse(8) { "" },
+    constructor(input: List<Any>) : this(
+        input[0].toString(),
+        input[1].toString(),
+        input[2].toString(),
+        input[3].toString(),
+        input[4].toString(),
+        input[5].toString(),
+        input.getOrElse(6) { "" }.toString(),
+        input.getOrElse(7) { "" }.toString(),
+        input.getOrElse(8) { "" }.toString(),
     )
 
     // return as a List, to be sent to the spreadsheet
