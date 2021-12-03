@@ -24,8 +24,7 @@ abstract class ExpenseRowDB : RoomDatabase() {
                     ExpenseRowDB::class.java,
                     "expense_row_database"
                 )
-//                     DANGER: don't uncomment this unless you want to clear all data
-//                    .fallbackToDestructiveMigration()
+//                    .fallbackToDestructiveMigration() // DANGER: don't uncomment this unless you want to clear all data
                     .build()
                 INSTANCE = instance
                 // return instance

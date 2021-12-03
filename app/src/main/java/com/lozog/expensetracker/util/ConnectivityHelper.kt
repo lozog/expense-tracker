@@ -7,7 +7,7 @@ import android.util.Log
 
 class ConnectivityHelper {
     companion object {
-        private const val TAG = "CONNECTIVITY_HELPER"
+        private const val TAG = "EXPENSE_TRACKER CONNECTIVITY_HELPER"
         private const val MODE_DEPRECATED = 0
         private const val MODE_TRANSPORT = 1
         private const val MODE_CAPABILITIES = 2

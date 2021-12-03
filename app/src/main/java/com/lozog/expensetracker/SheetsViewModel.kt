@@ -12,7 +12,7 @@ import java.io.IOException
 
 class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
-        private const val TAG = "SHEETS_VIEW_MODEL"
+        private const val TAG = "EXPENSE_TRACKER SHEETS_VIEW_MODEL"
     }
 
     val status = MutableLiveData<SheetsStatus>()
@@ -33,25 +33,18 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     }
 
     fun getExpenseRowByRow(row: Int) {
-        var expenseRow: ExpenseRow
+        var expenseRow: List<ExpenseRow>
         viewModelScope.launch (Dispatchers.Main){
             expenseRow = sheetsRepository.getExpenseRowByRowAsync(row).await()
-            detailExpenseRow.value = expenseRow
+            detailExpenseRow.value = expenseRow.first()
         }
     }
 
     fun getRecentExpenseHistory() {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
-//            var recentHistory: List<ExpenseRow>?
-
-            try {
-                Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
-                sheetsRepository.getRecentExpenseHistoryAsync().await()
-                Log.d(TAG, "got history: $recentHistory")
-            } catch (e: Exception) {
-                Log.e(TAG, e.toString())
-            }
+            Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
+            sheetsRepository.getRecentExpenseHistoryAsync().await()
 
             withContext(Dispatchers.Main) {
                 setStatus(SheetsStatus.DONE)
@@ -67,17 +60,15 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             var statusText: String
 
             try {
-                sheetsRepository.addExpenseRowToSheetAsync(
-                    expenseRow
-                ).await()
-
-                sheetsRepository.getRecentExpenseHistoryAsync().await()
+//                Log.d(TAG, "addExpenseRowToSheetAsync")
+                sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
                 val spentSoFar = sheetsRepository
                     .getCategorySpendingAsync(expenseRow.expenseCategoryValue)
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"
+                sheetsRepository.getRecentExpenseHistoryAsync()
             } catch (e: UserRecoverableAuthIOException) {
 //                Log.e(TAG, getString(R.string.status_need_permission))
 //                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
@@ -91,6 +82,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 statusText = "not signed in"
             } catch (e: Exception) {
                 statusText = "something went wrong"
+                throw e
             }
 
             withContext(Dispatchers.Main) {

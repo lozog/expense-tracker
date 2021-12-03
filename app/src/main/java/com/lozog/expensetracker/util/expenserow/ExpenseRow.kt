@@ -8,40 +8,35 @@ import androidx.work.workDataOf
 
 @Entity
 data class ExpenseRow(
-    @ColumnInfo(name = "expense_date") val expenseDate: String,
-    @ColumnInfo(name = "expense_item") val expenseItem: String,
-    @ColumnInfo(name = "expense_category_value") val expenseCategoryValue: String,
-    @ColumnInfo(name = "expense_amount") val expenseAmount: String,
-    @ColumnInfo(name = "expense_amount_others") val expenseAmountOthers: String,
+    @ColumnInfo(name = "expense_date") var expenseDate: String,
+    @ColumnInfo(name = "expense_item") var expenseItem: String,
+    @ColumnInfo(name = "expense_category_value") var expenseCategoryValue: String,
+    @ColumnInfo(name = "expense_amount") var expenseAmount: String,
+    @ColumnInfo(name = "expense_amount_others") var expenseAmountOthers: String,
     @ColumnInfo(name = "expense_total") var expenseTotal: String,
-    @ColumnInfo(name = "expense_notes") val expenseNotes: String,
-    @ColumnInfo(name = "currency") val currency: String,
-    @ColumnInfo(name = "exchange_rate") val exchangeRate: String,
+    @ColumnInfo(name = "expense_notes") var expenseNotes: String,
+    @ColumnInfo(name = "currency") var currency: String,
+    @ColumnInfo(name = "exchange_rate") var exchangeRate: String,
+    @ColumnInfo(name = "sync_status") var syncStatus: String = STATUS_DONE,
     @ColumnInfo(name = "row") var row: Int = 0,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
     ) {
-    constructor(workData: Data) : this(
-        workData.getString("expenseDate")!!,
-        workData.getString("expenseItem")!!,
-        workData.getString("expenseCategory")!!,
-        workData.getString("expenseAmount")!!,
-        workData.getString("expenseAmountOthers")!!,
-        workData.getString("expenseTotal")!!,
-        workData.getString("expenseNotes")!!,
-        workData.getString("currency")!!,
-        workData.getString("exchangeRate")!!
-    )
+    companion object {
+        const val STATUS_DONE = "DONE"
+        const val STATUS_DELETED = "DELETED"
+        const val STATUS_PENDING = "PENDING"
+    }
 
-    constructor(input: List<String>) : this(
-        input[0],
-        input[1],
-        input[2],
-        input[3],
-        input[4],
-        input[5],
-        input.getOrElse(6) { "" },
-        input.getOrElse(7) { "" },
-        input.getOrElse(8) { "" },
+    constructor(input: List<Any>) : this(
+        input[0].toString(),
+        input[1].toString(),
+        input[2].toString(),
+        input[3].toString(),
+        input[4].toString(),
+        input[5].toString(),
+        input.getOrElse(6) { "" }.toString(),
+        input.getOrElse(7) { "" }.toString(),
+        input.getOrElse(8) { "" }.toString(),
     )
 
     // return as a List, to be sent to the spreadsheet
@@ -56,20 +51,6 @@ data class ExpenseRow(
             expenseNotes,
             currency,
             exchangeRate
-        )
-    }
-
-    fun toWorkData(): Data {
-        return workDataOf(
-            "expenseDate" to expenseDate,
-            "expenseItem" to expenseItem,
-            "expenseCategory" to expenseCategoryValue,
-            "expenseAmount" to expenseAmount,
-            "expenseAmountOthers" to expenseAmountOthers,
-            "expenseTotal" to expenseTotal,
-            "expenseNotes" to expenseNotes,
-            "currency" to currency,
-            "exchangeRate" to exchangeRate,
         )
     }
 }

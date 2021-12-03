@@ -12,20 +12,20 @@ import com.lozog.expensetracker.R
 import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.ui.history.HistoryFragmentDirections
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
+import java.text.NumberFormat
+import java.util.*
 
 class HistoryAdapter(
     private val recentHistory: List<ExpenseRow>,
     private val onItemClicked: (ExpenseRow) -> Unit
 ): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     companion object {
-        private const val TAG = "HISTORY_ADAPTER"
+        private const val TAG = "EXPENSE_TRACKER HISTORY_ADAPTER"
     }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val detailButton: Button = view.findViewById(R.id.detailButton)
         val deleteButton: Button = view.findViewById(R.id.deleteButton)
 
-        //        val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
-//        val expenseCategoryValueTextView: TextView = view.findViewById(R.id.historyExpenseCategoryValue)
         val expenseItemTextView: TextView = view.findViewById(R.id.historyExpenseItem)
         val expenseTotalTextView: TextView = view.findViewById(R.id.historyExpenseTotal)
     }
@@ -43,10 +43,12 @@ class HistoryAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expenseRow: ExpenseRow = recentHistory[position]
 
-//        viewHolder.expenseDateTextView.text = expenseRow.expenseDate
-//        viewHolder.expenseCategoryValueTextView.text = expenseRow.expenseCategoryValue
         viewHolder.expenseItemTextView.text = expenseRow.expenseItem
-        viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
+
+        val numberFormat = NumberFormat.getCurrencyInstance()
+        numberFormat.maximumFractionDigits = 2
+
+        viewHolder.expenseTotalTextView.text = numberFormat.format(expenseRow.expenseTotal.toFloat())
 
         viewHolder.detailButton.setOnClickListener {
 //            Log.d(TAG, "clicked row ${expenseRow.row}")
