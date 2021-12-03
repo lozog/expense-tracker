@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/navigation_form">
+    app:startDestination="@id/navigation_history">
 
     <fragment
         android:id="@+id/navigation_form"
@@ -24,6 +24,9 @@
                 app:argType="integer"
                 android:defaultValue="0" />
         </action>
+        <action
+            android:id="@+id/action_navigation_history_to_navigation_form"
+            app:destination="@id/navigation_form" />
     </fragment>
 
     <fragment

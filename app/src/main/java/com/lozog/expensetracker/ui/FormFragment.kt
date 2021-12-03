@@ -2,6 +2,7 @@ package com.lozog.expensetracker.ui
 
 import android.app.AlertDialog
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -118,6 +119,9 @@ class FormFragment : Fragment() {
 //                .setAction("Action", null).show()
         })
 
+        expenseItem.requestFocus()
+        // showKeyboard(expenseItem) // TODO: y u no work?
+
         return root
     }
 
@@ -127,6 +131,17 @@ class FormFragment : Fragment() {
     }
 
     /********** HELPER METHODS **********/
+
+    // private fun showKeyboard(view: View) {
+    //     val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    //
+    //     Log.d(TAG, "showKeyboard")
+    //
+    //     inputManager.showSoftInput(
+    //         view,
+    //         InputMethodManager.SHOW_FORCED
+    //     )
+    // }
 
     private fun hideKeyboard(view: View) {
         val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

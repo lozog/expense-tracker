@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
@@ -31,6 +33,7 @@ class HistoryFragment: Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var updateHistoryButton: Button
+    private lateinit var addNewRowButton: FloatingActionButton
     private lateinit var recentHistoryView: RecyclerView
     private var historyAdapter = HistoryAdapter(listOf()) { }
 
@@ -72,6 +75,14 @@ class HistoryFragment: Fragment() {
         updateHistoryButton.setOnClickListener{view ->
             updateHistory(view)
         }
+
+        addNewRowButton = binding.addNewRowButton
+        addNewRowButton.setOnClickListener { view ->
+            Log.d(TAG, "new row button clicked")
+            val action = HistoryFragmentDirections.actionNavigationHistoryToNavigationForm()
+            view.findNavController().navigate(action)
+        }
+
 
         return root
     }
