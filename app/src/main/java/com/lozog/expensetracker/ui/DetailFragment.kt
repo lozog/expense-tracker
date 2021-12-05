@@ -17,6 +17,7 @@ import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 private const val ROW_PARAM = "row"
 
@@ -113,7 +114,41 @@ class DetailFragment : Fragment() {
             }
         })
 
+        KeyboardVisibilityEvent.setEventListener(
+            mainActivity,
+            viewLifecycleOwner,
+            { isOpen ->
+                when(isOpen) {
+                    true -> mainActivity.hideBottomNav()
+                    false -> mainActivity.showBottomNav()
+                }
+            })
+
+        expenseItem.requestFocus()
+        showKeyboard(expenseItem)
+
         return root
+    }
+
+    private fun showKeyboard(view: View) {
+
+        val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_NOT_ALWAYS)
+
+        // inputManager.showSoftInput doesn't work, for some reason. RIP
+
+        // inputManager.isActive(view)
+        // Log.d(TAG, "showKeyboard - ${inputManager.isActive(view)}")
+        //
+        // val resultReceiver = ResultReceiver(Handler())
+        //
+        // inputManager.showSoftInput(
+        //     view,
+        //     InputMethodManager.SHOW_FORCED,
+        //     resultReceiver
+        // )
+        //
+        // Log.d(TAG, "showKeyboard result: ${resultReceiver.describeContents()}")
     }
 
     private fun hideKeyboard(view: View) {

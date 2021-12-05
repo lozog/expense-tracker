@@ -3,7 +3,6 @@ package com.lozog.expensetracker.ui
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
 import android.os.ResultReceiver
 import android.util.Log
 import android.view.LayoutInflater
@@ -24,6 +23,8 @@ import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -119,6 +120,15 @@ class FormFragment : Fragment() {
 //                .setAction("Action", null).show()
         })
 
+        KeyboardVisibilityEvent.setEventListener(
+            mainActivity,
+            viewLifecycleOwner,
+            { isOpen ->
+                when(isOpen) {
+                    true -> mainActivity.hideBottomNav()
+                    false -> mainActivity.showBottomNav()
+                }
+            })
 
         expenseItem.requestFocus()
         showKeyboard(expenseItem)
@@ -133,6 +143,7 @@ class FormFragment : Fragment() {
 
     /********** HELPER METHODS **********/
 
+    // TODO: move these somewhere better
     private fun showKeyboard(view: View) {
 
         val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.View
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,8 +42,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainActivityBinding
     private lateinit var navController: NavController
 
+    private lateinit var bottomNav: BottomNavigationView
+
     /********** GOOGLE SIGN-IN **********/
-    lateinit var mGoogleSignInClient: GoogleSignInClient
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
     lateinit var startForSignInResult: ActivityResultLauncher<Intent>
     lateinit var startForRequestAuthorizationResult: ActivityResultLauncher<Intent>
 
@@ -85,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val bottomNav: BottomNavigationView = binding.bottomNav
+        bottomNav = binding.bottomNav
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
@@ -160,6 +162,14 @@ class MainActivity : AppCompatActivity() {
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    fun hideBottomNav() {
+        bottomNav.visibility = View.GONE
+    }
+
+    fun showBottomNav() {
+        bottomNav.visibility = View.VISIBLE
     }
 
     /********** GOOGLE SIGN-IN METHODS **********/
