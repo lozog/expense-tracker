@@ -1,14 +1,12 @@
 package com.lozog.expensetracker.ui
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -17,7 +15,6 @@ import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 private const val ROW_PARAM = "row"
 
@@ -113,16 +110,6 @@ class DetailFragment : Fragment() {
                 null -> submitButton.text = getString(R.string.button_expense_submit)
             }
         })
-
-        KeyboardVisibilityEvent.setEventListener(
-            mainActivity,
-            viewLifecycleOwner,
-            { isOpen ->
-                when(isOpen) {
-                    true -> mainActivity.hideBottomNav()
-                    false -> mainActivity.showBottomNav()
-                }
-            })
 
         expenseItem.requestFocus()
         mainActivity.showKeyboard(expenseItem)

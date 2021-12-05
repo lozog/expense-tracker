@@ -37,6 +37,7 @@ import com.google.api.services.sheets.v4.SheetsScopes
 import java.util.*
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
 import com.lozog.expensetracker.ui.account.AccountViewModel
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 class MainActivity : AppCompatActivity() {
 
@@ -106,9 +107,12 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNav.setupWithNavController(navController)
 
-//        navController.addOnDestinationChangedListener { _, destination, _ ->
-//            Log.d(TAG, "destination: $destination")
-//        }
+        KeyboardVisibilityEvent.setEventListener(this) { isOpen ->
+            when (isOpen) {
+                true -> bottomNav.visibility = View.GONE
+                false -> bottomNav.visibility = View.VISIBLE
+            }
+        }
 
         startForSignInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             onActivityResult(RC_SIGN_IN, result)
@@ -182,14 +186,6 @@ class MainActivity : AppCompatActivity() {
             view.windowToken,
             InputMethodManager.HIDE_NOT_ALWAYS
         )
-    }
-
-    fun hideBottomNav() {
-        bottomNav.visibility = View.GONE
-    }
-
-    fun showBottomNav() {
-        bottomNav.visibility = View.VISIBLE
     }
 
     /********** GOOGLE SIGN-IN METHODS **********/
