@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /********** GOOGLE SIGN-IN METHODS **********/
+    // TODO: move to AccountFragment
 
     fun signInButtonClick(view: View) {
         when (view.id) {
