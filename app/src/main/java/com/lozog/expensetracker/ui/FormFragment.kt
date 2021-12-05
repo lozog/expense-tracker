@@ -2,7 +2,6 @@ package com.lozog.expensetracker.ui
 
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,7 +22,6 @@ import com.lozog.expensetracker.SheetsViewModel
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
-import kotlinx.coroutines.coroutineScope
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -119,8 +117,11 @@ class FormFragment : Fragment() {
 //                .setAction("Action", null).show()
         })
 
+
         expenseItem.requestFocus()
-        // showKeyboard(expenseItem) // TODO: y u no work?
+        val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_NOT_ALWAYS)
+        // showKeyboard(expenseItem)
 
         return root
     }
@@ -133,14 +134,22 @@ class FormFragment : Fragment() {
     /********** HELPER METHODS **********/
 
     // private fun showKeyboard(view: View) {
+    //     // TODO: y u no work?
+    //
     //     val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     //
-    //     Log.d(TAG, "showKeyboard")
+    //     inputManager.isActive(view)
+    //     Log.d(TAG, "showKeyboard - ${inputManager.isActive(view)}")
+    //
+    //     val resultReceiver = ResultReceiver(Handler())
     //
     //     inputManager.showSoftInput(
     //         view,
-    //         InputMethodManager.SHOW_FORCED
+    //         InputMethodManager.SHOW_IMPLICIT,
+    //         resultReceiver
     //     )
+    //
+    //     Log.d(TAG, "showKeyboard result: ${resultReceiver.describeContents()}")
     // }
 
     private fun hideKeyboard(view: View) {
