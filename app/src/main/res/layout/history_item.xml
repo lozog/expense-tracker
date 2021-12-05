@@ -12,7 +12,7 @@
         android:layout_height="32dp"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="Edit"
+        android:text="@string/button_edit_history_item"
         android:textSize="11sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +43,7 @@
         android:layout_height="32dp"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="Del"
+        android:text="@string/button_delete_history_item"
         android:backgroundTint="@color/colorAccent"
         android:textSize="11sp"
         app:layout_constraintEnd_toEndOf="parent"
