@@ -17,34 +17,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/historyExpenseDate"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:gravity="start"-->
-<!--        android:textColor="#000000"-->
-<!--        android:textSize="14sp"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        app:layout_constraintStart_toEndOf="@id/detailButton"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/historyExpenseCategoryValue"-->
-<!--        android:layout_width="100dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:gravity="start"-->
-<!--        android:textColor="#000000"-->
-<!--        android:textSize="14sp"-->
-<!--        android:layout_marginStart="5dp"-->
-<!--        app:layout_constraintStart_toEndOf="@id/historyExpenseDate"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
     <TextView
         android:id="@+id/historyExpenseItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="start"
-        android:textColor="#000000"
         android:textSize="14sp"
         android:layout_marginStart="5dp"
         app:layout_constraintStart_toEndOf="@id/detailButton"
@@ -55,7 +32,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="start"
-        android:textColor="#000000"
         android:textSize="14sp"
         android:layout_marginEnd="5dp"
         app:layout_constraintEnd_toStartOf="@id/deleteButton"

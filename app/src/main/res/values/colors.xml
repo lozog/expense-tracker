@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#28A134</color>
+    <color name="colorPrimaryDark">#00690A</color>
+    <color name="colorAccent">#ff3678</color>
+    <color name="colorAccentDark">#B31447</color>
 </resources>
+<!-- could also try using grey for the actionbar -->
