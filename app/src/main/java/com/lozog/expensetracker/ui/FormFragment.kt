@@ -3,6 +3,8 @@ package com.lozog.expensetracker.ui
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.ResultReceiver
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -119,9 +121,7 @@ class FormFragment : Fragment() {
 
 
         expenseItem.requestFocus()
-        val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_NOT_ALWAYS)
-        // showKeyboard(expenseItem)
+        showKeyboard(expenseItem)
 
         return root
     }
@@ -133,24 +133,26 @@ class FormFragment : Fragment() {
 
     /********** HELPER METHODS **********/
 
-    // private fun showKeyboard(view: View) {
-    //     // TODO: y u no work?
-    //
-    //     val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    //
-    //     inputManager.isActive(view)
-    //     Log.d(TAG, "showKeyboard - ${inputManager.isActive(view)}")
-    //
-    //     val resultReceiver = ResultReceiver(Handler())
-    //
-    //     inputManager.showSoftInput(
-    //         view,
-    //         InputMethodManager.SHOW_IMPLICIT,
-    //         resultReceiver
-    //     )
-    //
-    //     Log.d(TAG, "showKeyboard result: ${resultReceiver.describeContents()}")
-    // }
+    private fun showKeyboard(view: View) {
+
+        val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_NOT_ALWAYS)
+
+        // inputManager.showSoftInput doesn't work, for some reason. RIP
+
+        // inputManager.isActive(view)
+        // Log.d(TAG, "showKeyboard - ${inputManager.isActive(view)}")
+        //
+        // val resultReceiver = ResultReceiver(Handler())
+        //
+        // inputManager.showSoftInput(
+        //     view,
+        //     InputMethodManager.SHOW_FORCED,
+        //     resultReceiver
+        // )
+        //
+        // Log.d(TAG, "showKeyboard result: ${resultReceiver.describeContents()}")
+    }
 
     private fun hideKeyboard(view: View) {
         val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
