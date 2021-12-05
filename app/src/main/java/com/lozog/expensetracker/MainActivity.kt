@@ -172,7 +172,7 @@ class MainActivity : AppCompatActivity() {
     fun showKeyboard(view: View) {
 
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_NOT_ALWAYS)
+        inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS)
 
         // inputManager.showSoftInput doesn't work, for some reason. RIP
         // val resultReceiver = ResultReceiver(Handler())
