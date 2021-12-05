@@ -131,7 +131,7 @@ class FormFragment : Fragment() {
             })
 
         expenseItem.requestFocus()
-        showKeyboard(expenseItem)
+        mainActivity.showKeyboard(expenseItem)
 
         return root
     }
@@ -142,37 +142,6 @@ class FormFragment : Fragment() {
     }
 
     /********** HELPER METHODS **********/
-
-    // TODO: move these somewhere better
-    private fun showKeyboard(view: View) {
-
-        val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_NOT_ALWAYS)
-
-        // inputManager.showSoftInput doesn't work, for some reason. RIP
-
-        // inputManager.isActive(view)
-        // Log.d(TAG, "showKeyboard - ${inputManager.isActive(view)}")
-        //
-        // val resultReceiver = ResultReceiver(Handler())
-        //
-        // inputManager.showSoftInput(
-        //     view,
-        //     InputMethodManager.SHOW_FORCED,
-        //     resultReceiver
-        // )
-        //
-        // Log.d(TAG, "showKeyboard result: ${resultReceiver.describeContents()}")
-    }
-
-    private fun hideKeyboard(view: View) {
-        val inputManager = mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
-        inputManager.hideSoftInputFromWindow(
-            view.windowToken,
-            InputMethodManager.HIDE_NOT_ALWAYS
-        )
-    }
 
     private fun validateInput(): Boolean {
         var isValid = true
@@ -205,7 +174,7 @@ class FormFragment : Fragment() {
     }
 
     private fun submitExpense(view: View) {
-        hideKeyboard(view)
+        mainActivity.hideKeyboard(view)
 
         if (!validateInput()) {
             sheetsViewModel.resetView()

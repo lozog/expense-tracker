@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/navigation_form"
         android:name="com.lozog.expensetracker.ui.FormFragment"
-        android:label="Expense Tracker"
+        android:label="@string/nav_form"
         tools:layout="@layout/fragment_form" />
 
     <fragment
