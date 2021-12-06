@@ -1,6 +1,7 @@
 package com.lozog.expensetracker.ui.account
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,9 +9,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import com.google.android.gms.common.SignInButton
 import com.lozog.expensetracker.MainActivity
 import com.lozog.expensetracker.databinding.FragmentAccountBinding
+import com.lozog.expensetracker.ui.SetupFragment
+import com.lozog.expensetracker.ui.history.HistoryFragmentDirections
 
 class AccountFragment : Fragment() {
     private val accountViewModel: AccountViewModel by activityViewModels()
@@ -24,6 +28,7 @@ class AccountFragment : Fragment() {
 
     private lateinit var signInButton: SignInButton
     private lateinit var signOutButton: Button
+    private lateinit var setupButton: Button
     private lateinit var accountInfo: TextView
 
     companion object {
@@ -55,6 +60,13 @@ class AccountFragment : Fragment() {
         accountViewModel.signInStatus.observe(viewLifecycleOwner, {
             accountInfo.text = it
         })
+
+        setupButton = binding.setupButton
+
+        setupButton.setOnClickListener { view ->
+            val action = AccountFragmentDirections.actionNavigationAccountToSetupFragment()
+            view.findNavController().navigate(action)
+        }
 
         return root
     }

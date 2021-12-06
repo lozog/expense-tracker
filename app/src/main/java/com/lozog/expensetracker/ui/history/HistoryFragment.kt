@@ -83,7 +83,6 @@ class HistoryFragment: Fragment() {
             view.findNavController().navigate(action)
         }
 
-
         return root
     }
 

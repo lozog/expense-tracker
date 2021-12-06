@@ -16,6 +16,7 @@
     <string name="button_expense_submit">Submit</string>
     <string name="button_expense_submitting">Submitting…</string>
     <string name="button_sign_out">Sign Out</string>
+    <string name="button_setup">Sheet Setup</string>
     <string name="button_history">Update History</string>
     <string name="button_edit_history_item">Edit</string>
     <string name="button_delete_history_item">Del</string>

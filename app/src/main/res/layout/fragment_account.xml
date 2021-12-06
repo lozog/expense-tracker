@@ -33,7 +33,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/signInButton" />
-<!--        android:visibility="gone"-->
+
+        <Button
+            android:id="@+id/setupButton"
+            android:layout_width="192dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:text="@string/button_setup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/signOutButton" />
 
         <TextView
             android:id="@+id/accountInfo"
@@ -46,6 +60,6 @@
             android:layout_marginRight="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/signOutButton" />
+            app:layout_constraintTop_toBottomOf="@id/setupButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
