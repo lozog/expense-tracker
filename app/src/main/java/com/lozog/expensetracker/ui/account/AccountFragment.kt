@@ -53,7 +53,6 @@ class AccountFragment : Fragment() {
         }
 
         accountViewModel.signInStatus.observe(viewLifecycleOwner, {
-//            Log.d(TAG, "observing: $it")
             accountInfo.text = it
         })
 
