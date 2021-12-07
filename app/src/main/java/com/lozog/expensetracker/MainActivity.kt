@@ -32,9 +32,10 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.drive.Drive
+import com.google.api.services.drive.DriveScopes
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
-import java.util.*
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
 import com.lozog.expensetracker.ui.account.AccountViewModel
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
@@ -59,7 +60,10 @@ class MainActivity : AppCompatActivity() {
         const val RC_REQUEST_AUTHORIZATION: Int = 1
 
         private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
-        private var SCOPES:List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS)
+        private var SCOPES = listOf(
+            SheetsScopes.SPREADSHEETS,
+            DriveScopes.DRIVE_METADATA_READONLY
+        )
 
         const val QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID = "queued_request"
     }
@@ -212,6 +216,7 @@ class MainActivity : AppCompatActivity() {
 
                         (applicationContext as ExpenseTrackerApplication).googleAccount = null
                         (applicationContext as ExpenseTrackerApplication).spreadsheetService = null
+                        (applicationContext as ExpenseTrackerApplication).driveService = null
                     }
             }
         }
@@ -238,14 +243,19 @@ class MainActivity : AppCompatActivity() {
         credential.selectedAccount = account.account
 
         // get sheet service object
-        val sheetService: Sheets = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
+        val spreadsheetService: Sheets = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
+            .setApplicationName(getString(R.string.app_name))
+            .build()
+
+        val driveService: Drive = Drive.Builder(httpTransport, JSON_FACTORY, credential)
             .setApplicationName(getString(R.string.app_name))
             .build()
 
         (applicationContext as ExpenseTrackerApplication).googleAccount = account
-        (applicationContext as ExpenseTrackerApplication).spreadsheetService = sheetService
+        (applicationContext as ExpenseTrackerApplication).spreadsheetService = spreadsheetService
+        (applicationContext as ExpenseTrackerApplication).driveService = driveService
 
         val accountViewModel: AccountViewModel by viewModels()
-        accountViewModel.setSignInStatus("signed into account: ${account.email}")
+        accountViewModel.setSignInStatus("signed into account: ${account.email}") // TODO: don't put UI string into the viewmodel
     }
 }

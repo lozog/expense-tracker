@@ -2,6 +2,7 @@ package com.lozog.expensetracker
 
 import android.app.Application
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.api.services.drive.Drive
 import com.google.api.services.sheets.v4.Sheets
 import com.lozog.expensetracker.util.NetworkMonitor
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDB
@@ -12,6 +13,7 @@ class ExpenseTrackerApplication : Application() {
     val sheetsRepository by lazy { SheetsRepository(database.expenseRowDao(), this) }
     var googleAccount: GoogleSignInAccount? = null
     var spreadsheetService: Sheets? = null
+    var driveService: Drive? = null
 
     override fun onCreate() {
         super.onCreate()

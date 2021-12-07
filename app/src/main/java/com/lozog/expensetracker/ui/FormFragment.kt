@@ -101,7 +101,7 @@ class FormFragment : Fragment() {
                     clearInputs()
                     expenseSubmitButton.text = getString(R.string.button_expense_submit)
                 }
-                null -> expenseSubmitButton.text = getString(R.string.button_expense_submit)
+                else -> expenseSubmitButton.text = getString(R.string.button_expense_submit)
             }
         })
 

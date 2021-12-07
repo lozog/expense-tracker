@@ -19,6 +19,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val statusText = MutableLiveData<String>()
     val recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.recentHistory.asLiveData()
     val detailExpenseRow = MutableLiveData<ExpenseRow>()
+    val error = MutableLiveData<UserRecoverableAuthIOException>()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
@@ -26,6 +27,10 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     fun setStatus(newStatus: SheetsStatus) {
         status.value = newStatus
+    }
+
+    fun setError(e: UserRecoverableAuthIOException) {
+        error.value = e
     }
 
     fun resetView() {
@@ -82,7 +87,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 statusText = "not signed in"
             } catch (e: Exception) {
                 statusText = "something went wrong"
-                throw e
+                throw e // TODO: doesn't work
             }
 
             withContext(Dispatchers.Main) {
@@ -96,6 +101,26 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         viewModelScope.launch (Dispatchers.IO) {
             sheetsRepository.deleteRowAsync(row).await()
             sheetsRepository.getRecentExpenseHistoryAsync().await()
+        }
+    }
+
+    fun fetchSpreadsheets() {
+        setStatus(SheetsStatus.IN_PROGRESS)
+        viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "calling sheetsRepository.fetchSpreadsheets")
+            try {
+                val res = sheetsRepository.fetchSpreadsheetsAsync().await()
+                Log.d(TAG, res)
+            } catch(e: UserRecoverableAuthIOException) {
+                Log.d(TAG, "UserRecoverableAuthIOException")
+                withContext(Dispatchers.Main) {
+                    setError(e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                setStatus(SheetsStatus.DONE)
+            }
         }
     }
 }

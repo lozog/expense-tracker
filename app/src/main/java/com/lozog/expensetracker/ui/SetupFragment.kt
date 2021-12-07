@@ -8,15 +8,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import com.lozog.expensetracker.MainActivity
-import com.lozog.expensetracker.R
-import com.lozog.expensetracker.SheetsRepository
+import androidx.fragment.app.viewModels
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentSetupBinding
+import com.lozog.expensetracker.util.SheetsStatus
+import kotlinx.android.synthetic.main.fragment_form.*
 
 
 class SetupFragment : Fragment() {
     companion object {
         private const val TAG = "EXPENSE_TRACKER SETUP_FRAGMENT"
+    }
+
+    private val sheetsViewModel: SheetsViewModel by viewModels {
+        SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
     }
 
     private var _binding: FragmentSetupBinding? = null
@@ -38,6 +44,8 @@ class SetupFragment : Fragment() {
         val root: View = binding.root
         mainActivity = activity as MainActivity
 
+        sheetsViewModel.fetchSpreadsheets()
+
         spreadsheetIdButton = binding.spreadsheetIdButton
         overviewSheetButton = binding.overviewSheetButton
         dataSheetButton = binding.dataSheetButton
@@ -52,6 +60,10 @@ class SetupFragment : Fragment() {
             val dialog = builder.create()
             dialog.show()
         }
+
+        sheetsViewModel.error.observe(viewLifecycleOwner, {
+            mainActivity.startForRequestAuthorizationResult.launch(it.intent)
+        })
 
         return root
     }
