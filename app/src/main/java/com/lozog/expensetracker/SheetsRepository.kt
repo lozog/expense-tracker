@@ -3,6 +3,7 @@ package com.lozog.expensetracker
 import android.content.SharedPreferences
 import android.util.Log
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import com.google.api.services.sheets.v4.model.*
 import com.lozog.expensetracker.util.ConnectivityHelper
@@ -304,18 +305,18 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
     }
 
-    fun fetchSpreadsheetsAsync(): Deferred<String> = coroutineScope.async {
+    fun fetchSpreadsheetsAsync(): Deferred<List<File>> = coroutineScope.async {
         if (!ConnectivityHelper.isInternetConnected(application)) {
             Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
-            return@async "no internet"
 
+            return@async listOf()
             // TODO: this doesn't work
 //            throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
             Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
-            return@async "no spreadsheetservice"
+            return@async listOf()
 
             // TODO: this doesn't work
 //            throw NotSignedInException()
@@ -329,13 +330,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .setQ("mimeType='application/vnd.google-apps.spreadsheet'")
             .execute()
 
-        val files = data.files
-
-        files.forEach {
-            Log.d(TAG, it.toString())
-        }
-
-        return@async "ok done"
+        return@async data.files as List<File>
     }
-
 }

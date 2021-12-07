@@ -3,6 +3,7 @@ package com.lozog.expensetracker
 import android.util.Log
 import androidx.lifecycle.*
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.services.drive.model.File
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
@@ -20,6 +21,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.recentHistory.asLiveData()
     val detailExpenseRow = MutableLiveData<ExpenseRow>()
     val error = MutableLiveData<UserRecoverableAuthIOException>()
+    val spreadsheets = MutableLiveData<List<File>>()
 
     fun setStatusText(newSignInStatus: String) {
         statusText.value = newSignInStatus
@@ -31,6 +33,10 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     fun setError(e: UserRecoverableAuthIOException) {
         error.value = e
+    }
+
+    fun setSpreadsheets(files: List<File>) {
+        spreadsheets.value = files
     }
 
     fun resetView() {
@@ -108,9 +114,9 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
             Log.d(TAG, "calling sheetsRepository.fetchSpreadsheets")
+            var spreadsheets: List<File> = listOf()
             try {
-                val res = sheetsRepository.fetchSpreadsheetsAsync().await()
-                Log.d(TAG, res)
+                spreadsheets = sheetsRepository.fetchSpreadsheetsAsync().await()
             } catch(e: UserRecoverableAuthIOException) {
                 Log.d(TAG, "UserRecoverableAuthIOException")
                 withContext(Dispatchers.Main) {
@@ -119,6 +125,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             }
 
             withContext(Dispatchers.Main) {
+                setSpreadsheets(spreadsheets)
                 setStatus(SheetsStatus.DONE)
             }
         }

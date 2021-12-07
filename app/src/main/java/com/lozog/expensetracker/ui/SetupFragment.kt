@@ -1,5 +1,6 @@
 package com.lozog.expensetracker.ui
 
+import android.R
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
@@ -7,11 +8,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ListAdapter
 import androidx.fragment.app.viewModels
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.services.drive.model.File
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentSetupBinding
+import com.lozog.expensetracker.ui.history.HistoryAdapter
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
 
@@ -35,6 +40,7 @@ class SetupFragment : Fragment() {
     private lateinit var overviewSheetButton: Button
     private lateinit var dataSheetButton: Button
     private lateinit var monthlySummarySheetButton: Button
+    private lateinit var spreadsheets: List<Map<String, String>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,8 +60,10 @@ class SetupFragment : Fragment() {
         spreadsheetIdButton.setOnClickListener{
             val builder = AlertDialog.Builder(mainActivity)
             builder.setTitle("Select Budget Spreadsheet")
-            builder.setItems(R.array.categories) {_, which ->
-                spreadsheetIdButton.text = SheetsRepository.CATEGORIES[which]
+            val spreadsheetNames = spreadsheets.map { it["name"] ?: "name not found" }.toTypedArray()
+            builder.setItems(spreadsheetNames) { _, which ->
+                Log.d(TAG, "chose spreadsheet ${spreadsheets[which]["name"]} with id ${spreadsheets[which]["id"]}")
+                spreadsheetIdButton.text = spreadsheetNames[which]
             }
             val dialog = builder.create()
             dialog.show()
@@ -63,6 +71,15 @@ class SetupFragment : Fragment() {
 
         sheetsViewModel.error.observe(viewLifecycleOwner, {
             mainActivity.startForRequestAuthorizationResult.launch(it.intent)
+        })
+
+        sheetsViewModel.spreadsheets.observe(viewLifecycleOwner, { files ->
+            spreadsheets = files.map {
+                 mapOf(
+                     "id" to it.id,
+                     "name" to it.name
+                 )
+            }
         })
 
         return root
