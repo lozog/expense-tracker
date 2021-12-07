@@ -77,18 +77,14 @@ class FormFragment : Fragment() {
             submitExpense(view)
         }
 
-        expenseCategory.setOnClickListener{view ->
-            when (view.id) {
-                R.id.expenseCategory -> {
-                    val builder = AlertDialog.Builder(mainActivity)
-                    builder.setTitle(R.string.expense_category)
-                    builder.setItems(R.array.categories) {_, which ->
-                        expenseCategory.text = SheetsRepository.CATEGORIES[which]
-                    }
-                    val dialog = builder.create()
-                    dialog.show()
-                }
+        expenseCategory.setOnClickListener{
+            val builder = AlertDialog.Builder(mainActivity)
+            builder.setTitle(R.string.expense_category)
+            builder.setItems(R.array.categories) {_, which ->
+                expenseCategory.text = SheetsRepository.CATEGORIES[which]
             }
+            val dialog = builder.create()
+            dialog.show()
         }
 
         // set default category

@@ -15,6 +15,7 @@
         <entry key="app/src/main/res/layout/fragment_google_sign_in.xml" value="0.5635416666666667" />
         <entry key="app/src/main/res/layout/fragment_history.xml" value="0.166796875" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.11875" />
+        <entry key="app/src/main/res/layout/fragment_setup.xml" value="0.282421875" />
         <entry key="app/src/main/res/layout/history_item.xml" value="0.291796875" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.38385416666666666" />
         <entry key="app/src/main/res/layout/settings_activity.xml" value="0.23333333333333334" />
