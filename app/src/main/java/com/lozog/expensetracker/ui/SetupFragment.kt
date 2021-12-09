@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.ListAdapter
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.preference.PreferenceManager
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.drive.model.File
 import com.lozog.expensetracker.*
@@ -60,13 +61,18 @@ class SetupFragment : Fragment() {
         dataSheetButton = binding.dataSheetButton
         monthlySummarySheetButton = binding.monthlySummarySheetButton
 
+        val sharedPreferencesEditor = PreferenceManager.getDefaultSharedPreferences(mainActivity).edit()
+
         spreadsheetIdButton.setOnClickListener{
             val builder = AlertDialog.Builder(mainActivity)
             builder.setTitle("Select Budget Spreadsheet")
             val spreadsheetNames = spreadsheets.map { it["name"] ?: "name not found" }.toTypedArray()
             builder.setItems(spreadsheetNames) { _, which ->
                 Log.d(TAG, "chose spreadsheet ${spreadsheets[which]["name"]} with id ${spreadsheets[which]["id"]}")
-                spreadsheetIdButton.text = spreadsheetNames[which]
+                // set preference
+                sharedPreferencesEditor.putString("google_spreadsheet_id", spreadsheets[which]["id"])
+                sharedPreferencesEditor.apply()
+                spreadsheetIdButton.text = spreadsheets[which]["name"]
             }
             val dialog = builder.create()
             dialog.show()
