@@ -53,13 +53,15 @@
 
     <!-- Preference Labels -->
     <string name="pref_label_google_spreadsheet_id">Google Spreadsheet Id</string>
-    <string name="pref_label_data_sheet_name">Data Sheet Name</string>
     <string name="pref_label_overview_sheet_name">Overview Sheet Name</string>
     <string name="pref_label_overview_sheet_id">Overview Sheet Id</string>
+    <string name="pref_label_data_sheet_name">Data Sheet Name</string>
+    <string name="pref_label_data_sheet_id">Data Sheet Id</string>
     <string name="pref_label_currency">Currency</string>
     <string name="pref_label_exchange_rate">Exchange Rate</string>
     <string name="pref_label_categories_list">Expense Categories (comma-separated)</string>
     <string name="pref_label_monthly_summary_sheet_name">Monthly Summary Sheet Name</string>
+    <string name="pref_label_monthly_summary_sheet_id">Monthly Summary Sheet Id</string>
     <string name="pref_label_history_length">History length</string>
 
     <!-- Defaults -->

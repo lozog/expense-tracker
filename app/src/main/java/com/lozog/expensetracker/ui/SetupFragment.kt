@@ -115,6 +115,56 @@ class SetupFragment : Fragment() {
             dialog.show()
         }
 
+        dataSheetButton.setOnClickListener {
+            if (!this::sheets.isInitialized) {
+                return@setOnClickListener
+            }
+
+            val builder = AlertDialog.Builder(mainActivity)
+            builder.setTitle("Select Data sheet")
+            val sheetNames = sheets.map { it["title"] ?: "title not found" }.toTypedArray()
+            builder.setItems(sheetNames) { _, which ->
+                Log.d(TAG, "chose sheet ${sheets[which]["title"]} with id ${sheets[which]["id"]}")
+
+                // set preferences
+                val preferenceEditor = sharedPreferences.edit()
+                val sheetId = sheets[which]["id"]!!
+                val title = sheets[which]["title"]!!
+                preferenceEditor.putString("data_sheet_name", title)
+                preferenceEditor.putString("data_sheet_id", sheetId)
+                preferenceEditor.apply()
+
+                dataSheetButton.text = sheets[which]["title"]
+            }
+            val dialog = builder.create()
+            dialog.show()
+        }
+
+        monthlySummarySheetButton.setOnClickListener {
+            if (!this::sheets.isInitialized) {
+                return@setOnClickListener
+            }
+
+            val builder = AlertDialog.Builder(mainActivity)
+            builder.setTitle("Select Monthly Summary sheet")
+            val sheetNames = sheets.map { it["title"] ?: "title not found" }.toTypedArray()
+            builder.setItems(sheetNames) { _, which ->
+                Log.d(TAG, "chose sheet ${sheets[which]["title"]} with id ${sheets[which]["id"]}")
+
+                // set preferences
+                val preferenceEditor = sharedPreferences.edit()
+                val sheetId = sheets[which]["id"]!!
+                val title = sheets[which]["title"]!!
+                preferenceEditor.putString("monthly_summary_sheet_name", title)
+                preferenceEditor.putString("monthly_summary_sheet_id", sheetId)
+                preferenceEditor.apply()
+
+                monthlySummarySheetButton.text = sheets[which]["title"]
+            }
+            val dialog = builder.create()
+            dialog.show()
+        }
+
         sheetsViewModel.status.observe(viewLifecycleOwner, {
             when (it) {
                 SheetsStatus.IN_PROGRESS -> statusText.text = "loading..."

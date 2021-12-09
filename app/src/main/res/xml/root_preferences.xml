@@ -29,8 +29,18 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
+            app:key="data_sheet_id"
+            app:title="@string/pref_label_data_sheet_id"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
             app:key="monthly_summary_sheet_name"
             app:title="@string/pref_label_monthly_summary_sheet_name"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="monthly_summary_sheet_id"
+            app:title="@string/pref_label_monthly_summary_sheet_id"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
