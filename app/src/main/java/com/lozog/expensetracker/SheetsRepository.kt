@@ -332,4 +332,37 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         return@async data.files as List<File>
     }
+
+    fun fetchSheetsAsync(spreadsheetId: String): Deferred<List<Sheet>> = coroutineScope.async {
+        if (!ConnectivityHelper.isInternetConnected(application)) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+
+            return@async listOf()
+            // TODO: this doesn't work
+//            throw NoInternetException()
+        }
+
+        if (application.spreadsheetService == null) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            return@async listOf()
+
+            // TODO: this doesn't work
+//            throw NotSignedInException()
+        }
+
+        Log.d(TAG, "fetchSheets")
+
+        val sheets = application.spreadsheetService!!
+            .spreadsheets()
+            .get(spreadsheetId)
+            .execute()
+
+        sheets.sheets.forEach {
+            Log.d(TAG, it.toString())
+            Log.d(TAG, it.properties.sheetId.toString())
+            Log.d(TAG, it.properties.title)
+        }
+
+        return@async sheets.sheets
+    }
 }

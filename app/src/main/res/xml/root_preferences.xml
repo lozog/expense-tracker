@@ -19,6 +19,11 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
+            app:key="overview_sheet_id"
+            app:title="@string/pref_label_overview_sheet_id"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
             app:key="data_sheet_name"
             app:title="@string/pref_label_data_sheet_name"
             app:useSimpleSummaryProvider="true" />
