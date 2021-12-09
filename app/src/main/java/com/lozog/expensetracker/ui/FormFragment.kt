@@ -106,6 +106,7 @@ class FormFragment : Fragment() {
         })
 
         sheetsViewModel.statusText.observe(viewLifecycleOwner, {
+            // TODO: observe status instead of statusText
             statusTextView.text = it
 //            Snackbar.make(expenseSubmitButton, it, Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show()

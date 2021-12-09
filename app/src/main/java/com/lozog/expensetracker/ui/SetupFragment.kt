@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListAdapter
+import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.drive.model.File
@@ -36,6 +37,7 @@ class SetupFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var statusText: TextView
     private lateinit var spreadsheetIdButton: Button
     private lateinit var overviewSheetButton: Button
     private lateinit var dataSheetButton: Button
@@ -52,6 +54,7 @@ class SetupFragment : Fragment() {
 
         sheetsViewModel.fetchSpreadsheets()
 
+        statusText = binding.statusText
         spreadsheetIdButton = binding.spreadsheetIdButton
         overviewSheetButton = binding.overviewSheetButton
         dataSheetButton = binding.dataSheetButton
@@ -68,6 +71,14 @@ class SetupFragment : Fragment() {
             val dialog = builder.create()
             dialog.show()
         }
+
+        sheetsViewModel.status.observe(viewLifecycleOwner, {
+            when (it) {
+                SheetsStatus.IN_PROGRESS -> statusText.text = "loading..."
+                SheetsStatus.DONE -> statusText.text = "done"
+                else -> statusText.text = "error"
+            }
+        })
 
         sheetsViewModel.error.observe(viewLifecycleOwner, {
             mainActivity.startForRequestAuthorizationResult.launch(it.intent)
