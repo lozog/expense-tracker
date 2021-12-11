@@ -1,6 +1,5 @@
 package com.lozog.expensetracker.ui
 
-import android.R
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log

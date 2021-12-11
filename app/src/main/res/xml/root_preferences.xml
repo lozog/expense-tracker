@@ -2,10 +2,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="@string/pref_header_sheet">
-        <EditTextPreference
+        <!--<EditTextPreference-->
+        <!--    app:key="google_spreadsheet_id"-->
+        <!--    app:title="@string/pref_label_google_spreadsheet_id"-->
+        <!--    app:useSimpleSummaryProvider="true" />-->
+
+        <ListPreference
             app:key="google_spreadsheet_id"
             app:title="@string/pref_label_google_spreadsheet_id"
-            app:useSimpleSummaryProvider="true" />
+            app:useSimpleSummaryProvider="true"
+            />
 
         <EditTextPreference
             app:key="categories"
