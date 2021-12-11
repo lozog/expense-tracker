@@ -1,6 +1,5 @@
 package com.lozog.expensetracker.ui
 
-import android.R
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
@@ -8,17 +7,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.ListAdapter
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.google.api.services.drive.model.File
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentSetupBinding
-import com.lozog.expensetracker.ui.history.HistoryAdapter
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.android.synthetic.main.fragment_form.*
 
@@ -43,6 +37,7 @@ class SetupFragment : Fragment() {
     private lateinit var overviewSheetButton: Button
     private lateinit var dataSheetButton: Button
     private lateinit var monthlySummarySheetButton: Button
+    private lateinit var monthColumnButton: Button
     private lateinit var spreadsheets: List<Map<String, String>>
     private lateinit var sheets: List<Map<String, String>>
 
@@ -61,6 +56,8 @@ class SetupFragment : Fragment() {
         overviewSheetButton = binding.overviewSheetButton
         dataSheetButton = binding.dataSheetButton
         monthlySummarySheetButton = binding.monthlySummarySheetButton
+        monthColumnButton = binding.monthColumnButton
+
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity)
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
 
@@ -163,6 +160,13 @@ class SetupFragment : Fragment() {
             }
             val dialog = builder.create()
             dialog.show()
+        }
+
+        monthColumnButton.setOnClickListener {
+            val dataSheetName = sharedPreferences.getString("data_sheet_name", null)
+                ?: return@setOnClickListener
+
+            sheetsViewModel.findMonthColumns()
         }
 
         sheetsViewModel.status.observe(viewLifecycleOwner, {

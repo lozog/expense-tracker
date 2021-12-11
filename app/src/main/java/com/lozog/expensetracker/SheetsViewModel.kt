@@ -157,6 +157,27 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             }
         }
     }
+
+    fun findMonthColumns() {
+        setStatus(SheetsStatus.IN_PROGRESS)
+        viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "calling sheetsRepository.fetchSheets")
+            // var sheets: List<Sheet> = listOf()
+            try {
+                sheetsRepository.findMonthColumnsAsync()
+            } catch(e: UserRecoverableAuthIOException) {
+                Log.d(TAG, "UserRecoverableAuthIOException")
+                withContext(Dispatchers.Main) {
+                    setError(e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                // setSheets(sheets)
+                setStatus(SheetsStatus.DONE)
+            }
+        }
+    }
 }
 
 class SheetsViewModelFactory(private val sheetsRepository: SheetsRepository) : ViewModelProvider.Factory {

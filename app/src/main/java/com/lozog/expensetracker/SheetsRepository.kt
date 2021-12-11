@@ -20,6 +20,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     lateinit var recentHistory: Flow<List<ExpenseRow>>
     private lateinit var sharedPreferences: SharedPreferences
 
+    private lateinit var monthColumns: List<String>
+
     /********** CONCURRENCY **********/
     private val parentJob = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.IO + parentJob)
@@ -339,7 +341,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
             return@async listOf()
             // TODO: this doesn't work
-//            throw NoInternetException()
+            // throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
@@ -347,7 +349,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             return@async listOf()
 
             // TODO: this doesn't work
-//            throw NotSignedInException()
+            // throw NotSignedInException()
         }
 
         Log.d(TAG, "fetchSheets")
@@ -357,12 +359,40 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .get(spreadsheetId)
             .execute()
 
-        sheets.sheets.forEach {
-            Log.d(TAG, it.toString())
-            Log.d(TAG, it.properties.sheetId.toString())
-            Log.d(TAG, it.properties.title)
+        return@async sheets.sheets
+    }
+
+    fun findMonthColumnsAsync() = coroutineScope.launch {
+        if (!ConnectivityHelper.isInternetConnected(application)) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+
+            // TODO: this doesn't work
+            throw NotSignedInException()
         }
 
-        return@async sheets.sheets
+        if (application.spreadsheetService == null) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+
+            // TODO: this doesn't work
+            throw NotSignedInException()
+        }
+
+        Log.d(TAG, "findMonthColumnsAsync")
+
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
+
+        val firstRowRange = "'$overviewSheetName'!1:1"
+        val firstRow = application.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, firstRowRange)
+            .execute()
+            .getValues()
+            .first()
+
+        // we'll search the first row for "January", and assume that the next column is "February", etc.
+        val januaryColumn = ('A'.code + firstRow.indexOf("January")).toChar()
+        Log.d(TAG, "jan col code: $januaryColumn")
     }
 }
