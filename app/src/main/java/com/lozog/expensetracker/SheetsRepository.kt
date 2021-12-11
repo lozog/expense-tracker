@@ -261,11 +261,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             throw NotSignedInException()
         }
 
-        expenseRowDao.setDeleted(row)
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-//        val sheetName = sharedPreferences.getString("data_sheet_name", null)
-        val sheetId = 1283738573 // TODO: dynamically get sheetId
+        val sheetId = sharedPreferences.getString("data_sheet_id", "0")?.toInt()
 
         val deleteRequest: Request = Request()
             .setDeleteDimension(
@@ -287,6 +285,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .spreadsheets()
             .batchUpdate(spreadsheetId, updateRequest)
             .execute()
+
+        expenseRowDao.setDeleted(row)
     }
 
     fun sendPendingRowsToSheetAsync() = coroutineScope.async {
