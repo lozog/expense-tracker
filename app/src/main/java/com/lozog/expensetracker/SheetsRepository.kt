@@ -7,6 +7,7 @@ import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import com.google.api.services.sheets.v4.model.*
 import com.lozog.expensetracker.util.ConnectivityHelper
+import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
@@ -311,7 +312,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     fun fetchSpreadsheetsAsync(): Deferred<List<File>> = coroutineScope.async {
         if (!ConnectivityHelper.isInternetConnected(application)) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            Log.d(TAG, "fetchSpreadsheetsAsync - no internet")
 
             return@async listOf()
             // TODO: this doesn't work
@@ -319,7 +320,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            Log.d(TAG, "fetchSpreadsheetsAsync - no spreadsheetservice")
             return@async listOf()
 
             // TODO: this doesn't work
@@ -339,7 +340,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     fun fetchSheetsAsync(spreadsheetId: String): Deferred<List<Sheet>> = coroutineScope.async {
         if (!ConnectivityHelper.isInternetConnected(application)) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            Log.d(TAG, "fetchSheetsAsync - no internet")
 
             return@async listOf()
             // TODO: this doesn't work
@@ -347,7 +348,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            Log.d(TAG, "fetchSheetsAsync - no spreadsheetservice")
             return@async listOf()
 
             // TODO: this doesn't work
@@ -366,14 +367,14 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     fun findMonthColumnsAsync() = coroutineScope.launch {
         if (!ConnectivityHelper.isInternetConnected(application)) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            Log.d(TAG, "findMonthColumnsAsync - no internet")
 
             // TODO: this doesn't work
-            throw NotSignedInException()
+            throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            Log.d(TAG, "findMonthColumnsAsync - no spreadsheetservice")
 
             // TODO: this doesn't work
             throw NotSignedInException()
@@ -405,5 +406,58 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             (januaryColumn.code + it).toChar().toString()
         }
         // Log.d(TAG, monthColumns.toString())
+    }
+
+    fun findCategoriesAsync() = coroutineScope.launch {
+        if (!ConnectivityHelper.isInternetConnected(application)) {
+            Log.d(TAG, "findCategoriesAsync - no internet")
+
+            // TODO: this doesn't work
+            throw NoInternetException()
+        }
+
+        if (application.spreadsheetService == null) {
+            Log.d(TAG, "findCategoriesAsync - no spreadsheetservice")
+
+            // TODO: this doesn't work
+            throw NotSignedInException()
+        }
+
+        Log.d(TAG, "findCategoriesAsync")
+
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
+
+        val firstColRange = "'$overviewSheetName'!A:A"
+        val firstColValues = application.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, firstColRange)
+            .execute()
+            .getValues()
+
+        firstColValues.forEach {
+            Log.d(TAG, it.toString())
+        }
+
+        val firstCategoryRow = firstColValues.indexOfFirst { it as List<*>
+            it.isNotEmpty() && it.first() == "Variable Expenses"
+        } + 1 // rows start at 1
+        val lastCategoryRow = firstColValues.indexOfFirst { it as List<*>
+            it.isNotEmpty() && it.first() == "vee"
+        } - 1 // last category row is 2 before this one
+
+        Log.d(TAG, "first row: $firstCategoryRow, last row: $lastCategoryRow")
+
+        val categoriesRange = "'$overviewSheetName'!B$firstCategoryRow:B$lastCategoryRow"
+        val categoriesValues = application.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, categoriesRange)
+            .execute()
+            .getValues()
+
+        Log.d(TAG, categoriesValues.toString())
+
     }
 }

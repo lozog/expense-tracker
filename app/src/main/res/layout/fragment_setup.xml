@@ -66,4 +66,14 @@
         app:layout_constraintTop_toBottomOf="@id/monthlySummarySheetButton"
         />
 
+    <Button
+        android:id="@+id/categoriesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Auto-Detect Categories"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/monthColumnButton"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
