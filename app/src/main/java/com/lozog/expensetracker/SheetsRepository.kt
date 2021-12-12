@@ -458,6 +458,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .getValues()
 
         Log.d(TAG, categoriesValues.toString())
+        // TODO: this doesn't include Other Income as a category
+        // maybe we just need to show the user everything in the B column and let them pick which ones are categories
+        // and also let them reorder them
+        // multi select alertdialog?
 
     }
 }
