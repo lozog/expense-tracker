@@ -62,6 +62,7 @@
     <string name="pref_label_categories_list">Expense Categories (comma-separated)</string>
     <string name="pref_label_monthly_summary_sheet_name">Monthly Summary Sheet Name</string>
     <string name="pref_label_monthly_summary_sheet_id">Monthly Summary Sheet Id</string>
+    <string name="pref_label_month_column">January Column</string>
     <string name="pref_label_history_length">History length</string>
 
     <!-- Defaults -->

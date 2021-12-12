@@ -107,6 +107,8 @@ class SetupFragment : Fragment() {
                 preferenceEditor.apply()
 
                 overviewSheetButton.text = sheets[which]["title"]
+
+                sheetsViewModel.findMonthColumns()
             }
             val dialog = builder.create()
             dialog.show()

@@ -51,6 +51,12 @@
             android:inputType="number"
             android:digits="0123456789"
             />
+
+        <EditTextPreference
+            app:key="month_column"
+            app:title="@string/pref_label_month_column"
+            app:useSimpleSummaryProvider="true"
+            />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/pref_header_currency">

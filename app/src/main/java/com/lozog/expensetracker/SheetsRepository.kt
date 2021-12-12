@@ -20,7 +20,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     lateinit var recentHistory: Flow<List<ExpenseRow>>
     private lateinit var sharedPreferences: SharedPreferences
 
-    private lateinit var monthColumns: List<String>
+    private var monthColumns: List<String> = listOf()
 
     /********** CONCURRENCY **********/
     private val parentJob = Job()
@@ -31,12 +31,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
-
-        // January -> column C, etc
-        // TODO: dynamically find month columns
-        private val MONTH_COLUMNS = listOf(
-            "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
-        )
 
         // TODO: dynamically find category cell
         private val CATEGORY_ROW_MAP = mapOf(
@@ -193,7 +187,15 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 //            throw NotSignedInException()
         }
 
-        val curMonthColumn = MONTH_COLUMNS[Calendar.getInstance().get(Calendar.MONTH)]
+        if (monthColumns.isEmpty()) {
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no monthColumns")
+            return@async "no monthColumns"
+
+            // TODO: this doesn't work
+//            throw NotSignedInException()
+        }
+
+        val curMonthColumn = monthColumns[Calendar.getInstance().get(Calendar.MONTH)]
         val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
@@ -393,6 +395,15 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         // we'll search the first row for "January", and assume that the next column is "February", etc.
         val januaryColumn = ('A'.code + firstRow.indexOf("January")).toChar()
-        Log.d(TAG, "jan col code: $januaryColumn")
+        // Log.d(TAG, "jan col code: $januaryColumn")
+
+        val preferenceEditor = sharedPreferences.edit()
+        preferenceEditor.putString("month_column", januaryColumn.toString())
+        preferenceEditor.apply()
+
+        monthColumns = (0..11).map {
+            (januaryColumn.code + it).toChar().toString()
+        }
+        // Log.d(TAG, monthColumns.toString())
     }
 }
