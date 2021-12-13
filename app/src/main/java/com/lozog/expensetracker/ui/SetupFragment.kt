@@ -179,7 +179,7 @@ class SetupFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            sheetsViewModel.findCategories()
+            sheetsViewModel.fetchCategories()
         }
 
         sheetsViewModel.status.observe(viewLifecycleOwner, {

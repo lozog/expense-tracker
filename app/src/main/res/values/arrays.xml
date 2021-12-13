@@ -14,4 +14,5 @@
         <item>Household</item>
         <item>Other Income</item>
     </string-array>
+    <string-array name="empty" />
 </resources>

@@ -8,12 +8,6 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
-            app:key="categories"
-            android:defaultValue="@string/default_categories"
-            app:title="@string/pref_label_categories_list"
-            app:useSimpleSummaryProvider="true" />
-
-        <EditTextPreference
             app:key="overview_sheet_name"
             app:title="@string/pref_label_overview_sheet_name"
             app:useSimpleSummaryProvider="true" />
@@ -56,6 +50,21 @@
             app:key="month_column"
             app:title="@string/pref_label_month_column"
             app:useSimpleSummaryProvider="true"
+            />
+
+        <EditTextPreference
+            app:key="categories"
+            android:defaultValue="@string/default_categories"
+            app:title="@string/pref_label_categories_list"
+            app:useSimpleSummaryProvider="true"
+            />
+
+        <MultiSelectListPreference
+            android:dialogTitle="@string/pref_label_categories_list2"
+            android:key="categories_list"
+            android:summary=""
+            android:title="@string/pref_label_categories_list2"
+            android:defaultValue="@array/empty"
             />
     </PreferenceCategory>
 
