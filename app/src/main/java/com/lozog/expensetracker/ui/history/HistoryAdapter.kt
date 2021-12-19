@@ -45,7 +45,11 @@ class HistoryAdapter(
         val numberFormat = NumberFormat.getCurrencyInstance()
         numberFormat.maximumFractionDigits = 2
 
-        viewHolder.expenseTotalTextView.text = numberFormat.format(expenseRow.expenseTotal.toFloat())
+        try {
+            viewHolder.expenseTotalTextView.text = numberFormat.format(expenseRow.expenseTotal.toFloat())
+        } catch (e: Exception) {
+            viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
+        }
 
         viewHolder.detailButton.setOnClickListener {
 //            Log.d(TAG, "clicked row ${expenseRow.row}")
