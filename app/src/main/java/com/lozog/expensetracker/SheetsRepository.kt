@@ -49,21 +49,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             "Household" to "31",
             "Other Income" to "5"
         )
-        val CATEGORIES = arrayOf(
-            "Groceries",
-            "Dining Out",
-            "Drinks",
-            "Material Items",
-            "Entertainment",
-            "Transit",
-            "Personal/Medical",
-            "Gifts",
-            "Travel",
-            "Miscellaneous",
-            "Film",
-            "Household",
-            "Other Income"
-        )
     }
 
     fun setPreferences(newPrefs: SharedPreferences) {

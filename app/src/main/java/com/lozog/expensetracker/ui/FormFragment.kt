@@ -73,6 +73,10 @@ class FormFragment : Fragment() {
         submitButton = binding.expenseSubmitButton
         statusTextView = binding.statusText
 
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity)
+        val categoriesPrefs = sharedPreferences.getString("categories", null)?: ""
+        val categories = categoriesPrefs.split(",").map { it.trim() }.toTypedArray()
+
         submitButton.setOnClickListener{view ->
             submitExpense(view)
         }
@@ -80,15 +84,15 @@ class FormFragment : Fragment() {
         expenseCategory.setOnClickListener{
             val builder = AlertDialog.Builder(mainActivity)
             builder.setTitle(R.string.expense_category)
-            builder.setItems(R.array.categories) {_, which ->
-                expenseCategory.text = SheetsRepository.CATEGORIES[which]
+            builder.setItems(categories) {_, which ->
+                expenseCategory.text = categories[which]
             }
             val dialog = builder.create()
             dialog.show()
         }
 
         // set default category
-        expenseCategory.text = SheetsRepository.CATEGORIES[0]
+        expenseCategory.text = categories[0]
 
         // Set default value of expenseDate input as today's date
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())

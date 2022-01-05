@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentFormBinding
 import com.lozog.expensetracker.util.SheetsStatus
@@ -70,13 +71,17 @@ class DetailFragment : Fragment() {
         currencyExchangeRate = binding.currencyExchangeRate
         submitButton = binding.expenseSubmitButton
 
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity)
+        val categoriesPrefs = sharedPreferences.getString("categories", null)?: ""
+        val categories = categoriesPrefs.split(",").map { it.trim() }.toTypedArray()
+
         expenseCategory.setOnClickListener{view ->
             when (view.id) {
                 R.id.expenseCategory -> {
                     val builder = AlertDialog.Builder(mainActivity)
                     builder.setTitle(R.string.expense_category)
-                    builder.setItems(R.array.categories) {_, which ->
-                        expenseCategory.text = SheetsRepository.CATEGORIES[which]
+                    builder.setItems(categories) {_, which ->
+                        expenseCategory.text = categories[which]
                     }
                     val dialog = builder.create()
                     dialog.show()
