@@ -9,12 +9,13 @@
         <entry key="app/src/main/res/drawable/ic_home_black_24dp.xml" value="0.18359375" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23333333333333334" />
         <entry key="app/src/main/res/layout/form_content.xml" value="0.33495145631067963" />
-        <entry key="app/src/main/res/layout/fragment_account.xml" value="0.3734375" />
+        <entry key="app/src/main/res/layout/fragment_account.xml" value="0.10052464662970194" />
         <entry key="app/src/main/res/layout/fragment_detail.xml" value="0.22540983606557377" />
         <entry key="app/src/main/res/layout/fragment_form.xml" value="0.38385416666666666" />
         <entry key="app/src/main/res/layout/fragment_google_sign_in.xml" value="0.5635416666666667" />
         <entry key="app/src/main/res/layout/fragment_history.xml" value="0.166796875" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.11875" />
+        <entry key="app/src/main/res/layout/fragment_setup.xml" value="0.282421875" />
         <entry key="app/src/main/res/layout/history_item.xml" value="0.291796875" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.38385416666666666" />
         <entry key="app/src/main/res/layout/settings_activity.xml" value="0.23333333333333334" />
@@ -23,7 +24,7 @@
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.38385416666666666" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1828125" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.166015625" />
-        <entry key="app/src/main/res/xml/root_preferences.xml" value="0.27898550724637683" />
+        <entry key="app/src/main/res/xml/root_preferences.xml" value="0.1" />
         <entry key="app/src/main/res/xml/themes.xml" value="0.3390625" />
       </map>
     </option>

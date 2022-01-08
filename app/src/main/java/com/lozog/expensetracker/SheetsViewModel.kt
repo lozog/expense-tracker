@@ -3,6 +3,8 @@ package com.lozog.expensetracker
 import android.util.Log
 import androidx.lifecycle.*
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.services.drive.model.File
+import com.google.api.services.sheets.v4.model.Sheet
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
@@ -19,13 +21,35 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val statusText = MutableLiveData<String>()
     val recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.recentHistory.asLiveData()
     val detailExpenseRow = MutableLiveData<ExpenseRow>()
+    val error = MutableLiveData<UserRecoverableAuthIOException>()
+    val spreadsheets = MutableLiveData<List<File>>()
+    val sheets = MutableLiveData<List<Sheet>>()
+    val categories = MutableLiveData<List<String>>()
 
-    fun setStatusText(newSignInStatus: String) {
-        statusText.value = newSignInStatus
+    fun setStatusText(signInStatus: String) {
+        statusText.value = signInStatus
     }
 
-    fun setStatus(newStatus: SheetsStatus) {
-        status.value = newStatus
+    fun setStatus(status: SheetsStatus) {
+        this.status.value = status
+    }
+
+    fun setError(e: UserRecoverableAuthIOException) {
+        error.value = e
+    }
+
+    fun setSpreadsheets(spreadsheets: List<File>) {
+        this.spreadsheets.value = spreadsheets
+    }
+
+    fun setSheets(sheets: List<Sheet>) {
+        this.sheets.value = sheets
+    }
+
+    fun setCategories(categories: List<String>) {
+        Log.d(TAG, "setCategories")
+        Log.d(TAG, categories.toString())
+        this.categories.value = categories
     }
 
     fun resetView() {
@@ -82,7 +106,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 statusText = "not signed in"
             } catch (e: Exception) {
                 statusText = "something went wrong"
-                throw e
+                throw e // TODO: doesn't work
             }
 
             withContext(Dispatchers.Main) {
@@ -96,6 +120,111 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         viewModelScope.launch (Dispatchers.IO) {
             sheetsRepository.deleteRowAsync(row).await()
             sheetsRepository.getRecentExpenseHistoryAsync().await()
+        }
+    }
+
+    fun fetchSpreadsheets() {
+        setStatus(SheetsStatus.IN_PROGRESS)
+        viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "calling sheetsRepository.fetchSpreadsheets")
+            var spreadsheets: List<File> = listOf()
+            try {
+                spreadsheets = sheetsRepository.fetchSpreadsheetsAsync().await()
+            } catch(e: UserRecoverableAuthIOException) {
+                Log.d(TAG, "UserRecoverableAuthIOException")
+                withContext(Dispatchers.Main) {
+                    setError(e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                setSpreadsheets(spreadsheets)
+                setStatus(SheetsStatus.DONE)
+            }
+        }
+    }
+
+    fun fetchSheets(spreadsheetId: String) {
+        setStatus(SheetsStatus.IN_PROGRESS)
+        viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "calling sheetsRepository.fetchSheets")
+            var sheets: List<Sheet> = listOf()
+            try {
+                sheets = sheetsRepository.fetchSheetsAsync(spreadsheetId).await()
+            } catch(e: UserRecoverableAuthIOException) {
+                Log.d(TAG, "UserRecoverableAuthIOException")
+                withContext(Dispatchers.Main) {
+                    setError(e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                setSheets(sheets)
+                setStatus(SheetsStatus.DONE)
+            }
+        }
+    }
+
+    fun findMonthColumns() {
+        setStatus(SheetsStatus.IN_PROGRESS)
+        viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "calling sheetsRepository.fetchSheets")
+            // var sheets: List<Sheet> = listOf()
+            try {
+                sheetsRepository.findMonthColumnsAsync()
+            } catch(e: UserRecoverableAuthIOException) {
+                Log.d(TAG, "UserRecoverableAuthIOException")
+                withContext(Dispatchers.Main) {
+                    setError(e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                // setSheets(sheets)
+                setStatus(SheetsStatus.DONE)
+            }
+        }
+    }
+
+    fun findCategories() {
+        setStatus(SheetsStatus.IN_PROGRESS)
+        viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "calling sheetsRepository.findCategories")
+            // var sheets: List<Sheet> = listOf()
+            try {
+                sheetsRepository.findCategoriesAsync()
+            } catch(e: UserRecoverableAuthIOException) {
+                Log.d(TAG, "UserRecoverableAuthIOException")
+                withContext(Dispatchers.Main) {
+                    setError(e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                // setSheets(sheets)
+                setStatus(SheetsStatus.DONE)
+            }
+        }
+    }
+
+    fun fetchCategories() {
+        setStatus(SheetsStatus.IN_PROGRESS)
+        viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "calling sheetsRepository.fetchCategories")
+            var categories: List<String> = listOf()
+            try {
+                categories = sheetsRepository.fetchCategoriesAsync().await()
+            } catch(e: UserRecoverableAuthIOException) {
+                Log.d(TAG, "UserRecoverableAuthIOException")
+                withContext(Dispatchers.Main) {
+                    setError(e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                setCategories(categories)
+                setStatus(SheetsStatus.DONE)
+            }
         }
     }
 }

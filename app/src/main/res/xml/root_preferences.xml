@@ -8,15 +8,17 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
-            app:key="categories"
-            android:defaultValue="@string/default_categories"
-            app:title="@string/pref_label_categories_list"
-            app:useSimpleSummaryProvider="true" />
-
-        <EditTextPreference
             app:key="overview_sheet_name"
             app:title="@string/pref_label_overview_sheet_name"
             app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="overview_sheet_id"
+            app:title="@string/pref_label_overview_sheet_id"
+            app:useSimpleSummaryProvider="true"
+            android:inputType="number"
+            android:digits="0123456789"
+            />
 
         <EditTextPreference
             app:key="data_sheet_name"
@@ -24,9 +26,46 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
+            app:key="data_sheet_id"
+            app:title="@string/pref_label_data_sheet_id"
+            app:useSimpleSummaryProvider="true"
+            android:inputType="number"
+            android:digits="0123456789"
+            />
+
+        <EditTextPreference
             app:key="monthly_summary_sheet_name"
             app:title="@string/pref_label_monthly_summary_sheet_name"
             app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="monthly_summary_sheet_id"
+            app:title="@string/pref_label_monthly_summary_sheet_id"
+            app:useSimpleSummaryProvider="true"
+            android:inputType="number"
+            android:digits="0123456789"
+            />
+
+        <EditTextPreference
+            app:key="month_column"
+            app:title="@string/pref_label_month_column"
+            app:useSimpleSummaryProvider="true"
+            />
+
+        <EditTextPreference
+            app:key="categories"
+            android:defaultValue="@string/default_categories"
+            app:title="@string/pref_label_categories_list"
+            app:useSimpleSummaryProvider="true"
+            />
+
+        <MultiSelectListPreference
+            android:dialogTitle="@string/pref_label_categories_list2"
+            android:key="categories_list"
+            android:summary=""
+            android:title="@string/pref_label_categories_list2"
+            android:defaultValue="@array/empty"
+            />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/pref_header_currency">
