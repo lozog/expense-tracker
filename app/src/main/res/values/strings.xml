@@ -67,7 +67,7 @@
     <string name="pref_label_history_length">History length</string>
 
     <!-- Defaults -->
-    <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Household,Other Income</string>
+    <string name="default_categories">Groceries,Dining Out,Drinks,Material Items,Entertainment,Transit,Personal/Medical,Gifts,Travel,Miscellaneous,Film,Household,Other Income,Rent,Internet,Hydro,Tenant Insurance,Phone,Spotify,Debt Repayment</string>
     <string name="default_history_length">25</string>
 
     <!-- Notifications -->

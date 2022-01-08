@@ -35,6 +35,14 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         // TODO: dynamically find category cell
         private val CATEGORY_ROW_MAP = mapOf(
+            "Other Income" to "5",
+            "Rent" to "12",
+            "Internet" to "13",
+            "Hydro" to "14",
+            "Tenant Insurance" to "15",
+            "Phone" to "16",
+            "Spotify" to "17",
+            "Debt Repayment" to "18",
             "Groceries" to "20",
             "Dining Out" to "21",
             "Drinks" to "22",
@@ -46,8 +54,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             "Travel" to "28",
             "Miscellaneous" to "29",
             "Film" to "30",
-            "Household" to "31",
-            "Other Income" to "5"
+            "Household" to "31"
         )
     }
 
@@ -387,6 +394,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         preferenceEditor.putString("month_column", januaryColumn.toString())
         preferenceEditor.apply()
 
+        // TODO: this doesn't persist
         monthColumns = (0..11).map {
             (januaryColumn.code + it).toChar().toString()
         }
