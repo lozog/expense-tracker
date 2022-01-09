@@ -6,6 +6,12 @@
     app:startDestination="@id/navigation_history">
 
     <fragment
+        android:id="@+id/navigation_new_expense"
+        android:name="com.lozog.expensetracker.ui.DetailFragment"
+        android:label="@string/nav_form"
+        tools:layout="@layout/fragment_expense"/>
+
+    <fragment
         android:id="@+id/navigation_history"
         android:name="com.lozog.expensetracker.ui.history.HistoryFragment"
         android:label="@string/nav_history"
