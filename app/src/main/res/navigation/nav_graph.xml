@@ -5,11 +5,11 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/navigation_history">
 
-    <fragment
-        android:id="@+id/navigation_form"
-        android:name="com.lozog.expensetracker.ui.FormFragment"
-        android:label="@string/nav_form"
-        tools:layout="@layout/fragment_form" />
+    <!--<fragment-->
+    <!--    android:id="@+id/navigation_form"-->
+    <!--    android:name="com.lozog.expensetracker.ui.FormFragment"-->
+    <!--    android:label="@string/nav_form"-->
+    <!--    tools:layout="@layout/fragment_form" />-->
 
     <fragment
         android:id="@+id/navigation_history"
@@ -24,9 +24,6 @@
                 app:argType="integer"
                 android:defaultValue="0" />
         </action>
-        <action
-            android:id="@+id/action_navigation_history_to_navigation_form"
-            app:destination="@id/navigation_form" />
     </fragment>
 
     <fragment

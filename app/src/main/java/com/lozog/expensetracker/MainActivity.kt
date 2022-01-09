@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         // each view passed here will be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_form,
+                R.id.detailFragment,
                 R.id.navigation_history,
                 R.id.navigation_settings,
                 R.id.navigation_account
