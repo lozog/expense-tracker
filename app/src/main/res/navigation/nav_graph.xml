@@ -35,11 +35,12 @@
             android:id="@+id/action_navigation_account_to_setupFragment"
             app:destination="@id/setupFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.lozog.expensetracker.ui.DetailFragment"
         android:label="@string/nav_detail"
-        tools:layout="@layout/fragment_form" />
+        tools:layout="@layout/fragment_expense" />
     <fragment
         android:id="@+id/setupFragment"
         android:name="com.lozog.expensetracker.ui.SetupFragment"

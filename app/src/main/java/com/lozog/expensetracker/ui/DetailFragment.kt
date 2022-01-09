@@ -13,10 +13,10 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
-import com.lozog.expensetracker.databinding.FragmentFormBinding
+import com.lozog.expensetracker.databinding.FragmentExpenseBinding
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
-import kotlinx.android.synthetic.main.fragment_form.*
+import kotlinx.android.synthetic.main.fragment_expense.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,7 +24,7 @@ private const val ROW_PARAM = "row"
 
 class DetailFragment : Fragment() {
     private var row: Int = 0
-    private var _binding: FragmentFormBinding? = null
+    private var _binding: FragmentExpenseBinding? = null
     private val binding get() = _binding!!
     private lateinit var mainActivity: MainActivity
     private val sheetsViewModel: SheetsViewModel by viewModels {
@@ -59,7 +59,7 @@ class DetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFormBinding.inflate(inflater, container, false)
+        _binding = FragmentExpenseBinding.inflate(inflater, container, false)
         mainActivity = activity as MainActivity
         val root: View = binding.root
 
