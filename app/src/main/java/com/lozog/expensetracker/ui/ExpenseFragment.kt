@@ -22,7 +22,7 @@ import java.util.*
 
 private const val ROW_PARAM = "row"
 
-class DetailFragment : Fragment() {
+class ExpenseFragment : Fragment() {
     private var row: Int = 0
     private var _binding: FragmentExpenseBinding? = null
     private val binding get() = _binding!!
@@ -45,7 +45,7 @@ class DetailFragment : Fragment() {
     private lateinit var statusTextView: TextView
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER DETAIL_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER EXPENSE_FRAGMENT"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
