@@ -53,7 +53,7 @@ class HistoryAdapter(
 
         viewHolder.detailButton.setOnClickListener {
 //            Log.d(TAG, "clicked row ${expenseRow.row}")
-            val action = HistoryFragmentDirections.actionNavigationHistoryToDetailFragment(expenseRow.row)
+            val action = HistoryFragmentDirections.actionNavigationHistoryToExpenseFragment(expenseRow.row)
             it.findNavController().navigate(action)
         }
 

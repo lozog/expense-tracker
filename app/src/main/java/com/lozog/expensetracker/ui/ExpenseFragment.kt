@@ -13,15 +13,18 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
-import com.lozog.expensetracker.databinding.FragmentFormBinding
+import com.lozog.expensetracker.databinding.FragmentExpenseBinding
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
+import kotlinx.android.synthetic.main.fragment_expense.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 private const val ROW_PARAM = "row"
 
-class DetailFragment : Fragment() {
+class ExpenseFragment : Fragment() {
     private var row: Int = 0
-    private var _binding: FragmentFormBinding? = null
+    private var _binding: FragmentExpenseBinding? = null
     private val binding get() = _binding!!
     private lateinit var mainActivity: MainActivity
     private val sheetsViewModel: SheetsViewModel by viewModels {
@@ -42,7 +45,7 @@ class DetailFragment : Fragment() {
     private lateinit var statusTextView: TextView
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER DETAIL_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER EXPENSE_FRAGMENT"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +59,7 @@ class DetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFormBinding.inflate(inflater, container, false)
+        _binding = FragmentExpenseBinding.inflate(inflater, container, false)
         mainActivity = activity as MainActivity
         val root: View = binding.root
 
@@ -89,20 +92,32 @@ class DetailFragment : Fragment() {
             }
         }
 
-        sheetsViewModel.getExpenseRowByRow(row)
+        if (row != 0) {
+            // editing existing ExpenseRow
+            sheetsViewModel.getExpenseRowByRow(row)
 
-        sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner, {
-            expenseRow = it
+            sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner, {
+                expenseRow = it
 
-            expenseDate.setText(expenseRow.expenseDate)
-            expenseItem.setText(expenseRow.expenseItem)
-            expenseCategory.text = expenseRow.expenseCategoryValue
-            expenseAmount.setText(expenseRow.expenseAmount)
-            expenseAmountOthers.setText(expenseRow.expenseAmountOthers)
-            expenseNotes.setText(expenseRow.expenseNotes)
-            currencyLabel.setText(expenseRow.currency)
-            currencyExchangeRate.setText(expenseRow.exchangeRate)
-        })
+                expenseDate.setText(expenseRow.expenseDate)
+                expenseItem.setText(expenseRow.expenseItem)
+                expenseCategory.text = expenseRow.expenseCategoryValue
+                expenseAmount.setText(expenseRow.expenseAmount)
+                expenseAmountOthers.setText(expenseRow.expenseAmountOthers)
+                expenseNotes.setText(expenseRow.expenseNotes)
+                currencyLabel.setText(expenseRow.currency)
+                currencyExchangeRate.setText(expenseRow.exchangeRate)
+            })
+        } else {
+            // new ExpenseRow
+
+            // Set default value of expenseDate input as today's date
+            val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            expenseDate.setText(todayDate)
+
+            // set default category
+            expenseCategory.text = categories[0]
+        }
 
         submitButton.setOnClickListener { view ->
             updateExpense(view)
@@ -111,7 +126,12 @@ class DetailFragment : Fragment() {
         sheetsViewModel.status.observe(viewLifecycleOwner, {
             when (it) {
                 SheetsStatus.IN_PROGRESS -> submitButton.text = getString(R.string.button_expense_submitting)
-                SheetsStatus.DONE -> submitButton.text = getString(R.string.button_expense_submit)
+                SheetsStatus.DONE -> {
+                    if (row == 0){
+                        clearInputs()
+                    }
+                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
+                }
                 null -> submitButton.text = getString(R.string.button_expense_submit)
             }
         })
@@ -143,6 +163,15 @@ class DetailFragment : Fragment() {
         return isValid
     }
 
+    private fun clearInputs() {
+        expenseItem.setText("")
+        expenseAmount.setText("")
+        expenseAmountOthers.setText("")
+        expenseNotes.setText("")
+        currencyLabel.setText("")
+        currencyExchangeRate.setText("")
+    }
+
     private fun updateExpense(view: View) {
         mainActivity.hideKeyboard(view)
 
@@ -160,16 +189,30 @@ class DetailFragment : Fragment() {
         val currency = currencyLabel.text.toString()
         val exchangeRate = currencyExchangeRate.text.toString()
 
-        expenseRow.expenseDate = expenseDateText
-        expenseRow.expenseItem = expenseItemText
-        expenseRow.expenseCategoryValue = expenseCategoryText
-        expenseRow.expenseAmount = expenseAmountText
-        expenseRow.expenseAmountOthers = expenseAmountOthersText
-        // expenseRow.expenseDate = ""
-        expenseRow.expenseNotes = expenseNotesText
-        expenseRow.currency = currency
-        expenseRow.exchangeRate = exchangeRate
-        expenseRow.syncStatus = ExpenseRow.STATUS_PENDING
+        if (row != 0) {
+            expenseRow.expenseDate = expenseDateText
+            expenseRow.expenseItem = expenseItemText
+            expenseRow.expenseCategoryValue = expenseCategoryText
+            expenseRow.expenseAmount = expenseAmountText
+            expenseRow.expenseAmountOthers = expenseAmountOthersText
+            expenseRow.expenseNotes = expenseNotesText
+            expenseRow.currency = currency
+            expenseRow.exchangeRate = exchangeRate
+            expenseRow.syncStatus = ExpenseRow.STATUS_PENDING
+        } else {
+            expenseRow = ExpenseRow(
+                expenseDateText,
+                expenseItemText,
+                expenseCategoryText,
+                expenseAmountText,
+                expenseAmountOthersText,
+                "",
+                expenseNotesText,
+                currency,
+                exchangeRate,
+                ExpenseRow.STATUS_PENDING
+            )
+        }
 
         try {
            sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)

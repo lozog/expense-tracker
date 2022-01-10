@@ -6,10 +6,10 @@
     app:startDestination="@id/navigation_history">
 
     <fragment
-        android:id="@+id/navigation_form"
-        android:name="com.lozog.expensetracker.ui.FormFragment"
+        android:id="@+id/navigation_new_expense"
+        android:name="com.lozog.expensetracker.ui.ExpenseFragment"
         android:label="@string/nav_form"
-        tools:layout="@layout/fragment_form" />
+        tools:layout="@layout/fragment_expense"/>
 
     <fragment
         android:id="@+id/navigation_history"
@@ -17,16 +17,17 @@
         android:label="@string/nav_history"
         tools:layout="@layout/fragment_history">
         <action
-            android:id="@+id/action_navigation_history_to_detailFragment"
-            app:destination="@id/detailFragment">
+            android:id="@+id/action_navigation_history_to_expenseFragment"
+            app:destination="@id/expenseFragment">
             <argument
                 android:name="row"
                 app:argType="integer"
                 android:defaultValue="0" />
         </action>
         <action
-            android:id="@+id/action_navigation_history_to_navigation_form"
-            app:destination="@id/navigation_form" />
+            android:id="@+id/action_navigation_history_to_newExpenseFragment"
+            app:destination="@id/navigation_new_expense">
+        </action>
     </fragment>
 
     <fragment
@@ -44,11 +45,12 @@
             android:id="@+id/action_navigation_account_to_setupFragment"
             app:destination="@id/setupFragment" />
     </fragment>
+
     <fragment
-        android:id="@+id/detailFragment"
-        android:name="com.lozog.expensetracker.ui.DetailFragment"
+        android:id="@+id/expenseFragment"
+        android:name="com.lozog.expensetracker.ui.ExpenseFragment"
         android:label="@string/nav_detail"
-        tools:layout="@layout/fragment_form" />
+        tools:layout="@layout/fragment_expense" />
     <fragment
         android:id="@+id/setupFragment"
         android:name="com.lozog.expensetracker.ui.SetupFragment"

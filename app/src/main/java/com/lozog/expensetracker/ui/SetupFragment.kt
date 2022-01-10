@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentSetupBinding
 import com.lozog.expensetracker.util.SheetsStatus
-import kotlinx.android.synthetic.main.fragment_form.*
 
 
 class SetupFragment : Fragment() {
