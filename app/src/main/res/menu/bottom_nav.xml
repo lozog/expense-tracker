@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/navigation_new_expense"
-        android:icon="@drawable/ic_home_black_24dp"
+        android:icon="@drawable/ic_baseline_add_24"
         android:title="@string/nav_form" />
 
     <item
