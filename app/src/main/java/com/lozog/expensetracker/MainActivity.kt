@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         (applicationContext as ExpenseTrackerApplication).sheetsRepository.setPreferences(sharedPreferences)
 
