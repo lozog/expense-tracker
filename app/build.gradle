@@ -12,7 +12,7 @@ android {
     compileSdkVersion 31
     defaultConfig {
         applicationId "com.lozog.expensetracker"
-        minSdkVersion 23
+        minSdkVersion 28
         // bumping the targetSdkVersion, which is causing Google Play Services to break for some reason
         targetSdkVersion 31
         versionCode 1
@@ -85,7 +85,7 @@ dependencies {
     //noinspection GradleDependency
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
-    def work_version = "2.5.0"
+    def work_version = "2.7.0"
     //noinspection GradleDependency
     implementation("androidx.work:work-runtime-ktx:$work_version")
 }
