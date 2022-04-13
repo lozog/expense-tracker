@@ -50,15 +50,15 @@ class HistoryFragment: Fragment() {
         recentHistoryView.layoutManager = LinearLayoutManager(mainActivity)
         recentHistoryView.adapter = historyAdapter
 
-        sheetsViewModel.recentHistory.observe(viewLifecycleOwner, {
+        sheetsViewModel.recentHistory.observe(viewLifecycleOwner) {
             historyAdapter = HistoryAdapter(it) { expenseRow ->
                 sheetsViewModel.deleteRowAsync(expenseRow.row)
             }
             recentHistoryView.adapter = historyAdapter
-        })
+        }
 
-        sheetsViewModel.status.observe(viewLifecycleOwner, {
-            when(it) {
+        sheetsViewModel.status.observe(viewLifecycleOwner) {
+            when (it) {
                 SheetsStatus.IN_PROGRESS -> {
                     updateHistoryButton.text = "Updating..."
                 }
@@ -69,7 +69,7 @@ class HistoryFragment: Fragment() {
                     updateHistoryButton.text = "Update"
                 }
             }
-        })
+        }
 
         updateHistoryButton = binding.updateHistoryButton
         updateHistoryButton.setOnClickListener{view ->
