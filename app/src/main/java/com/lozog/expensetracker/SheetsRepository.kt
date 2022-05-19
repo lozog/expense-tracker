@@ -2,7 +2,7 @@ package com.lozog.expensetracker
 
 import android.content.SharedPreferences
 import android.util.Log
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import androidx.lifecycle.LiveData
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import com.google.api.services.sheets.v4.model.*
@@ -12,13 +12,10 @@ import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
 import java.util.*
-import kotlin.coroutines.coroutineContext
 
 
 class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val application: ExpenseTrackerApplication) {
-    lateinit var recentHistory: Flow<List<ExpenseRow>>
     private lateinit var sharedPreferences: SharedPreferences
 
     private var monthColumns: List<String> = listOf()
@@ -60,7 +57,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     fun setPreferences(newPrefs: SharedPreferences) {
         sharedPreferences = newPrefs
-        recentHistory = expenseRowDao.getN(sharedPreferences.getString("history_length", "5")!!.toInt())
+    }
+
+    fun getRecentHistory(): LiveData<List<ExpenseRow>> {
+        return expenseRowDao.getN(sharedPreferences.getString("history_length", "5")!!.toInt())
     }
 
     fun getExpenseRowByRowAsync(row: Int): Deferred<List<ExpenseRow>> = coroutineScope.async {

@@ -28,10 +28,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
-        sheetsViewModel.categories.observe(viewLifecycleOwner, {
+        sheetsViewModel.categories.observe(viewLifecycleOwner) {
             Log.d(TAG, "fetched categories")
             categories = it
-        })
+        }
 
         sheetsViewModel.fetchCategories()
 

@@ -50,6 +50,9 @@ class HistoryFragment: Fragment() {
         recentHistoryView.layoutManager = LinearLayoutManager(mainActivity)
         recentHistoryView.adapter = historyAdapter
 
+        // we set this here so it has the latest recentHistory length (which can be updated via prefs)
+        sheetsViewModel.setRecentHistory()
+
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner) {
             historyAdapter = HistoryAdapter(it) { expenseRow ->
                 sheetsViewModel.deleteRowAsync(expenseRow.row)

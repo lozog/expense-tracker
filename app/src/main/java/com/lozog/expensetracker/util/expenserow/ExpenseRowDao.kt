@@ -1,12 +1,12 @@
 package com.lozog.expensetracker.util.expenserow
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE sync_status!=(:syncStatusDeleted) ORDER BY `row` DESC LIMIT (:historyLength)")
-    fun getN(historyLength: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Flow<List<ExpenseRow>>
+    fun getN(historyLength: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): LiveData<List<ExpenseRow>>
     // TODO: rename getHistory
 
     @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `row` DESC")
