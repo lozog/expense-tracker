@@ -60,7 +60,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun getRecentHistory(): LiveData<List<ExpenseRow>> {
-        return expenseRowDao.getN(sharedPreferences.getString("history_length", "5")!!.toInt())
+        return expenseRowDao.getExpenseRows(sharedPreferences.getString("history_length", "5")!!.toInt())
     }
 
     fun getExpenseRowByRowAsync(row: Int): Deferred<List<ExpenseRow>> = coroutineScope.async {

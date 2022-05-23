@@ -6,8 +6,7 @@ import androidx.room.*
 @Dao
 interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE sync_status!=(:syncStatusDeleted) ORDER BY `row` DESC LIMIT (:historyLength)")
-    fun getN(historyLength: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): LiveData<List<ExpenseRow>>
-    // TODO: rename getHistory
+    fun getExpenseRows(historyLength: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): LiveData<List<ExpenseRow>>
 
     @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `row` DESC")
     fun getAllPending(syncStatusPending: String = ExpenseRow.STATUS_PENDING): List<ExpenseRow>
