@@ -288,7 +288,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     fun sendPendingRowsToSheetAsync() = coroutineScope.async {
         Log.d(TAG, "sendPendingRowsToSheetAsync")
-        val pendingExpenseRows = expenseRowDao.getAllPending()
+        val pendingExpenseRows = expenseRowDao.getAllPendingExpenseRows()
 
         try {
             coroutineScope {
