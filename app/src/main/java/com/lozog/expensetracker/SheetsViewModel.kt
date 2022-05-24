@@ -92,7 +92,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
                 val spentSoFar = sheetsRepository
-                    .getCategorySpendingAsync(expenseRow.expenseCategoryValue)
+                    .fetchCategorySpendingAsync(expenseRow.expenseCategoryValue)
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"

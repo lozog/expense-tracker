@@ -22,6 +22,8 @@
         <entry key="app/src/main/res/layout/history_item.xml" value="0.291796875" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.38385416666666666" />
         <entry key="app/src/main/res/layout/settings_activity.xml" value="0.23333333333333334" />
+        <entry key="app/src/main/res/layout/summary_widget.xml" value="0.20364583333333333" />
+        <entry key="app/src/main/res/layout/summary_widget_textview.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.38385416666666666" />
         <entry key="app/src/main/res/menu/bottom_nav.xml" value="0.5635416666666667" />
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.38385416666666666" />

@@ -160,8 +160,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
     }
 
-    // TODO: rename (fetchCategorySpendingAsync)
-    fun getCategorySpendingAsync(
+    fun fetchCategorySpendingAsync(
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
         if (!ConnectivityHelper.isInternetConnected(application)) {
