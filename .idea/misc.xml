@@ -9,8 +9,10 @@
         <entry key="app/src/main/res/drawable/ic_baseline_history_24.xml" value="0.166015625" />
         <entry key="app/src/main/res/drawable/ic_home_black_24dp.xml" value="0.18359375" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23333333333333334" />
+        <entry key="app/src/main/res/layout/category_item.xml" value="0.20260416666666667" />
         <entry key="app/src/main/res/layout/form_content.xml" value="0.33495145631067963" />
         <entry key="app/src/main/res/layout/fragment_account.xml" value="0.10052464662970194" />
+        <entry key="app/src/main/res/layout/fragment_categories.xml" value="0.20260416666666667" />
         <entry key="app/src/main/res/layout/fragment_detail.xml" value="0.22540983606557377" />
         <entry key="app/src/main/res/layout/fragment_form.xml" value="0.38385416666666666" />
         <entry key="app/src/main/res/layout/fragment_google_sign_in.xml" value="0.5635416666666667" />

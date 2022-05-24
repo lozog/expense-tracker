@@ -81,8 +81,7 @@ class HistoryFragment: Fragment() {
 
         addNewRowButton = binding.addNewRowButton
         addNewRowButton.setOnClickListener { view ->
-            Log.d(TAG, "new row button clicked")
-            val action = HistoryFragmentDirections.actionNavigationHistoryToNewExpenseFragment()
+            val action = HistoryFragmentDirections.actionNavigationToNewExpenseFragment()
             view.findNavController().navigate(action)
         }
 

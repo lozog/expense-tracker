@@ -79,6 +79,7 @@
     <!-- Navigation -->
     <string name="nav_form">New Expense</string>
     <string name="nav_history">History</string>
+    <string name="nav_categories">Overview</string>
     <string name="nav_detail">Expense Details</string>
     <string name="nav_account">Account</string>
     <string name="nav_settings">Settings</string>

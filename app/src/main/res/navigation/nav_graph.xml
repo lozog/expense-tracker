@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/navigation_history">
+    app:startDestination="@id/navigation_categories">
 
     <fragment
         android:id="@+id/navigation_new_expense"
@@ -25,7 +25,18 @@
                 android:defaultValue="0" />
         </action>
         <action
-            android:id="@+id/action_navigation_history_to_newExpenseFragment"
+            android:id="@+id/action_navigation_to_newExpenseFragment"
+            app:destination="@id/navigation_new_expense">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_categories"
+        android:name="com.lozog.expensetracker.ui.categories.CategoriesFragment"
+        android:label="@string/nav_categories"
+        tools:layout="@layout/fragment_categories">
+        <action
+            android:id="@+id/action_navigation_to_newExpenseFragment"
             app:destination="@id/navigation_new_expense">
         </action>
     </fragment>
