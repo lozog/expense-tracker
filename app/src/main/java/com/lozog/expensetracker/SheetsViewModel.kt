@@ -127,6 +127,12 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         }
     }
 
+    fun fetchMonthSpendingAsync() {
+        viewModelScope.launch (Dispatchers.IO) {
+            sheetsRepository.fetchMonthSpendingAsync().await()
+        }
+    }
+
     fun fetchSpreadsheets() {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {

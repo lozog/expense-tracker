@@ -164,7 +164,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
         if (!ConnectivityHelper.isInternetConnected(application)) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            Log.d(TAG, "fetchCategorySpendingAsync - no internet")
             return@async "no internet"
 
             // TODO: this doesn't work
@@ -172,7 +172,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            Log.d(TAG, "fetchCategorySpendingAsync - no spreadsheetservice")
             return@async "no spreadsheetservice"
 
             // TODO: this doesn't work
@@ -180,14 +180,15 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         if (monthColumns.isEmpty()) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no monthColumns")
+            Log.d(TAG, "fetchCategorySpendingAsync - no monthColumns")
             return@async "no monthColumns"
 
             // TODO: this doesn't work
 //            throw NotSignedInException()
         }
 
-        val curMonthColumn = monthColumns[Calendar.getInstance().get(Calendar.MONTH)]
+        val curMonth = Calendar.getInstance().get(Calendar.MONTH)
+        val curMonthColumn = monthColumns[curMonth]
         val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
@@ -204,6 +205,57 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .get(spreadsheetId, categorySpendingCell)
             .execute()
             .getValues()
+
+        val spentSoFar = data[0][0]
+
+        return@async "$spentSoFar"
+    }
+
+    fun fetchMonthSpendingAsync(): Deferred<String> = coroutineScope.async {
+        if (!ConnectivityHelper.isInternetConnected(application)) {
+            Log.d(TAG, "fetchMonthSpendingAsync - no internet")
+            return@async "no internet"
+
+            // TODO: this doesn't work
+//            throw NoInternetException()
+        }
+
+        if (application.spreadsheetService == null) {
+            Log.d(TAG, "fetchMonthSpendingAsync - no spreadsheetservice")
+            return@async "no spreadsheetservice"
+
+            // TODO: this doesn't work
+//            throw NotSignedInException()
+        }
+
+        if (monthColumns.isEmpty()) {
+            Log.d(TAG, "fetchMonthSpendingAsync - no monthColumns")
+            return@async "no monthColumns"
+
+            // TODO: this doesn't work
+//            throw NotSignedInException()
+        }
+
+        val curMonth = Calendar.getInstance().get(Calendar.MONTH)
+        val curMonthColumn = monthColumns[curMonth]
+//        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
+//
+//        if (categoryCell == null) {
+//            Log.e(TAG, "Category $expenseCategoryValue not found")
+//            throw Exception("Category $expenseCategoryValue not found")
+//        }
+
+        val monthSpendingRange = "'$overviewSheetName'!$curMonthColumn:$curMonthColumn"
+        val data = application.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, monthSpendingRange)
+            .execute()
+            .getValues()
+
+        Log.d(TAG, data.toString())
 
         val spentSoFar = data[0][0]
 
