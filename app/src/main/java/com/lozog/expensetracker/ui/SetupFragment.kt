@@ -181,35 +181,35 @@ class SetupFragment : Fragment() {
             sheetsViewModel.fetchCategories()
         }
 
-        sheetsViewModel.status.observe(viewLifecycleOwner, {
+        sheetsViewModel.status.observe(viewLifecycleOwner) {
             when (it) {
                 SheetsStatus.IN_PROGRESS -> statusText.text = "loading..."
                 SheetsStatus.DONE -> statusText.text = "done"
                 else -> statusText.text = "error"
             }
-        })
+        }
 
-        sheetsViewModel.error.observe(viewLifecycleOwner, {
+        sheetsViewModel.error.observe(viewLifecycleOwner) {
             mainActivity.startForRequestAuthorizationResult.launch(it.intent)
-        })
+        }
 
-        sheetsViewModel.spreadsheets.observe(viewLifecycleOwner, { files ->
+        sheetsViewModel.spreadsheets.observe(viewLifecycleOwner) { files ->
             spreadsheets = files.map {
                 mapOf(
                     "id" to it.id,
                     "name" to it.name
                 )
             }
-        })
+        }
 
-        sheetsViewModel.sheets.observe(viewLifecycleOwner, { sheets ->
+        sheetsViewModel.sheets.observe(viewLifecycleOwner) { sheets ->
             this.sheets = sheets.map {
                 mapOf(
                     "id" to it.properties.sheetId.toString(),
                     "title" to it.properties.title.toString()
                 )
             }
-        })
+        }
 
         return root
     }

@@ -96,7 +96,7 @@ class ExpenseFragment : Fragment() {
             // editing existing ExpenseRow
             sheetsViewModel.getExpenseRowByRow(row)
 
-            sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner, {
+            sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner) {
                 expenseRow = it
 
                 expenseDate.setText(expenseRow.expenseDate)
@@ -107,7 +107,7 @@ class ExpenseFragment : Fragment() {
                 expenseNotes.setText(expenseRow.expenseNotes)
                 currencyLabel.setText(expenseRow.currency)
                 currencyExchangeRate.setText(expenseRow.exchangeRate)
-            })
+            }
         } else {
             // new ExpenseRow
 
@@ -123,18 +123,21 @@ class ExpenseFragment : Fragment() {
             updateExpense(view)
         }
 
-        sheetsViewModel.status.observe(viewLifecycleOwner, {
+        sheetsViewModel.status.observe(viewLifecycleOwner) {
             when (it) {
-                SheetsStatus.IN_PROGRESS -> submitButton.text = getString(R.string.button_expense_submitting)
+                SheetsStatus.IN_PROGRESS -> submitButton.text =
+                    getString(R.string.button_expense_submitting)
+
                 SheetsStatus.DONE -> {
-                    if (row == 0){
+                    if (row == 0) {
                         clearInputs()
                     }
                     expenseSubmitButton.text = getString(R.string.button_expense_submit)
                 }
+
                 null -> submitButton.text = getString(R.string.button_expense_submit)
             }
-        })
+        }
 
         expenseItem.requestFocus()
         mainActivity.showKeyboard(expenseItem)
