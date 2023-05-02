@@ -34,6 +34,7 @@ class ExpenseFragment : Fragment() {
     }
     private lateinit var expenseRow: ExpenseRow
     private var expenseAmountTextCurrent = ""
+    private var expenseAmountOthersTextCurrent = ""
 
     /********** UI Widgets **********/
     private lateinit var expenseItem: EditText
@@ -113,7 +114,27 @@ class ExpenseFragment : Fragment() {
 
 //            expenseAmount.addTextChangedListener(this)
             }
+        }
 
+        // TODO: refactor into a helper function, for DRY
+        expenseAmountOthers.addTextChangedListener{
+            val s = it.toString()
+            if (s != expenseAmountOthersTextCurrent) {
+//            expenseAmountOthers.removeTextChangedListener(this)
+
+                val cleanString: String = s.replace("$", "")
+                    .replace(".", "")
+                    .replace(",", "")
+
+                val parsed = cleanString.toDouble()
+                val formatted: String = NumberFormat.getCurrencyInstance().format(parsed / 100)
+
+                expenseAmountOthersTextCurrent = formatted
+                expenseAmountOthers.setText(formatted)
+                expenseAmountOthers.setSelection(formatted.length)
+
+//            expenseAmountOthers.addTextChangedListener(this)
+            }
         }
 
         if (row != 0) {
