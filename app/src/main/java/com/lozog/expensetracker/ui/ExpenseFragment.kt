@@ -98,7 +98,7 @@ class ExpenseFragment : Fragment() {
 
         expenseAmount.addTextChangedListener{
             val s = it.toString()
-            if (s != expenseAmountTextCurrent) {
+            if (s != "" && s != expenseAmountTextCurrent) {
 //            expenseAmount.removeTextChangedListener(this)
 
                 val cleanString: String = s.replace("$", "")
@@ -106,7 +106,8 @@ class ExpenseFragment : Fragment() {
                     .replace(",", "")
 
                 val parsed = cleanString.toDouble()
-                val formatted: String = NumberFormat.getCurrencyInstance().format(parsed / 100)
+                var formatted: String = NumberFormat.getCurrencyInstance().format(parsed / 100)
+                formatted = formatted.drop(1) // drop leading $
 
                 expenseAmountTextCurrent = formatted
                 expenseAmount.setText(formatted)
@@ -119,7 +120,7 @@ class ExpenseFragment : Fragment() {
         // TODO: refactor into a helper function, for DRY
         expenseAmountOthers.addTextChangedListener{
             val s = it.toString()
-            if (s != expenseAmountOthersTextCurrent) {
+            if (s != "" && s != expenseAmountOthersTextCurrent) {
 //            expenseAmountOthers.removeTextChangedListener(this)
 
                 val cleanString: String = s.replace("$", "")
@@ -127,7 +128,8 @@ class ExpenseFragment : Fragment() {
                     .replace(",", "")
 
                 val parsed = cleanString.toDouble()
-                val formatted: String = NumberFormat.getCurrencyInstance().format(parsed / 100)
+                var formatted: String = NumberFormat.getCurrencyInstance().format(parsed / 100)
+                formatted = formatted.drop(1) // drop leading $
 
                 expenseAmountOthersTextCurrent = formatted
                 expenseAmountOthers.setText(formatted)
