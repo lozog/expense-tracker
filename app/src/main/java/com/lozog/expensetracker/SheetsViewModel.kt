@@ -72,7 +72,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
             Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
-            sheetsRepository.getRecentExpenseHistoryAsync().await()
+            sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
 
             withContext(Dispatchers.Main) {
                 setStatus(SheetsStatus.DONE)
@@ -92,11 +92,11 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
                 val spentSoFar = sheetsRepository
-                    .getCategorySpendingAsync(expenseRow.expenseCategoryValue)
+                    .fetchCategorySpendingAsync(expenseRow.expenseCategoryValue)
                     .await()
 //                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"
-                sheetsRepository.getRecentExpenseHistoryAsync()
+                sheetsRepository.fetchExpenseRowsFromSheetAsync()
             } catch (e: UserRecoverableAuthIOException) {
 //                Log.e(TAG, getString(R.string.status_need_permission))
 //                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
@@ -123,7 +123,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     fun deleteRowAsync(row: Int) {
         viewModelScope.launch (Dispatchers.IO) {
             sheetsRepository.deleteRowAsync(row).await()
-            sheetsRepository.getRecentExpenseHistoryAsync().await()
+            sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
         }
     }
 

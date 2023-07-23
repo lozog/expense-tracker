@@ -160,8 +160,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
     }
 
-    // TODO: rename (fetchCategorySpendingAsync)
-    fun getCategorySpendingAsync(
+    fun fetchCategorySpendingAsync(
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
         if (!ConnectivityHelper.isInternetConnected(application)) {
@@ -211,8 +210,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         return@async "$spentSoFar"
     }
 
-    // TODO: rename (fetchExpenseRowsFromSheetAsync)
-    fun getRecentExpenseHistoryAsync() = coroutineScope.async {
+    fun fetchExpenseRowsFromSheetAsync() = coroutineScope.async {
         Log.d(TAG, "getRecentExpenseHistoryAsync")
 
         if (!ConnectivityHelper.isInternetConnected(application)) {
@@ -293,7 +291,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         try {
             coroutineScope {
                 addExpenseRowsAsync(pendingExpenseRows).await()
-                getRecentExpenseHistoryAsync()
+                fetchExpenseRowsFromSheetAsync()
             }
         } catch (e: Exception) {
             // TODO: this doesn't work
