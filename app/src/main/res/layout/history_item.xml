@@ -9,11 +9,13 @@
     <Button
         android:id="@+id/detailButton"
         android:layout_width="60dp"
-        android:layout_height="32dp"
+        android:layout_height="wrap_content"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/button_edit_history_item"
         android:textSize="11sp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,7 +27,9 @@
         android:textSize="14sp"
         android:layout_marginStart="5dp"
         app:layout_constraintStart_toEndOf="@id/detailButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
     <TextView
         android:id="@+id/historyExpenseTotal"
@@ -35,17 +39,21 @@
         android:textSize="14sp"
         android:layout_marginEnd="5dp"
         app:layout_constraintEnd_toStartOf="@id/deleteButton"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
     <Button
         android:id="@+id/deleteButton"
         android:layout_width="60dp"
-        android:layout_height="32dp"
+        android:layout_height="wrap_content"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/button_delete_history_item"
         android:backgroundTint="@color/colorAccent"
         android:textSize="11sp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
