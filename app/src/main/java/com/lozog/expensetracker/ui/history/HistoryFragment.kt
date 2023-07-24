@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -32,6 +33,7 @@ class HistoryFragment: Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var statusText: TextView
     private lateinit var updateHistoryButton: Button
     private lateinit var addNewRowButton: FloatingActionButton
     private lateinit var recentHistoryView: RecyclerView
@@ -79,6 +81,11 @@ class HistoryFragment: Fragment() {
         updateHistoryButton = binding.updateHistoryButton
         updateHistoryButton.setOnClickListener{view ->
             updateHistory(view)
+        }
+
+        statusText = binding.statusText
+        sheetsViewModel.statusText.observe(viewLifecycleOwner) {
+            statusText.text = it
         }
 
         addNewRowButton = binding.addNewRowButton

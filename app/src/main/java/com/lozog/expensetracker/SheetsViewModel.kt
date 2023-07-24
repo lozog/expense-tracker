@@ -70,9 +70,17 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     fun getRecentExpenseHistory() {
         setStatus(SheetsStatus.IN_PROGRESS)
-        viewModelScope.launch (Dispatchers.IO) {
+        viewModelScope.async (Dispatchers.IO) {
             Log.d(TAG, "calling sheetsRepository.getRecentExpenseHistoryAsync")
-            sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+            try {
+                withTimeout(10000) {
+                    sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+                }
+            } catch (e: java.lang.Exception) {
+                withContext(Dispatchers.Main) {
+                    e.message?.let { setStatusText(it) }
+                }
+            }
 
             withContext(Dispatchers.Main) {
                 setStatus(SheetsStatus.DONE)

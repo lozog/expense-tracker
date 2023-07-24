@@ -215,18 +215,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         if (!ConnectivityHelper.isInternetConnected(application)) {
             Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
-            return@async
-
-            // TODO: this doesn't work
-//            throw NoInternetException()
+            throw CancellationException("no internet")
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
-            return@async
-
-            // TODO: this doesn't work
-//            throw NotSignedInException()
+            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheet service")
+            throw CancellationException("no spreadsheet service")
         }
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
