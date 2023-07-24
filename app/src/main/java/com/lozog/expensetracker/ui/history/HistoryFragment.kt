@@ -63,13 +63,15 @@ class HistoryFragment: Fragment() {
         sheetsViewModel.status.observe(viewLifecycleOwner) {
             when (it) {
                 SheetsStatus.IN_PROGRESS -> {
+                    // TODO: move to string resource
                     updateHistoryButton.text = "Updating..."
                 }
                 SheetsStatus.DONE -> {
-                    updateHistoryButton.text = "Update"
+                    updateHistoryButton.text = mainActivity.getString(R.string.button_history)
                 }
                 else -> {
-                    updateHistoryButton.text = "Update"
+                    // TODO: error state for the button?
+                    updateHistoryButton.text = mainActivity.getString(R.string.button_history)
                 }
             }
         }
