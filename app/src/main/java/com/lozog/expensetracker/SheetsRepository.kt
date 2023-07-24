@@ -69,7 +69,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     /********** GOOGLE SHEETS METHODS **********/
 
-    fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
+    private fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val row: Int;
@@ -154,7 +154,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         Log.d(TAG, "addExpenseRowToSheetAsync done")
     }
 
-    fun addExpenseRowsAsync(expenseRows: List<ExpenseRow>) = coroutineScope.async {
+    private fun addExpenseRowsAsync(expenseRows: List<ExpenseRow>) = coroutineScope.async {
         expenseRows.forEach {
             addExpenseRowAsync(it).await()
         }
