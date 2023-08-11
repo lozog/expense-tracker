@@ -164,7 +164,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
         if (!ConnectivityHelper.isInternetConnected(application)) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            Log.d(TAG, "fetchCategorySpendingAsync - no internet")
             return@async "no internet"
 
             // TODO: this doesn't work
@@ -172,7 +172,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheetservice")
+            Log.d(TAG, "fetchCategorySpendingAsync - no spreadsheetservice")
             return@async "no spreadsheetservice"
 
             // TODO: this doesn't work
@@ -180,7 +180,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         if (monthColumns.isEmpty()) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no monthColumns")
+            Log.d(TAG, "fetchCategorySpendingAsync - no monthColumns")
             return@async "no monthColumns"
 
             // TODO: this doesn't work
@@ -211,15 +211,15 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun fetchExpenseRowsFromSheetAsync() = coroutineScope.async {
-        Log.d(TAG, "getRecentExpenseHistoryAsync")
+        Log.d(TAG, "fetchExpenseRowsFromSheetAsync")
 
         if (!ConnectivityHelper.isInternetConnected(application)) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no internet")
+            Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no internet")
             throw CancellationException("no internet")
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "getRecentExpenseHistoryAsync - no spreadsheet service")
+            Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no spreadsheet service")
             throw CancellationException("no spreadsheet service")
         }
 
