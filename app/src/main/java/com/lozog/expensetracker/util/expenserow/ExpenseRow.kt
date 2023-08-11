@@ -28,12 +28,12 @@ data class ExpenseRow(
     }
 
     constructor(input: List<Any>) : this(
-        input[0].toString(),
-        input[1].toString(),
-        input[2].toString(),
-        input[3].toString(),
-        input[4].toString(),
-        input[5].toString(),
+        input.getOrElse(0) { "" }.toString(),
+        input.getOrElse(1) { "" }.toString(),
+        input.getOrElse(2) { "" }.toString(),
+        input.getOrElse(3) { "" }.toString(),
+        input.getOrElse(4) { "" }.toString(),
+        input.getOrElse(5) { "" }.toString(),
         input.getOrElse(6) { "" }.toString(),
         input.getOrElse(7) { "" }.toString(),
         input.getOrElse(8) { "" }.toString(),
