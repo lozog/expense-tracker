@@ -77,9 +77,12 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                     sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
                 }
             } catch (e: java.lang.Exception) {
+                Log.d(TAG, "exception while calling fetchExpenseRowsFromSheetAsync")
+                Log.d(TAG, e.toString())
                 withContext(Dispatchers.Main) {
-                    e.message?.let { setStatusText(it) }
+                    setStatusText(e.toString())
                 }
+                throw e
             }
 
             withContext(Dispatchers.Main) {
