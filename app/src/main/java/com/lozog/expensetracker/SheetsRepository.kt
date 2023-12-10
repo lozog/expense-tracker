@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import com.google.api.services.sheets.v4.model.*
-import com.lozog.expensetracker.util.ConnectivityHelper
 import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.NotSignedInException
