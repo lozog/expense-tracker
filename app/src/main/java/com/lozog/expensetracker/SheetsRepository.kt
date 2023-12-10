@@ -69,6 +69,25 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     /********** GOOGLE SHEETS METHODS **********/
 
+    /**
+     * Make a ping call to the spreadsheet service to test for internet connectivity
+     */
+    private fun checkInternetConnectivityAsync(): Deferred<Boolean> = coroutineScope.async {
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+//        Log.d(TAG, "checkInternetConnectivityAsync")
+
+        try {
+            withTimeout(1000L) {
+                application.spreadsheetService!!.spreadsheets().get(spreadsheetId).execute()
+            }
+        } catch (e: CancellationException) {
+            return@async false
+
+        }
+
+        return@async true
+    }
+
     private fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
@@ -125,24 +144,20 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
-        Log.d(TAG, "addExpenseRowToSheetAsync")
+        Log.d(TAG, "addExpenseRowAsync")
         if (expenseRow.id == 0) { // already in DB
             val expenseRowId = expenseRowDao.insert(expenseRow)
             expenseRow.id = expenseRowId.toInt()
         }
 
-        // TODO: if no internet, skip
-        if (!ConnectivityHelper.isInternetConnected(application)) {
-            Log.d(TAG, "addExpenseRowToSheetAsync - no internet")
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
+            Log.d(TAG, "addExpenseRowAsync - no internet")
             return@async
-
-            // TODO: this doesn't work
-//            throw NoInternetException()
         }
 
-
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "addExpenseRowToSheetAsync - no spreadsheetservice")
+            Log.d(TAG, "addExpenseRowAsync - no spreadsheetservice")
             return@async
 
             // TODO: this doesn't work
@@ -151,7 +166,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         sendExpenseRowAsync(expenseRow).await()
 
-        Log.d(TAG, "addExpenseRowToSheetAsync done")
+        Log.d(TAG, "addExpenseRowAsync done")
     }
 
     private fun addExpenseRowsAsync(expenseRows: List<ExpenseRow>) = coroutineScope.async {
@@ -163,12 +178,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     fun fetchCategorySpendingAsync(
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
-        if (!ConnectivityHelper.isInternetConnected(application)) {
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
             Log.d(TAG, "fetchCategorySpendingAsync - no internet")
             return@async "no internet"
-
-            // TODO: this doesn't work
-//            throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
@@ -213,9 +226,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     fun fetchExpenseRowsFromSheetAsync() = coroutineScope.async {
         Log.d(TAG, "fetchExpenseRowsFromSheetAsync")
 
-        if (!ConnectivityHelper.isInternetConnected(application)) {
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
             Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no internet")
-            throw CancellationException("no internet")
+            return@async
         }
 
         if (application.spreadsheetService == null) {
@@ -249,7 +263,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         if (application.spreadsheetService == null) {
             throw NotSignedInException()
         }
-
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetId = sharedPreferences.getString("data_sheet_id", "0")?.toInt()
@@ -288,19 +301,18 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
                 fetchExpenseRowsFromSheetAsync()
             }
         } catch (e: Exception) {
-            // TODO: this doesn't work
+            // TODO: figure out why you get the parent job is cancelled exception sometimes
+            Log.d(TAG, "exception in sendPendingRowsToSheetAsync")
             Log.d(TAG, "caught $e")
             throw e
         }
     }
 
     fun fetchSpreadsheetsAsync(): Deferred<List<File>> = coroutineScope.async {
-        if (!ConnectivityHelper.isInternetConnected(application)) {
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
             Log.d(TAG, "fetchSpreadsheetsAsync - no internet")
-
             return@async listOf()
-            // TODO: this doesn't work
-//            throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
@@ -323,12 +335,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun fetchSheetsAsync(spreadsheetId: String): Deferred<List<Sheet>> = coroutineScope.async {
-        if (!ConnectivityHelper.isInternetConnected(application)) {
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
             Log.d(TAG, "fetchSheetsAsync - no internet")
-
             return@async listOf()
-            // TODO: this doesn't work
-            // throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
@@ -350,10 +360,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun findMonthColumnsAsync() = coroutineScope.launch {
-        if (!ConnectivityHelper.isInternetConnected(application)) {
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
             Log.d(TAG, "findMonthColumnsAsync - no internet")
-
-            // TODO: this doesn't work
             throw NoInternetException()
         }
 
@@ -394,10 +403,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun findCategoriesAsync() = coroutineScope.launch {
-        if (!ConnectivityHelper.isInternetConnected(application)) {
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
             Log.d(TAG, "findCategoriesAsync - no internet")
-
-            // TODO: this doesn't work
             throw NoInternetException()
         }
 
@@ -451,12 +459,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun fetchCategoriesAsync(): Deferred<List<String>> = coroutineScope.async {
-        if (!ConnectivityHelper.isInternetConnected(application)) {
+        val hasInternet = checkInternetConnectivityAsync().await()
+        if (!hasInternet) {
             Log.d(TAG, "fetchCategoriesAsync - no internet")
             return@async listOf()
-
-            // TODO: this doesn't work
-            // throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
