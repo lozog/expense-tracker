@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.android.volley.VolleyError
 import com.android.volley.Request as VolleyRequest
-import com.android.volley.Response as VolleyResponse
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.api.services.drive.model.File
@@ -83,7 +82,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     /**
      * Make a ping call to google to test for internet connectivity
      */
-    private fun checkInternetConnectivityAsync() = coroutineScope.async {
+    fun checkInternetConnectivityAsync() = coroutineScope.async {
         Log.d(TAG, "checkInternetConnectivityAsync")
 
         val queue = Volley.newRequestQueue(application)
@@ -104,7 +103,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             })
 
         queue.add(stringRequest)
-
     }
 
     private fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
@@ -420,7 +418,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         monthColumns = (0..11).map {
             (januaryColumn.code + it).toChar().toString()
         }
-        // Log.d(TAG, monthColumns.toString())
+         Log.d(TAG, monthColumns.toString())
     }
 
     fun findCategoriesAsync() = coroutineScope.launch {

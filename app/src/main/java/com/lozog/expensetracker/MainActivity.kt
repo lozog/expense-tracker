@@ -76,6 +76,7 @@ class MainActivity : AppCompatActivity() {
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         (applicationContext as ExpenseTrackerApplication).sheetsRepository.setPreferences(sharedPreferences)
+        (applicationContext as ExpenseTrackerApplication).sheetsRepository.checkInternetConnectivityAsync()
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
