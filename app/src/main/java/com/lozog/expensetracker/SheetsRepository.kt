@@ -307,23 +307,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         expenseRowDao.setDeleted(row)
     }
 
-    fun sendPendingRowsToSheetAsync() = coroutineScope.async {
-        Log.d(TAG, "sendPendingRowsToSheetAsync")
-        val pendingExpenseRows = expenseRowDao.getAllPendingExpenseRows()
-
-        try {
-            coroutineScope {
-                addExpenseRowsAsync(pendingExpenseRows).await()
-                fetchExpenseRowsFromSheetAsync()
-            }
-        } catch (e: Exception) {
-            // TODO: figure out why you get the parent job is cancelled exception sometimes
-            Log.d(TAG, "exception in sendPendingRowsToSheetAsync")
-            Log.d(TAG, "caught $e")
-            throw e
-        }
-    }
-
     fun fetchSpreadsheetsAsync(): Deferred<List<File>> = coroutineScope.async {
         checkInternetConnectivityAsync().await()
         if (!hasInternetConnection) {
@@ -410,62 +393,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val preferenceEditor = sharedPreferences.edit()
         preferenceEditor.putString("month_column", januaryColumn.toString())
         preferenceEditor.apply()
-    }
-
-    fun findCategoriesAsync() = coroutineScope.launch {
-        checkInternetConnectivityAsync().await()
-        if (!hasInternetConnection) {
-            Log.d(TAG, "findCategoriesAsync - no internet")
-            throw NoInternetException()
-        }
-
-        if (application.spreadsheetService == null) {
-            Log.d(TAG, "findCategoriesAsync - no spreadsheetservice")
-
-            // TODO: this doesn't work
-            throw NotSignedInException()
-        }
-
-        Log.d(TAG, "findCategoriesAsync")
-
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
-
-        val firstColRange = "'$overviewSheetName'!A:A"
-        val firstColValues = application.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .get(spreadsheetId, firstColRange)
-            .execute()
-            .getValues()
-
-        firstColValues.forEach {
-            Log.d(TAG, it.toString())
-        }
-
-        val firstCategoryRow = firstColValues.indexOfFirst { it as List<*>
-            it.isNotEmpty() && it.first() == "Variable Expenses"
-        } + 1 // rows start at 1
-        val lastCategoryRow = firstColValues.indexOfFirst { it as List<*>
-            it.isNotEmpty() && it.first() == "vee"
-        } - 1 // last category row is 2 before this one
-
-        Log.d(TAG, "first row: $firstCategoryRow, last row: $lastCategoryRow")
-
-        val categoriesRange = "'$overviewSheetName'!B$firstCategoryRow:B$lastCategoryRow"
-        val categoriesValues = application.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .get(spreadsheetId, categoriesRange)
-            .execute()
-            .getValues()
-
-        Log.d(TAG, categoriesValues.toString())
-        // TODO: this doesn't include Other Income as a category
-        // maybe we just need to show the user everything in the B column and let them pick which ones are categories
-        // and also let them reorder them
-        // multi select alertdialog?
-
     }
 
     fun fetchCategoriesAsync(): Deferred<List<String>> = coroutineScope.async {
