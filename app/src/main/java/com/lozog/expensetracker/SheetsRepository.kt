@@ -26,8 +26,6 @@ import java.util.*
 class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val application: ExpenseTrackerApplication) {
     private lateinit var sharedPreferences: SharedPreferences
 
-    private var monthColumns: List<String> = listOf()
-
     /********** CONCURRENCY **********/
     private val parentJob = SupervisorJob()
     private val coroutineScope = CoroutineScope(Dispatchers.IO + parentJob)
@@ -211,15 +209,14 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 //            throw NotSignedInException()
         }
 
-        if (monthColumns.isEmpty()) {
-            Log.d(TAG, "fetchCategorySpendingAsync - no monthColumns")
-            return@async "no monthColumns"
+        val janColumnPref = sharedPreferences.getString("month_column", null)
 
-            // TODO: this doesn't work
-//            throw NotSignedInException()
+        if (janColumnPref == null) {
+            Log.d(TAG, "fetchCategorySpendingAsync - no January Column")
+            return@async "no January Column"
         }
 
-        val curMonthColumn = monthColumns[Calendar.getInstance().get(Calendar.MONTH)]
+        val curMonthColumn = (janColumnPref.first().code + Calendar.getInstance().get(Calendar.MONTH)).toChar()
         val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
@@ -408,17 +405,11 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         // we'll search the first row for "January", and assume that the next column is "February", etc.
         val januaryColumn = ('A'.code + firstRow.indexOf("January")).toChar()
-        // Log.d(TAG, "jan col code: $januaryColumn")
+        // Log.d(TAG, "jan column: $januaryColumn")
 
         val preferenceEditor = sharedPreferences.edit()
         preferenceEditor.putString("month_column", januaryColumn.toString())
         preferenceEditor.apply()
-
-        // TODO: this doesn't persist
-        monthColumns = (0..11).map {
-            (januaryColumn.code + it).toChar().toString()
-        }
-         Log.d(TAG, monthColumns.toString())
     }
 
     fun findCategoriesAsync() = coroutineScope.launch {

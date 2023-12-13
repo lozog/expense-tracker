@@ -67,7 +67,7 @@ class ExpenseFragment : Fragment() {
         mainActivity = activity as MainActivity
         val root: View = binding.root
 
-        statusTextView = binding.statusText
+        statusTextView = binding.expenseStatusText
         expenseDate = binding.expenseDate
         expenseItem = binding.expenseItem
         expenseCategory = binding.expenseCategory
@@ -184,6 +184,10 @@ class ExpenseFragment : Fragment() {
 
                 null -> submitButton.text = getString(R.string.button_expense_submit)
             }
+        }
+
+        sheetsViewModel.statusText.observe(viewLifecycleOwner) {
+            expenseStatusText.text = it
         }
 
         expenseItem.requestFocus()
