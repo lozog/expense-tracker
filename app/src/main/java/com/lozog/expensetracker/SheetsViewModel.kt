@@ -96,10 +96,10 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
+            Log.d(TAG, "addExpenseRowToSheetAsync")
             var statusText: String
 
             try {
-//                Log.d(TAG, "addExpenseRowToSheetAsync")
                 sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
                 val spentSoFar = sheetsRepository
