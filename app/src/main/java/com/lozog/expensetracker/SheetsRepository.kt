@@ -30,7 +30,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     private var monthColumns: List<String> = listOf()
 
     /********** CONCURRENCY **********/
-    private val parentJob = Job()
+    private val parentJob = SupervisorJob()
     private val coroutineScope = CoroutineScope(Dispatchers.IO + parentJob)
 
     private var hasInternetConnection = false
