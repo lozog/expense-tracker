@@ -31,6 +31,8 @@
         android:layout_marginStart="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/historyExpenseItem"
+        app:layout_constraintWidth="100dp"
+
         />
 
     <TextView
@@ -41,8 +43,8 @@
         android:textSize="14sp"
         android:layout_marginStart="5dp"
         app:layout_constraintStart_toEndOf="@id/historyExpenseTotal"
-        app:layout_constraintEnd_toStartOf="@id/historyExpenseDate"
         app:layout_constraintTop_toBottomOf="@+id/historyExpenseItem"
+        app:layout_constraintWidth_percent="0.5"
 
         />
 
@@ -55,6 +57,7 @@
         android:layout_marginStart="5dp"
         app:layout_constraintEnd_toStartOf="@id/deleteButton"
         app:layout_constraintTop_toBottomOf="@+id/historyExpenseItem"
+        app:layout_constraintWidth_percent="0.2"
 
         />
 
