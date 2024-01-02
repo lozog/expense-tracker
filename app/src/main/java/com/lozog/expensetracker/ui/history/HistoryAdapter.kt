@@ -20,7 +20,6 @@ class HistoryAdapter(
         private const val TAG = "EXPENSE_TRACKER HISTORY_ADAPTER"
     }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val detailButton: Button = view.findViewById(R.id.detailButton)
         val deleteButton: Button = view.findViewById(R.id.deleteButton)
 
         val expenseItemTextView: TextView = view.findViewById(R.id.historyExpenseItem)
@@ -51,7 +50,7 @@ class HistoryAdapter(
             viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
         }
 
-        viewHolder.detailButton.setOnClickListener {
+        viewHolder.itemView.setOnClickListener {
 //            Log.d(TAG, "clicked row ${expenseRow.row}")
             val action = HistoryFragmentDirections.actionNavigationHistoryToExpenseFragment(expenseRow.row)
             it.findNavController().navigate(action)

@@ -6,19 +6,6 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp">
 
-    <Button
-        android:id="@+id/detailButton"
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:text="@string/button_edit_history_item"
-        android:textSize="11sp"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/historyExpenseItem"
         android:layout_width="wrap_content"
@@ -26,7 +13,7 @@
         android:gravity="start"
         android:textSize="14sp"
         android:layout_marginStart="5dp"
-        app:layout_constraintStart_toEndOf="@id/detailButton"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         />
