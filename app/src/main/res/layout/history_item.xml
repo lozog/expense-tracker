@@ -4,9 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp"
+    android:paddingStart="4dp"
     android:paddingEnd="4dp"
     android:paddingTop="10dp"
+    android:paddingBottom="10dp"
     >
 
     <TextView
@@ -20,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         />
 
+
     <TextView
         android:id="@+id/historyExpenseTotal"
         android:layout_width="wrap_content"
@@ -29,55 +31,45 @@
         android:layout_marginStart="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/historyExpenseItem"
-        app:layout_constraintBottom_toBottomOf="parent"
         />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/div"
+    <TextView
+        android:id="@+id/historyExpenseCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textSize="14sp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintStart_toEndOf="@id/historyExpenseTotal"
+        app:layout_constraintEnd_toStartOf="@id/historyExpenseDate"
+        app:layout_constraintTop_toBottomOf="@+id/historyExpenseItem"
+
+        />
+
+    <TextView
+        android:id="@+id/historyExpenseDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textSize="14sp"
+        android:layout_marginStart="5dp"
         app:layout_constraintEnd_toStartOf="@id/deleteButton"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/historyExpenseItem"
 
-        >
-
-        <TextView
-            android:id="@+id/historyExpenseCategory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:textSize="14sp"
-            android:layout_marginStart="5dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
-
-        <TextView
-            android:id="@+id/historyExpenseDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:textSize="14sp"
-            android:layout_marginStart="5dp"
-            app:layout_constraintTop_toBottomOf="@+id/historyExpenseCategory"
-            app:layout_constraintEnd_toEndOf="parent"
-
-            />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        />
 
     <Button
         android:id="@+id/deleteButton"
-        android:layout_width="60dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:text="@string/button_delete_history_item"
-        android:backgroundTint="@color/colorAccent"
-        android:textSize="11sp"
+        style="?android:attr/borderlessButtonStyle"
         android:minHeight="0dp"
         android:minWidth="0dp"
+        android:drawableStart="@drawable/ic_baseline_delete_24"
+        android:drawableTint="#707070"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
