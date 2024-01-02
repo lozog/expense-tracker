@@ -101,14 +101,18 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         queue.add(stringRequest)
     }
 
+    /**
+     * Upserts an ExpenseRow into the spreadsheet
+     */
     private fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
-        val row: Int;
-        var newRow = false
+        val row: Int // row number in sheet
+        var isNewRow = false
 
          if (expenseRow.row == 0) {
-             newRow = true
+             // if new row, call spreadsheet service to get an up-to-date row count
+             isNewRow = true
              row = application.spreadsheetService!!
                 .spreadsheets()
                 .values()
@@ -120,18 +124,17 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             row = expenseRow.row
          }
 
-        val expenseTotal =
-            "=(\$D$row - \$E$row)*IF(NOT(ISBLANK(\$I$row)), \$I$row, 1)"
+        val expenseTotal = "=(\$D$row - \$E$row)*IF(NOT(ISBLANK(\$I$row)), \$I$row, 1)"
         expenseRow.expenseTotal = expenseTotal
 
-        val rowData = listOf(
-            expenseRow.toList()
-        )
+        val rowData = listOf(expenseRow.toList())
         val requestBody = ValueRange()
         requestBody.setValues(rowData)
 
-        if (newRow) {
+        if (isNewRow) {
             // Log.d(TAG, "inserting a new row")
+
+            // insert new row
             application.spreadsheetService!!
                 .spreadsheets()
                 .values()
@@ -144,6 +147,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         } else {
             // Log.d(TAG, "updating row $row - $expenseRow")
 
+            // update existing row
             application.spreadsheetService!!
                 .spreadsheets()
                 .values()
@@ -156,9 +160,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         expenseRowDao.update(expenseRow)
     }
 
+    /**
+     * Wraps sendExpenseRowAsync by inserting expenseRow into DB and checking for connection to spreadsheet service
+     */
     fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         Log.d(TAG, "addExpenseRowAsync")
-        if (expenseRow.id == 0) { // already in DB
+        if (expenseRow.id == 0) { // already in DB - TODO: wait is this comment accurate? surely this means it's not already in DB, which is why the code block inserts it?
             val expenseRowId = expenseRowDao.insert(expenseRow)
 
             expenseRow.id = expenseRowId.toInt()
@@ -184,12 +191,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         Log.d(TAG, "addExpenseRowAsync done")
     }
 
-    private fun addExpenseRowsAsync(expenseRows: List<ExpenseRow>) = coroutineScope.async {
-        expenseRows.forEach {
-            addExpenseRowAsync(it).await()
-        }
-    }
-
+    /**
+     * Given a category, fetches the amount spent in that category so far this month
+     */
     fun fetchCategorySpendingAsync(
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
@@ -237,6 +241,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         return@async "$spentSoFar"
     }
 
+    /**
+     * Fetches all expense rows from the sheet, then replaces local DB with fetched rows
+     */
     fun fetchExpenseRowsFromSheetAsync() = coroutineScope.async {
         Log.d(TAG, "fetchExpenseRowsFromSheetAsync")
 
@@ -273,6 +280,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         expenseRowDao.deleteAllDoneAndInsertMany(allExpensesFromSheet)
     }
 
+    /**
+     * Deletes expense row at given row number from spreadsheet and local DB
+     */
     fun deleteRowAsync(row: Int) = coroutineScope.async {
         if (application.spreadsheetService == null) {
             throw NotSignedInException()
@@ -305,6 +315,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         expenseRowDao.setDeleted(row)
     }
 
+    /**
+     * Fetches all spreadsheets on the account
+     */
     fun fetchSpreadsheetsAsync(): Deferred<List<File>> = coroutineScope.async {
         checkInternetConnectivityAsync().await()
         if (!hasInternetConnection) {
@@ -331,6 +344,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         return@async data.files as List<File>
     }
 
+    /**
+     * Fetches all sheets within the given spreadsheet
+     */
     fun fetchSheetsAsync(spreadsheetId: String): Deferred<List<Sheet>> = coroutineScope.async {
         checkInternetConnectivityAsync().await()
         if (!hasInternetConnection) {
@@ -356,7 +372,13 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         return@async sheets.sheets
     }
 
+    /**
+     * Finds the column of the Overview sheet which holds the January column
+     * For example, if January is in the 'C' column, the app will use this to infer that February is in the 'D' column, etc.
+     */
     fun findMonthColumnsAsync() = coroutineScope.launch {
+        Log.d(TAG, "findMonthColumnsAsync")
+
         checkInternetConnectivityAsync().await()
         if (!hasInternetConnection) {
             Log.d(TAG, "findMonthColumnsAsync - no internet")
@@ -369,8 +391,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             // TODO: this doesn't work
             throw NotSignedInException()
         }
-
-        Log.d(TAG, "findMonthColumnsAsync")
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
