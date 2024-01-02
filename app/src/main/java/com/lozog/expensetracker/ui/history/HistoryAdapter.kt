@@ -1,5 +1,6 @@
 package com.lozog.expensetracker.ui.history
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +25,8 @@ class HistoryAdapter(
 
         val expenseItemTextView: TextView = view.findViewById(R.id.historyExpenseItem)
         val expenseTotalTextView: TextView = view.findViewById(R.id.historyExpenseTotal)
+        val expenseCategoryTextView: TextView = view.findViewById(R.id.historyExpenseCategory)
+        val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
     }
 
     // Create new views (invoked by the layout manager)
@@ -40,6 +43,8 @@ class HistoryAdapter(
         val expenseRow: ExpenseRow = recentHistory[position]
 
         viewHolder.expenseItemTextView.text = expenseRow.expenseItem
+        viewHolder.expenseCategoryTextView.text = expenseRow.expenseCategoryValue
+        viewHolder.expenseDateTextView.text = expenseRow.expenseDate
 
         val numberFormat = NumberFormat.getCurrencyInstance()
         numberFormat.maximumFractionDigits = 2
@@ -55,6 +60,12 @@ class HistoryAdapter(
             val action = HistoryFragmentDirections.actionNavigationHistoryToExpenseFragment(expenseRow.row)
             it.findNavController().navigate(action)
         }
+
+        if (position % 2 == 1) {
+            viewHolder.itemView.setBackgroundColor(Color.parseColor("#404040"))
+
+        }
+
 
         viewHolder.deleteButton.setOnClickListener {
             Log.d(TAG, "deleting row ${expenseRow.row}")
