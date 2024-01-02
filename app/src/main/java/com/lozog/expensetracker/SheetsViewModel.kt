@@ -24,7 +24,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val error = MutableLiveData<UserRecoverableAuthIOException>()
     val spreadsheets = MutableLiveData<List<File>>()
     val sheets = MutableLiveData<List<Sheet>>()
-    val categories = MutableLiveData<List<String>>()
 
     fun setStatusText(signInStatus: String) {
         statusText.value = signInStatus
@@ -44,12 +43,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     fun setSheets(sheets: List<Sheet>) {
         this.sheets.value = sheets
-    }
-
-    fun setCategories(categories: List<String>) {
-        Log.d(TAG, "setCategories")
-        Log.d(TAG, categories.toString())
-        this.categories.value = categories
     }
 
     fun resetView() {
@@ -196,27 +189,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
             withContext(Dispatchers.Main) {
                 // setSheets(sheets)
-                setStatus(SheetsStatus.DONE)
-            }
-        }
-    }
-
-    fun fetchCategories() {
-        setStatus(SheetsStatus.IN_PROGRESS)
-        viewModelScope.launch (Dispatchers.IO) {
-            Log.d(TAG, "calling sheetsRepository.fetchCategories")
-            var categories: List<String> = listOf()
-            try {
-                categories = sheetsRepository.fetchCategoriesAsync().await()
-            } catch(e: UserRecoverableAuthIOException) {
-                Log.d(TAG, "UserRecoverableAuthIOException")
-                withContext(Dispatchers.Main) {
-                    setError(e)
-                }
-            }
-
-            withContext(Dispatchers.Main) {
-                setCategories(categories)
                 setStatus(SheetsStatus.DONE)
             }
         }

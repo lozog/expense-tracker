@@ -37,7 +37,6 @@ class SetupFragment : Fragment() {
     private lateinit var dataSheetButton: Button
     private lateinit var monthlySummarySheetButton: Button
     private lateinit var monthColumnButton: Button
-    private lateinit var categoriesButton: Button
     private lateinit var spreadsheets: List<Map<String, String>>
     private lateinit var sheets: List<Map<String, String>>
 
@@ -57,7 +56,6 @@ class SetupFragment : Fragment() {
         dataSheetButton = binding.dataSheetButton
         monthlySummarySheetButton = binding.monthlySummarySheetButton
         monthColumnButton = binding.monthColumnButton
-        categoriesButton = binding.categoriesButton
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity)
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
@@ -171,14 +169,6 @@ class SetupFragment : Fragment() {
             }
 
             sheetsViewModel.findMonthColumns()
-        }
-
-        categoriesButton.setOnClickListener {
-            if (sharedPreferences.getString("overview_sheet_name", null) == null) {
-                return@setOnClickListener
-            }
-
-            sheetsViewModel.fetchCategories()
         }
 
         sheetsViewModel.status.observe(viewLifecycleOwner) {

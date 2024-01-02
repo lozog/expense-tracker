@@ -55,16 +55,8 @@
         <EditTextPreference
             app:key="categories"
             android:defaultValue="@string/default_categories"
-            app:title="@string/pref_label_categories_list"
+            app:title="@string/pref_label_categories"
             app:useSimpleSummaryProvider="true"
-            />
-
-        <MultiSelectListPreference
-            android:dialogTitle="@string/pref_label_categories_list2"
-            android:key="categories_list"
-            android:summary=""
-            android:title="@string/pref_label_categories_list2"
-            android:defaultValue="@array/empty"
             />
     </PreferenceCategory>
 

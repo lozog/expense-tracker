@@ -412,47 +412,4 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         preferenceEditor.putString("month_column", januaryColumn.toString())
         preferenceEditor.apply()
     }
-
-    fun fetchCategoriesAsync(): Deferred<List<String>> = coroutineScope.async {
-        checkInternetConnectivityAsync().await()
-        if (!hasInternetConnection) {
-            Log.d(TAG, "fetchCategoriesAsync - no internet")
-            return@async listOf()
-        }
-
-        if (application.spreadsheetService == null) {
-            Log.d(TAG, "fetchCategoriesAsync - no spreadsheetservice")
-            return@async listOf()
-
-            // TODO: this doesn't work
-            // throw NotSignedInException()
-        }
-
-        Log.d(TAG, "fetchCategoriesAsync")
-
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
-        val monthColumn = sharedPreferences.getString("month_column", null)?: "C"
-
-        // assume categories will be in the column before the January column
-        val categoriesColumn = (monthColumn.single().code - 1).toChar()
-
-        val categoriesColRange = "'$overviewSheetName'!$categoriesColumn:$categoriesColumn"
-        val categoriesColValues = application.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .get(spreadsheetId, categoriesColRange)
-            .execute()
-            .getValues()
-
-        // categoriesColValues.forEach {
-        //     Log.d(TAG, it.toString())
-        // }
-
-        val categories = categoriesColValues
-            .filter { it.isNotEmpty() }
-            .map { it.first().toString() }
-
-        return@async categories
-    }
 }
