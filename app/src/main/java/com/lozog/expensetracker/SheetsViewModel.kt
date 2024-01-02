@@ -17,9 +17,10 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         private const val TAG = "EXPENSE_TRACKER SHEETS_VIEW_MODEL"
     }
 
+    var recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.getRecentHistory()
+
     val status = MutableLiveData<SheetsStatus>()
     val statusText = MutableLiveData<String>()
-    var recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.getRecentHistory()
     val detailExpenseRow = MutableLiveData<ExpenseRow>()
     val error = MutableLiveData<UserRecoverableAuthIOException>()
     val spreadsheets = MutableLiveData<List<File>>()
@@ -29,19 +30,19 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         statusText.value = signInStatus
     }
 
-    fun setStatus(status: SheetsStatus) {
+    private fun setStatus(status: SheetsStatus) {
         this.status.value = status
     }
 
-    fun setError(e: UserRecoverableAuthIOException) {
+    private fun setError(e: UserRecoverableAuthIOException) {
         error.value = e
     }
 
-    fun setSpreadsheets(spreadsheets: List<File>) {
+    private fun setSpreadsheets(spreadsheets: List<File>) {
         this.spreadsheets.value = spreadsheets
     }
 
-    fun setSheets(sheets: List<Sheet>) {
+    private fun setSheets(sheets: List<Sheet>) {
         this.sheets.value = sheets
     }
 

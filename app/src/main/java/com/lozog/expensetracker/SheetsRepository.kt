@@ -38,7 +38,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
 
-        // TODO: dynamically find category cell
+        // TODO: put this in a setting
         private val CATEGORY_ROW_MAP = mapOf(
             "Other Income" to "5",
             "Rent" to "12",
