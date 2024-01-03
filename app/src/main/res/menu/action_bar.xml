@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/action_bar">
+
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/baseline_refresh_24"
+        android:title="@string/action_refresh"
+        android:iconTint="@color/cardview_light_background"
+        app:showAsAction="always"/>
+
+
+</menu>

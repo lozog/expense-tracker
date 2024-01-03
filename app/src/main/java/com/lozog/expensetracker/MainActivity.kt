@@ -7,6 +7,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResult
@@ -28,6 +30,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
@@ -38,6 +41,7 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
 import com.lozog.expensetracker.ui.account.AccountViewModel
+import com.lozog.expensetracker.ui.history.HistoryFragment
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 class MainActivity : AppCompatActivity() {
@@ -46,6 +50,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     private lateinit var bottomNav: BottomNavigationView
+
+    private val sheetsViewModel: SheetsViewModel by viewModels {
+        SheetsViewModelFactory((this.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+    }
 
     /********** GOOGLE SIGN-IN **********/
     private lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -128,6 +136,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.action_bar, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -144,6 +157,20 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_refresh -> {
+            updateHistory()
+            true
+        }
+
+        else -> {
+            // The user's action isn't recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
+    }
+
 
     private fun onActivityResult(requestCode: Int, result: ActivityResult) {
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
@@ -192,6 +219,32 @@ class MainActivity : AppCompatActivity() {
             view.windowToken,
             InputMethodManager.HIDE_NOT_ALWAYS
         )
+    }
+
+    private fun updateHistory() {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
+        val sheetName = sharedPreferences.getString("data_sheet_name", null)
+
+        if (spreadsheetId == null) {
+            Snackbar.make(findViewById(R.id.nav_host_fragment_activity_main), getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            return
+        }
+
+        if (sheetName == null) {
+            Snackbar.make(findViewById(R.id.nav_host_fragment_activity_main), getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+            return
+        }
+
+        try {
+            Log.d(TAG, "calling sheetsViewModel.getRecentExpenseHistory")
+            sheetsViewModel.getRecentExpenseHistory()
+        } catch (e: Exception) {
+            Log.d(TAG, "exception: $e")
+            sheetsViewModel.setStatusText(e.toString())
+        }
     }
 
     /********** GOOGLE SIGN-IN METHODS **********/

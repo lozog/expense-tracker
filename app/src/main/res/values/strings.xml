@@ -2,7 +2,6 @@
     <string name="app_name">ExpenseTracker</string>
 
     <!-- Input field labels -->
-    <string name="action_settings">Settings</string>
     <string name="expense_item">Item</string>
     <string name="expense_amount">Amount</string>
     <string name="expense_amount_others">Amount (others)</string>
@@ -81,5 +80,9 @@
     <string name="nav_detail">Expense Details</string>
     <string name="nav_account">Account</string>
     <string name="nav_settings">Settings</string>
+
+    <!-- Actions -->
+    <string name="action_settings">Settings</string>
+    <string name="action_refresh">Refresh</string>
 
 </resources>

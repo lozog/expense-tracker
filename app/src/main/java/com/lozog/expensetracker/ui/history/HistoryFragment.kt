@@ -34,7 +34,6 @@ class HistoryFragment: Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var statusText: TextView
-    private lateinit var updateHistoryButton: Button
     private lateinit var addNewRowButton: FloatingActionButton
     private lateinit var recentHistoryView: RecyclerView
     private var historyAdapter = HistoryAdapter(listOf()) { }
@@ -62,27 +61,6 @@ class HistoryFragment: Fragment() {
             recentHistoryView.adapter = historyAdapter
         }
 
-        sheetsViewModel.status.observe(viewLifecycleOwner) {
-            when (it) {
-                SheetsStatus.IN_PROGRESS -> {
-                    // TODO: move to string resource
-                    updateHistoryButton.text = "Updating..."
-                }
-                SheetsStatus.DONE -> {
-                    updateHistoryButton.text = mainActivity.getString(R.string.button_history)
-                }
-                else -> {
-                    // TODO: error state for the button?
-                    updateHistoryButton.text = mainActivity.getString(R.string.button_history)
-                }
-            }
-        }
-
-        updateHistoryButton = binding.updateHistoryButton
-        updateHistoryButton.setOnClickListener{view ->
-            updateHistory(view)
-        }
-
         statusText = binding.statusText
         sheetsViewModel.statusText.observe(viewLifecycleOwner) {
             statusText.text = it
@@ -101,31 +79,5 @@ class HistoryFragment: Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun updateHistory(view: View) {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity)
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val sheetName = sharedPreferences.getString("data_sheet_name", null)
-
-        if (spreadsheetId == null) {
-            Snackbar.make(view, getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            return
-        }
-
-        if (sheetName == null) {
-            Snackbar.make(view, getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            return
-        }
-
-        try {
-            Log.d(TAG, "calling sheetsViewModel.getRecentExpenseHistory")
-            sheetsViewModel.getRecentExpenseHistory()
-        } catch (e: Exception) {
-            Log.d(TAG, "exception: $e")
-            sheetsViewModel.setStatusText(e.toString())
-        }
     }
 }
