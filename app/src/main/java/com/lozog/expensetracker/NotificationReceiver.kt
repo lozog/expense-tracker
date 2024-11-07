@@ -19,7 +19,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null) {
-            // TODO: better check here
+            Log.e(TAG, "Context is null in onReceive")
             return
         }
 
@@ -37,13 +37,13 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     private fun showNotification(context: Context, amount: String) {
-        val channelId = "default_channel_id"
-        val channelName = "Default Channel"
+        val channelId = "quick_add_expense"
+        val channelName = "Expense Quick Add"
 
         // Create NotificationChannel (only for API 26+)
         val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel(channelId, channelName, importance).apply {
-            description = "Channel description"
+            description = "Notifications with controls to quickly add expenses detected"
         }
         // Register the channel with the system
         val notificationManager: NotificationManager =
