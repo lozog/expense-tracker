@@ -1,5 +1,7 @@
 package com.lozog.expensetracker
 
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -20,6 +22,8 @@ import java.util.Locale
 class PopupActivity : AppCompatActivity() {
 
     companion object {
+        private const val TAG = "EXPENSE_TRACKER PopupActivity"
+
         private const val REQUEST_OVERLAY_PERMISSION = 1001
     }
 
@@ -48,6 +52,7 @@ class PopupActivity : AppCompatActivity() {
         setContentView(R.layout.activity_popup)
 
         val amount = intent.getStringExtra("amount") ?: ""
+        val notificationId = intent.getIntExtra("notification_id", -1)
 
         val textInput = findViewById<EditText>(R.id.text_input)
         val dropdown = findViewById<Spinner>(R.id.dropdown)
@@ -66,7 +71,7 @@ class PopupActivity : AppCompatActivity() {
 
             val sheetsRepository = (applicationContext as ExpenseTrackerApplication).sheetsRepository
 
-            Toast.makeText(this, "Submitted: $inputText, $selectedOption", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Submitted $inputText - $$amount", Toast.LENGTH_SHORT).show()
 
             val expenseRow = ExpenseRow(
                 SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
@@ -82,6 +87,10 @@ class PopupActivity : AppCompatActivity() {
             )
 
             sheetsRepository.addExpenseRowAsync(expenseRow)
+
+            // clear the notification
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(notificationId)
 
             finish() // Close the activity after submitting
         }
