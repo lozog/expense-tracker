@@ -9,12 +9,13 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.lozog.expensetracker.util.expenserow.ExpenseRow
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class NotificationReceiver : BroadcastReceiver() {
+
+    companion object {
+        private const val TAG = "EXPENSE_TRACKER NotificationReceiver"
+
+    }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null) {
@@ -26,7 +27,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val notificationText = intent?.getStringExtra("message") ?: ""
 
         // Perform the desired action with the notification text
-        Log.d("EXPENSE_TRACKER NotificationReceiver", "Received: $notificationText")
+        Log.d(TAG, "Received: $notificationText")
 
         val regex = "(\\d){1,7}\\.\\d\\d".toRegex() // matches 12.00, 120.00, 1200.00, etc
         val matchResult = regex.find(notificationText) ?: return
@@ -49,15 +50,20 @@ class NotificationReceiver : BroadcastReceiver() {
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
 
+        val uniqueId = System.currentTimeMillis().toInt()
+
         val popupIntent = Intent(context, PopupActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
             putExtra("amount", amount)
+            putExtra("notification_id", uniqueId)
         }
-        val popupPendingIntent = PendingIntent.getActivity(context, 0, popupIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val popupPendingIntent = PendingIntent.getActivity(
+            context, uniqueId, popupIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         // Build the notification
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with your app's icon
+            .setSmallIcon(android.R.drawable.ic_dialog_info) // TODO: replace with $ icon
             .setContentTitle("New Expense")
             .setContentText("New expense with amount $$amount")
             .setContentIntent(popupPendingIntent)
@@ -65,7 +71,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
         // Show the notification
         with(NotificationManagerCompat.from(context)) {
-            notify(1, notificationBuilder.build()) // Notification ID should be unique if you want multiple notifications
+            notify(uniqueId, notificationBuilder.build())
         }
     }
 }
