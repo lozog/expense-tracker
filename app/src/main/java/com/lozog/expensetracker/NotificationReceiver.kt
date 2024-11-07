@@ -63,9 +63,9 @@ class NotificationReceiver : BroadcastReceiver() {
 
         // Build the notification
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // TODO: replace with $ icon
+            .setSmallIcon(R.drawable.baseline_attach_money_24)
             .setContentTitle("New Expense")
-            .setContentText("New expense with amount $$amount")
+            .setContentText("$$amount")
             .setContentIntent(popupPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
