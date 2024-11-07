@@ -17,7 +17,10 @@ import java.util.Locale
 class NotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val sheetsRepository = (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository
+        if (context == null) {
+            // TODO: better check here
+            return
+        }
 
         // Retrieve the notification text from the intent extras
         val notificationText = intent?.getStringExtra("message") ?: ""
@@ -29,24 +32,10 @@ class NotificationReceiver : BroadcastReceiver() {
         val matchResult = regex.find(notificationText) ?: return
         val match = matchResult.value
 
-        val expenseRow = ExpenseRow(
-            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
-            "TODO",
-            "Miscellaneous",
-            match,
-            "",
-            "",
-            "",
-            "",
-            "",
-            ExpenseRow.STATUS_PENDING
-        )
-        sheetsRepository.addExpenseRowAsync(expenseRow)
-
-        showNotification(context, "Amount: $$match")
+        showNotification(context, match)
     }
 
-    private fun showNotification(context: Context, content: String) {
+    private fun showNotification(context: Context, amount: String) {
         val channelId = "default_channel_id"
         val channelName = "Default Channel"
 
@@ -62,6 +51,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
         val popupIntent = Intent(context, PopupActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            putExtra("amount", amount)
         }
         val popupPendingIntent = PendingIntent.getActivity(context, 0, popupIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
@@ -69,7 +59,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with your app's icon
             .setContentTitle("New Expense")
-            .setContentText(content)
+            .setContentText("New expense with amount $$amount")
             .setContentIntent(popupPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 

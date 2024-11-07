@@ -1,20 +1,19 @@
 package com.lozog.expensetracker
 
-import android.content.Context
 import android.content.Intent
-import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.lozog.expensetracker.util.expenserow.ExpenseRow
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class PopupActivity : AppCompatActivity() {
 
@@ -23,15 +22,13 @@ class PopupActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Apply the dialog theme with no title
-//        setTheme(R.style.PopupTheme)
-//        requestWindowFeature(Window.FEATURE_NO_TITLE) // Hide title bar
         super.onCreate(savedInstanceState)
 
         // Check if overlay permission is granted
         if (Settings.canDrawOverlays(this)) {
             showDialogOverlay()
         } else {
+            // TODO: put in a dialog here
             // Request overlay permission if not granted
             requestOverlayPermission()
         }
@@ -48,22 +45,39 @@ class PopupActivity : AppCompatActivity() {
     private fun showDialogOverlay() {
         setContentView(R.layout.activity_popup)
 
-        // Get references to UI elements
+        val amount = intent.getStringExtra("amount") ?: ""
+
         val textInput = findViewById<EditText>(R.id.text_input)
         val dropdown = findViewById<Spinner>(R.id.dropdown)
         val submitButton = findViewById<Button>(R.id.submit_button)
 
-        // Set up dropdown options
-        val options = arrayOf("Option 1", "Option 2", "Option 3")
+        // TODO: use categories
+        val options = arrayOf("Groceries", "Dining Out", "Miscellaneous")
         dropdown.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
 
-        // Handle submit button click
         submitButton.setOnClickListener {
             val inputText = textInput.text.toString()
             val selectedOption = dropdown.selectedItem.toString()
 
-            // Handle the submit action, e.g., display a Toast
+            val sheetsRepository = (applicationContext as ExpenseTrackerApplication).sheetsRepository
+
             Toast.makeText(this, "Submitted: $inputText, $selectedOption", Toast.LENGTH_SHORT).show()
+
+            val expenseRow = ExpenseRow(
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+                inputText,
+                selectedOption,
+                amount,
+                "",
+                "",
+                "",
+                "",
+                "",
+                ExpenseRow.STATUS_PENDING
+            )
+
+            sheetsRepository.addExpenseRowAsync(expenseRow)
+
             finish() // Close the activity after submitting
         }
     }
