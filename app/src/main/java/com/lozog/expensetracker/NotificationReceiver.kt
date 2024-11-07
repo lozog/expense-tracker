@@ -1,9 +1,14 @@
 package com.lozog.expensetracker
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -37,5 +42,40 @@ class NotificationReceiver : BroadcastReceiver() {
             ExpenseRow.STATUS_PENDING
         )
         sheetsRepository.addExpenseRowAsync(expenseRow)
+
+        showNotification(context, "Amount: $$match")
+    }
+
+    private fun showNotification(context: Context, content: String) {
+        val channelId = "default_channel_id"
+        val channelName = "Default Channel"
+
+        // Create NotificationChannel (only for API 26+)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(channelId, channelName, importance).apply {
+            description = "Channel description"
+        }
+        // Register the channel with the system
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+
+        val popupIntent = Intent(context, PopupActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        val popupPendingIntent = PendingIntent.getActivity(context, 0, popupIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+        // Build the notification
+        val notificationBuilder = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with your app's icon
+            .setContentTitle("New Expense")
+            .setContentText(content)
+            .setContentIntent(popupPendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        // Show the notification
+        with(NotificationManagerCompat.from(context)) {
+            notify(1, notificationBuilder.build()) // Notification ID should be unique if you want multiple notifications
+        }
     }
 }
