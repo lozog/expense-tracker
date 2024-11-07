@@ -8,8 +8,10 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -50,10 +52,13 @@ class PopupActivity : AppCompatActivity() {
         val textInput = findViewById<EditText>(R.id.text_input)
         val dropdown = findViewById<Spinner>(R.id.dropdown)
         val submitButton = findViewById<Button>(R.id.submit_button)
+        val amountView = findViewById<TextView>(R.id.expense_amount)
+        amountView.text = "$$amount"
 
-        // TODO: use categories
-        val options = arrayOf("Groceries", "Dining Out", "Miscellaneous")
-        dropdown.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val categoriesPrefs = sharedPreferences.getString("categories", null)?: ""
+        val categories = categoriesPrefs.split(",").map { it.trim() }.toTypedArray()
+        dropdown.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
 
         submitButton.setOnClickListener {
             val inputText = textInput.text.toString()

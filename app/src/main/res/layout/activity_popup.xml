@@ -6,11 +6,17 @@
     android:orientation="vertical"
     android:elevation="8dp">
 
+    <TextView
+        android:id="@+id/expense_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
     <EditText
         android:id="@+id/text_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter text" />
+        android:hint="@string/expense_item" />
 
     <Spinner
         android:id="@+id/dropdown"
@@ -22,6 +28,6 @@
         android:id="@+id/submit_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Submit"
+        android:text="@string/button_expense_submit"
         android:layout_marginTop="16dp" />
 </LinearLayout>
