@@ -52,7 +52,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
         val uniqueId = System.currentTimeMillis().toInt()
 
-        val popupIntent = Intent(context, PopupActivity::class.java).apply {
+        val popupIntent = Intent(context, QuickAddExpensePopupActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
             putExtra("amount", amount)
             putExtra("notification_id", uniqueId)

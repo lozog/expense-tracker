@@ -37,7 +37,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".PopupActivity"
+        <activity android:name=".QuickAddExpensePopupActivity"
             android:theme="@style/PopupTheme"
             android:excludeFromRecents="true"
             android:taskAffinity=""

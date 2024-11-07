@@ -22,10 +22,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class PopupActivity : AppCompatActivity() {
+class QuickAddExpensePopupActivity : AppCompatActivity() {
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER PopupActivity"
+        private const val TAG = "EXPENSE_TRACKER QuickAddExpensePopupActivity"
     }
 
     // Define the ActivityResultLauncher to handle the result
@@ -69,7 +69,7 @@ class PopupActivity : AppCompatActivity() {
     }
 
     private fun showDialogOverlay() {
-        setContentView(R.layout.activity_popup)
+        setContentView(R.layout.activity_quick_add_expense_popup)
 
         val amount = intent.getStringExtra("amount") ?: ""
         val notificationId = intent.getIntExtra("notification_id", -1)
