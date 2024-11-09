@@ -1,6 +1,7 @@
 package com.lozog.expensetracker
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.*
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.drive.model.File
@@ -64,19 +65,18 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     fun getRecentExpenseHistory() {
         setStatus(SheetsStatus.IN_PROGRESS)
-        viewModelScope.async (Dispatchers.IO) {
+        viewModelScope.launch (Dispatchers.IO) {
             Log.d(TAG, "calling sheetsRepository.fetchRecentExpenseHistoryAsync")
             try {
-                withTimeout(10000) {
+                withTimeout(2000) {
                     sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
                 }
-            } catch (e: java.lang.Exception) {
-                Log.d(TAG, "exception while calling fetchExpenseRowsFromSheetAsync")
+            } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 withContext(Dispatchers.Main) {
-                    setStatusText(e.toString())
+                    Log.d(TAG, "setting status text")
+                    setStatusText(e.toString()) // TODO: this doesn't work
                 }
-                throw e
             }
 
             withContext(Dispatchers.Main) {
@@ -132,10 +132,17 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         }
     }
 
-    fun deleteRowAsync(row: Int) {
+    fun deleteRowAsync(expenseId: Int) {
         viewModelScope.launch (Dispatchers.IO) {
-            sheetsRepository.deleteRowAsync(row).await()
-            sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+            try {
+                sheetsRepository.deleteRowAsync(expenseId).await()
+                sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    setStatusText("no internet")
+                }
+            }
         }
     }
 

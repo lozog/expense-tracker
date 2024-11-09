@@ -237,13 +237,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        try {
-            Log.d(TAG, "calling sheetsViewModel.getRecentExpenseHistory")
-            sheetsViewModel.getRecentExpenseHistory()
-        } catch (e: Exception) {
-            Log.d(TAG, "exception: $e")
-            sheetsViewModel.setStatusText(e.toString())
-        }
+        sheetsViewModel.getRecentExpenseHistory()
     }
 
     /********** GOOGLE SIGN-IN METHODS **********/

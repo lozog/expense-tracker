@@ -273,7 +273,22 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     /**
      * Deletes expense row at given row number from spreadsheet and local DB
      */
-    fun deleteRowAsync(row: Int) = coroutineScope.async {
+    fun deleteRowAsync(expenseId: Int) = coroutineScope.async {
+        val expenseRow = expenseRowDao.getById(expenseId).first()
+        val row = expenseRow.row
+
+        if (row == 0) {
+            // has not been sent to sheet yet
+            expenseRowDao.setDeletedById(expenseId)
+            return@async
+        }
+
+        val hasInternetConnection = checkInternetConnectivity()
+        if (!hasInternetConnection) {
+            Log.d(TAG, "deleteRowAsync - no internet")
+            throw Exception("deleteRowAsync - no internet")
+        }
+
         if (application.spreadsheetService == null) {
             throw NotSignedInException()
         }
@@ -302,7 +317,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .batchUpdate(spreadsheetId, updateRequest)
             .execute()
 
-        expenseRowDao.setDeleted(row)
+        expenseRowDao.setDeletedByRow(row)
     }
 
     /**

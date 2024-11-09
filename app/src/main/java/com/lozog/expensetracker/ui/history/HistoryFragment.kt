@@ -56,7 +56,7 @@ class HistoryFragment: Fragment() {
 
         sheetsViewModel.recentHistory.observe(viewLifecycleOwner) {
             historyAdapter = HistoryAdapter(it) { expenseRow ->
-                sheetsViewModel.deleteRowAsync(expenseRow.row)
+                sheetsViewModel.deleteRowAsync(expenseRow.id)
             }
             recentHistoryView.adapter = historyAdapter
         }

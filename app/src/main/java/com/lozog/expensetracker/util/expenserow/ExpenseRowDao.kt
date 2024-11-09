@@ -11,14 +11,20 @@ interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `row` DESC")
     fun getAllPendingExpenseRows(syncStatusPending: String = ExpenseRow.STATUS_PENDING): List<ExpenseRow>
 
+    @Query("SELECT * FROM expenseRow WHERE `id`=(:id)")
+    fun getById(id: Int): List<ExpenseRow>
+
     @Query("SELECT * FROM expenseRow WHERE `row`=(:row)")
     fun getByRow(row: Int): List<ExpenseRow>
 
     @Update(onConflict=OnConflictStrategy.REPLACE)
     fun update(expenseRow: ExpenseRow): Int
 
+    @Query("UPDATE expenseRow SET sync_status=(:syncStatusDeleted) WHERE `id`=(:id)")
+    fun setDeletedById(id: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Int
+
     @Query("UPDATE expenseRow SET sync_status=(:syncStatusDeleted) WHERE `row`=(:row)")
-    fun setDeleted(row: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Int
+    fun setDeletedByRow(row: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Int
 
     @Insert
     fun insert(expenseRow: ExpenseRow): Long
