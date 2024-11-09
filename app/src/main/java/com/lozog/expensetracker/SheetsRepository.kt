@@ -161,7 +161,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      */
     fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         Log.d(TAG, "addExpenseRowAsync")
-        if (expenseRow.id == 0) { // already in DB - TODO: wait is this comment accurate? surely this means it's not already in DB, which is why the code block inserts it?
+        if (expenseRow.id == 0) { // not in DB
             val expenseRowId = expenseRowDao.insert(expenseRow)
 
             expenseRow.id = expenseRowId.toInt()
@@ -171,15 +171,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "addExpenseRowAsync - no internet")
-            return@async
+            throw Exception("addExpenseRowAsync - no internet")
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "addExpenseRowAsync - no spreadsheetservice")
-            return@async
-
-            // TODO: this doesn't work
-//            throw NotSignedInException()
+            Log.d(TAG, "addExpenseRowAsync - no spreadsheetService")
+            throw Exception("addExpenseRowAsync - no spreadsheetService")
         }
 
         sendExpenseRowAsync(expenseRow).await()
@@ -196,15 +193,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "fetchCategorySpendingAsync - no internet")
-            return@async "no internet"
+            throw Exception("fetchCategorySpendingAsync - no internet")
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "fetchCategorySpendingAsync - no spreadsheetservice")
-            return@async "no spreadsheetservice"
-
-            // TODO: this doesn't work
-//            throw NotSignedInException()
+            Log.d(TAG, "fetchCategorySpendingAsync - no spreadsheetService")
+            throw Exception("fetchCategorySpendingAsync - no spreadsheetService")
         }
 
         val janColumnPref = sharedPreferences.getString("month_column", null)
@@ -246,12 +240,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no internet")
-            return@async
+            throw Exception("fetchExpenseRowsFromSheetAsync - no internet")
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no spreadsheet service")
-            throw CancellationException("no spreadsheet service")
+            Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no spreadsheetService")
+            throw CancellationException("fetchExpenseRowsFromSheetAsync - no spreadsheetService")
         }
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
@@ -382,7 +376,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         if (application.spreadsheetService == null) {
-            Log.d(TAG, "findMonthColumnsAsync - no spreadsheetservice")
+            Log.d(TAG, "findMonthColumnsAsync - no spreadsheetService")
 
             // TODO: this doesn't work
             throw NotSignedInException()

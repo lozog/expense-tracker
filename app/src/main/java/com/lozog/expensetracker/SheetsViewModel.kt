@@ -94,29 +94,36 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             var statusText: String
 
             try {
+                // create the expense row
                 sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
+                // fetch up to date spending for category
                 val spentSoFar = sheetsRepository
                     .fetchCategorySpendingAsync(expenseRow.expenseCategoryValue)
                     .await()
-//                statusText = getString(R.string.status_spent_so_far, spentSoFar, expenseCategoryValue)
                 statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"
+
+                // fetch up to date recent history
                 sheetsRepository.fetchExpenseRowsFromSheetAsync()
-            } catch (e: UserRecoverableAuthIOException) {
-//                Log.e(TAG, getString(R.string.status_need_permission))
-//                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
-                statusText = "need google permission"
-            } catch (e: IOException) {
-                Log.e(TAG, e.toString())
-//                statusText = getString(R.string.status_google_error)
-                statusText = "google error"
-            } catch (e: NotSignedInException) {
-//                Log.d(TAG, getString(R.string.status_not_signed_in))
-                statusText = "not signed in"
+
             } catch (e: Exception) {
-                statusText = "something went wrong"
-                throw e // TODO: doesn't work
+                statusText = "exception: ${e.message}"
             }
+
+            // TODO: catch these errors
+//            catch (e: UserRecoverableAuthIOException) {
+////                Log.e(TAG, getString(R.string.status_need_permission))
+////                mainActivity.startForRequestAuthorizationResult.launch(e.intent)
+//                statusText = "need google permission"
+//            } catch (e: IOException) {
+//                Log.e(TAG, e.toString())
+////                statusText = getString(R.string.status_google_error)
+//                statusText = "google error"
+//            } catch (e: NotSignedInException) {
+////                Log.d(TAG, getString(R.string.status_not_signed_in))
+//                statusText = "not signed in"
+//            }
+
 
             withContext(Dispatchers.Main) {
                 setStatusText(statusText)
