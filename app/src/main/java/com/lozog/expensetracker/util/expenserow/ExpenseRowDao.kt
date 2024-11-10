@@ -5,11 +5,12 @@ import androidx.room.*
 
 @Dao
 interface ExpenseRowDao {
-    @Query("SELECT * FROM expenseRow WHERE sync_status!=(:syncStatusDeleted) ORDER BY `id` DESC LIMIT (:historyLength)")
+//    TODO: should we filter out pending rows now that we're explicitly getting those separately?
+    @Query("SELECT * FROM expenseRow WHERE sync_status!=(:syncStatusDeleted) ORDER BY `row` DESC LIMIT (:historyLength)")
     fun getExpenseRows(historyLength: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): LiveData<List<ExpenseRow>>
 
-    @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `row` DESC")
-    fun getAllPendingExpenseRows(syncStatusPending: String = ExpenseRow.STATUS_PENDING): List<ExpenseRow>
+    @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending)")
+    fun getAllPendingExpenseRows(syncStatusPending: String = ExpenseRow.STATUS_PENDING): LiveData<List<ExpenseRow>>
 
     @Query("SELECT * FROM expenseRow WHERE `id`=(:id)")
     fun getById(id: Int): List<ExpenseRow>

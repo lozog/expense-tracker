@@ -3,6 +3,7 @@ package com.lozog.expensetracker
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import com.android.volley.VolleyError
 import com.android.volley.Request as VolleyRequest
 import com.android.volley.toolbox.StringRequest
@@ -64,7 +65,26 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     fun getRecentHistory(): LiveData<List<ExpenseRow>> {
-        return expenseRowDao.getExpenseRows(sharedPreferences.getString("history_length", "5")!!.toInt())
+        val res = MediatorLiveData<List<ExpenseRow>>()
+
+        val pendingExpenses = expenseRowDao.getAllPendingExpenseRows()
+        val syncedExpenses = expenseRowDao.getExpenseRows(sharedPreferences.getString("history_length", "5")!!.toInt())
+
+        res.addSource(syncedExpenses) { filteredList ->
+            // Get the latest value of the pending list
+            val pendingList = pendingExpenses.value ?: emptyList()
+            // Combine the lists and update MediatorLiveData
+            res.value = (pendingList + filteredList).distinctBy { it.id }
+        }
+
+        res.addSource(pendingExpenses) { pendingList ->
+            // Get the latest value of the filtered list
+            val filteredList = syncedExpenses.value ?: emptyList()
+            // Combine the lists and update MediatorLiveData
+            res.value = (pendingList + filteredList).distinctBy { it.id }
+        }
+
+        return res
     }
 
     fun getExpenseRowByRowAsync(row: Int): Deferred<List<ExpenseRow>> = coroutineScope.async {
@@ -77,18 +97,18 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Make a ping call to google to test for internet connectivity
      */
     private suspend fun checkInternetConnectivity(): Boolean = suspendCancellableCoroutine { continuation ->
-        Log.d(TAG, "checkInternetConnectivity")
+//        Log.d(TAG, "checkInternetConnectivity")
 
         val queue = Volley.newRequestQueue(application)
 
         val stringRequest = StringRequest(
             VolleyRequest.Method.GET, "https://google.com/",
             {
-                Log.d(TAG, "found internet!")
+//                Log.d(TAG, "found internet!")
                 continuation.resumeWith(Result.success(true)) // Internet is available
             },
             { error: VolleyError? ->
-                Log.d(TAG, "no internet :(")
+//                Log.d(TAG, "no internet :(")
                 Log.e(TAG, error?.message ?: "Unknown error")
                 continuation.resumeWith(Result.success(false)) // No internet connection
             })
