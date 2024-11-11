@@ -55,19 +55,11 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         recentHistory = sheetsRepository.getRecentHistory()
     }
 
-    fun getExpenseRowByRow(row: Int) {
-        var expenseRow: List<ExpenseRow>
-        viewModelScope.launch (Dispatchers.Main){
-            expenseRow = sheetsRepository.getExpenseRowByRowAsync(row).await()
-            detailExpenseRow.value = expenseRow.first()
-        }
-    }
-
     fun getExpenseRowById(id: Int) {
-        var expenseRows: List<ExpenseRow>
+        var expenseRow: ExpenseRow
         viewModelScope.launch (Dispatchers.Main){
-            expenseRows = sheetsRepository.getExpenseRowByIdAsync(id).await()
-            detailExpenseRow.value = expenseRows.first()
+            expenseRow = sheetsRepository.getExpenseRowByIdAsync(id).await()
+            detailExpenseRow.value = expenseRow
             Log.d(TAG, "getExpenseRowById: ${detailExpenseRow.value}")
         }
     }

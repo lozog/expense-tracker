@@ -87,13 +87,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         return res
     }
 
-    // TODO: call first() instead of returning a list
-    fun getExpenseRowByRowAsync(row: Int): Deferred<List<ExpenseRow>> = coroutineScope.async {
-        return@async expenseRowDao.getByRow(row)
-    }
-
-    fun getExpenseRowByIdAsync(id: Int): Deferred<List<ExpenseRow>> = coroutineScope.async {
-        return@async expenseRowDao.getById(id)
+    fun getExpenseRowByIdAsync(id: Int): Deferred<ExpenseRow> = coroutineScope.async {
+        return@async expenseRowDao.getById(id).first()
     }
 
     /********** GOOGLE SHEETS METHODS **********/

@@ -14,9 +14,6 @@ interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE `id`=(:id)")
     fun getById(id: Int): List<ExpenseRow>
 
-    @Query("SELECT * FROM expenseRow WHERE `row`=(:row)")
-    fun getByRow(row: Int): List<ExpenseRow>
-
     @Update(onConflict=OnConflictStrategy.REPLACE)
     fun update(expenseRow: ExpenseRow): Int
 
