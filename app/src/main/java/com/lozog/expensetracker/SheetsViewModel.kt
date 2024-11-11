@@ -132,6 +132,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             try {
                 sheetsRepository.deleteRowAsync(expenseId).await()
                 sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+                _toastEvent.value = Event("Deleted row with id $expenseId")
             } catch (e: Exception) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
             }
