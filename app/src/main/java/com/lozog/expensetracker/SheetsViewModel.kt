@@ -6,6 +6,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.services.drive.model.File
 import com.google.api.services.sheets.v4.model.Sheet
 import com.lozog.expensetracker.util.Event
+import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.coroutines.*
@@ -72,7 +73,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                         sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: NoInternetException) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
             }
         }
@@ -102,9 +103,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                     // fetch up to date recent history
                     sheetsRepository.fetchExpenseRowsFromSheetAsync()
                 }
-
-
-            } catch (e: Exception) {
+            } catch (e: NoInternetException) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
             }
 
@@ -133,7 +132,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 sheetsRepository.deleteRowAsync(expenseId).await()
                 sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
                 _toastEvent.value = Event("Deleted row with id $expenseId")
-            } catch (e: Exception) {
+            } catch (e: NoInternetException) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
             }
         }

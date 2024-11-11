@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.VolleyError
 import com.android.volley.Request as VolleyRequest
 import com.android.volley.toolbox.StringRequest
@@ -16,6 +17,7 @@ import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.Request as SheetsRequest
 import com.google.api.services.sheets.v4.model.Sheet
 import com.google.api.services.sheets.v4.model.ValueRange
+import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
 import kotlinx.coroutines.*
@@ -97,7 +99,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         val queue = Volley.newRequestQueue(application)
 
-        val stringRequest = StringRequest(
+        val request = StringRequest(
             VolleyRequest.Method.GET, "https://google.com/",
             {
                 Log.d(TAG, "found internet!")
@@ -109,7 +111,13 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
                 continuation.resumeWith(Result.success(false)) // No internet connection
             })
 
-        queue.add(stringRequest)
+        request.retryPolicy = DefaultRetryPolicy(
+            5000, // timeout in milliseconds
+            2,    // number of retries
+            1.5f  // backoff multiplier
+        )
+
+        queue.add(request)
     }
 
     /*
@@ -120,7 +128,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "no internet")
-            throw Exception("no internet")
+            throw NoInternetException()
         }
 
         if (application.spreadsheetService == null) {
