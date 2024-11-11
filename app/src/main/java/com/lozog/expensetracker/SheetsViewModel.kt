@@ -138,7 +138,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         }
     }
 
-    // TODO: add Toasts to SetupFragment
     fun fetchSpreadsheets() {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
@@ -147,9 +146,12 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             try {
                 spreadsheets = sheetsRepository.fetchSpreadsheetsAsync().await()
             } catch(e: UserRecoverableAuthIOException) {
-                Log.d(TAG, "UserRecoverableAuthIOException")
                 withContext(Dispatchers.Main) {
-                    setError(e)
+                    _toastEvent.value = Event(e.message ?: "Something went wrong")
+                }
+            } catch(e: NoInternetException) {
+                withContext(Dispatchers.Main) {
+                    _toastEvent.value = Event(e.message ?: "Something went wrong")
                 }
             }
 
@@ -168,9 +170,12 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             try {
                 sheets = sheetsRepository.fetchSheetsAsync(spreadsheetId).await()
             } catch(e: UserRecoverableAuthIOException) {
-                Log.d(TAG, "UserRecoverableAuthIOException")
                 withContext(Dispatchers.Main) {
-                    setError(e)
+                    _toastEvent.value = Event(e.message ?: "Something went wrong")
+                }
+            } catch(e: NoInternetException) {
+                withContext(Dispatchers.Main) {
+                    _toastEvent.value = Event(e.message ?: "Something went wrong")
                 }
             }
 
