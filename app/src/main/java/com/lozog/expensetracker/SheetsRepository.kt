@@ -350,34 +350,4 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         return@async sheets.sheets
     }
-
-    /**
-     * Finds the column of the Overview sheet which holds the January column
-     * For example, if January is in the 'C' column, the app will use this to infer that February is in the 'D' column, etc.
-     */
-    fun findMonthColumnsAsync() = coroutineScope.launch {
-        Log.d(TAG, "findMonthColumnsAsync")
-
-        checkSpreadsheetConnection()
-
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
-
-        val firstRowRange = "'$overviewSheetName'!1:1"
-        val firstRow = application.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .get(spreadsheetId, firstRowRange)
-            .execute()
-            .getValues()
-            .first()
-
-        // we'll search the first row for "January", and assume that the next column is "February", etc.
-        val januaryColumn = ('A'.code + firstRow.indexOf("January")).toChar()
-        // Log.d(TAG, "jan column: $januaryColumn")
-
-        val preferenceEditor = sharedPreferences.edit()
-        preferenceEditor.putString("month_column", januaryColumn.toString())
-        preferenceEditor.apply()
-    }
 }
