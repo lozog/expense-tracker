@@ -2,7 +2,6 @@ package com.lozog.expensetracker.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -168,7 +167,7 @@ class ExpenseFragment : Fragment() {
         }
 
         submitButton.setOnClickListener { view ->
-            updateExpense(view)
+            upsertExpense(view)
         }
 
         sheetsViewModel.status.observe(viewLifecycleOwner) {
@@ -237,8 +236,7 @@ class ExpenseFragment : Fragment() {
         return id == 0
     }
 
-    // TODO: rename upsertExpense
-    private fun updateExpense(view: View) {
+    private fun upsertExpense(view: View) {
         mainActivity.hideKeyboard(view)
 
         if (!validateInput()) {
