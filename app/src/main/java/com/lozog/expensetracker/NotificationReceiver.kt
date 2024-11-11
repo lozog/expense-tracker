@@ -52,6 +52,16 @@ class NotificationReceiver : BroadcastReceiver() {
 
         val uniqueId = System.currentTimeMillis().toInt()
 
+        // Intent to open MainActivity and navigate to ExpenseFragment
+        val mainIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra("navigateTo", "ExpenseFragment")
+            putExtra("amount", amount)
+            putExtra("notification_id", uniqueId)
+        }
+        val mainPendingIntent = PendingIntent.getActivity(
+            context, uniqueId, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val popupIntent = Intent(context, QuickAddExpensePopupActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
             putExtra("amount", amount)
@@ -67,6 +77,7 @@ class NotificationReceiver : BroadcastReceiver() {
             .setContentTitle("New Expense")
             .setContentText("$$amount")
             .setContentIntent(popupPendingIntent)
+            .addAction(R.drawable.ic_baseline_add_24, "Open Expense", mainPendingIntent) // Button to open MainActivity
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         // Show the notification

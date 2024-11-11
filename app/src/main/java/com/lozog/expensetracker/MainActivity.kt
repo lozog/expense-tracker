@@ -40,6 +40,7 @@ import com.google.api.services.drive.DriveScopes
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
+import com.lozog.expensetracker.ui.ExpenseFragment
 import com.lozog.expensetracker.ui.account.AccountViewModel
 import com.lozog.expensetracker.ui.history.HistoryFragment
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
@@ -127,6 +128,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        if (intent.getStringExtra("navigateTo") == "ExpenseFragment") {
+            navigateToExpenseFragmentWithArgs(intent)
+        }
+
         startForSignInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             onActivityResult(RC_SIGN_IN, result)
         }
@@ -170,6 +175,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent?.getStringExtra("navigateTo") == "ExpenseFragment") {
+            navigateToExpenseFragmentWithArgs(intent)
+        }
+    }
+
+    private fun navigateToExpenseFragmentWithArgs(intent: Intent) {
+        // Extract data from the intent
+        val amount = intent.getStringExtra("amount")
+        val notificationId = intent.getIntExtra("notification_id", -1)
+
+        // Create a bundle with the data
+        val bundle = Bundle().apply {
+            putString("amount", amount)
+            putInt("notification_id", notificationId)
+        }
+
+        // Create the fragment and set its arguments
+        val expenseFragment = ExpenseFragment().apply {
+            arguments = bundle
+        }
+
+        // Replace the current fragment with ExpenseFragment
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment_activity_main, expenseFragment)
+            .addToBackStack(null)
+            .commit()
+    }
 
     private fun onActivityResult(requestCode: Int, result: ActivityResult) {
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);

@@ -1,7 +1,10 @@
 package com.lozog.expensetracker.ui
 
 import android.app.AlertDialog
+import android.app.NotificationManager
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +21,7 @@ import com.lozog.expensetracker.databinding.FragmentExpenseBinding
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import kotlinx.android.synthetic.main.fragment_expense.*
+import kotlinx.android.synthetic.main.fragment_expense.view.expenseAmount
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -45,6 +49,8 @@ class ExpenseFragment : Fragment() {
     private lateinit var currencyExchangeRate: EditText
     private lateinit var submitButton: Button
     private lateinit var statusTextView: TextView
+
+    private var notificationId: Int = -1
 
     companion object {
         private const val TAG = "EXPENSE_TRACKER ExpenseFragment"
@@ -119,6 +125,18 @@ class ExpenseFragment : Fragment() {
 
             // set default category
             expenseCategory.text = categories[0]
+
+            // set form data from intent, if applicable
+            arguments?.let {
+                expenseAmount.setText(it.getString("amount", ""))
+                notificationId = it.getInt("notification_id")
+            }
+
+            // clear the notification
+            if (notificationId != -1) {
+                val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.cancel(notificationId)
+            }
         }
 
         submitButton.setOnClickListener { view ->
