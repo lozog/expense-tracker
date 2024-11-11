@@ -44,7 +44,7 @@ class HistoryAdapter(
 
         viewHolder.expenseItemTextView.text = expenseRow.expenseItem
         viewHolder.expenseCategoryTextView.text = expenseRow.expenseCategoryValue
-        viewHolder.expenseDateTextView.text = expenseRow.expenseDate.dropLast(6) // removes year from datestring
+        viewHolder.expenseDateTextView.text = expenseRow.expenseDate.dropLast(6) // removes ", YYYY" from datestring
 
         val numberFormat = NumberFormat.getCurrencyInstance()
         numberFormat.maximumFractionDigits = 2
@@ -57,11 +57,12 @@ class HistoryAdapter(
 
         viewHolder.itemView.setOnClickListener {
 //            Log.d(TAG, "clicked row ${expenseRow.row}")
-            val action = HistoryFragmentDirections.actionNavigationHistoryToExpenseFragment(expenseRow.row)
+            val action = HistoryFragmentDirections.actionNavigationHistoryToExpenseFragment(expenseRow.id)
             it.findNavController().navigate(action)
         }
 
         if (position % 2 == 1) {
+            // TODO: get colour from theme
             viewHolder.itemView.setBackgroundColor(Color.parseColor("#404040"))
         }
 

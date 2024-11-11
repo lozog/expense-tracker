@@ -22,10 +22,10 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-private const val ROW_PARAM = "row"
+private const val ID_PARAM = "id"
 
 class ExpenseFragment : Fragment() {
-    private var row: Int = 0
+    private var id: Int = 0
     private var _binding: FragmentExpenseBinding? = null
     private val binding get() = _binding!!
     private lateinit var mainActivity: MainActivity
@@ -55,7 +55,7 @@ class ExpenseFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            row = it.getInt(ROW_PARAM)
+            id = it.getInt(ID_PARAM)
         }
     }
 
@@ -139,9 +139,9 @@ class ExpenseFragment : Fragment() {
             }
         }
 
-        if (row != 0) {
+        if (!isNewExpenseRow()) {
             // editing existing ExpenseRow
-            sheetsViewModel.getExpenseRowByRow(row)
+            sheetsViewModel.getExpenseRowById(id)
 
             sheetsViewModel.detailExpenseRow.observe(viewLifecycleOwner) {
                 expenseRow = it
@@ -176,7 +176,7 @@ class ExpenseFragment : Fragment() {
                     getString(R.string.button_expense_submitting)
 
                 SheetsStatus.DONE -> {
-                    if (row == 0) {
+                    if (isNewExpenseRow()) {
                         clearInputs()
                     }
                     expenseSubmitButton.text = getString(R.string.button_expense_submit)
@@ -226,6 +226,10 @@ class ExpenseFragment : Fragment() {
         currencyExchangeRate.setText("")
     }
 
+    private fun isNewExpenseRow(): Boolean {
+        return id == 0
+    }
+
     private fun updateExpense(view: View) {
         mainActivity.hideKeyboard(view)
 
@@ -243,7 +247,7 @@ class ExpenseFragment : Fragment() {
         val currency = currencyLabel.text.toString()
         val exchangeRate = currencyExchangeRate.text.toString()
 
-        if (row != 0) {
+        if (!isNewExpenseRow()) {
             expenseRow.expenseDate = expenseDateText
             expenseRow.expenseItem = expenseItemText
             expenseRow.expenseCategoryValue = expenseCategoryText

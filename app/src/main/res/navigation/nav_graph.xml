@@ -20,7 +20,7 @@
             android:id="@+id/action_navigation_history_to_expenseFragment"
             app:destination="@id/expenseFragment">
             <argument
-                android:name="row"
+                android:name="id"
                 app:argType="integer"
                 android:defaultValue="0" />
         </action>

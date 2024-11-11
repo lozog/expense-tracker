@@ -63,6 +63,15 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         }
     }
 
+    fun getExpenseRowById(id: Int) {
+        var expenseRows: List<ExpenseRow>
+        viewModelScope.launch (Dispatchers.Main){
+            expenseRows = sheetsRepository.getExpenseRowByIdAsync(id).await()
+            detailExpenseRow.value = expenseRows.first()
+            Log.d(TAG, "getExpenseRowById: ${detailExpenseRow.value}")
+        }
+    }
+
     fun getRecentExpenseHistory() {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {
