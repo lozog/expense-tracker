@@ -22,7 +22,7 @@ data class ExpenseRow(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     ) {
     companion object {
-        const val STATUS_DONE = "DONE"
+        const val STATUS_DONE = "DONE" // TODO: maybe a better word would be "synced"
         const val STATUS_DELETED = "DELETED"
         const val STATUS_PENDING = "PENDING"
     }
