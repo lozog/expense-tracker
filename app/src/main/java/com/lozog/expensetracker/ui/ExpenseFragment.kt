@@ -33,8 +33,6 @@ class ExpenseFragment : Fragment() {
         SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
     }
     private lateinit var expenseRow: ExpenseRow
-    private var expenseAmountTextCurrent = ""
-    private var expenseAmountOthersTextCurrent = ""
 
     /********** UI Widgets **********/
     private lateinit var expenseItem: EditText
@@ -49,7 +47,7 @@ class ExpenseFragment : Fragment() {
     private lateinit var statusTextView: TextView
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER EXPENSE_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER ExpenseFragment"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,49 +91,6 @@ class ExpenseFragment : Fragment() {
                     val dialog = builder.create()
                     dialog.show()
                 }
-            }
-        }
-
-        expenseAmount.addTextChangedListener{
-            val s = it.toString()
-            if (s != "" && s != expenseAmountTextCurrent) {
-//            expenseAmount.removeTextChangedListener(this)
-
-                val cleanString: String = s.replace("$", "")
-                    .replace(".", "")
-                    .replace(",", "")
-
-                val parsed = cleanString.toDouble()
-                var formatted: String = NumberFormat.getCurrencyInstance().format(parsed / 100)
-                formatted = formatted.drop(1) // drop leading $
-
-                expenseAmountTextCurrent = formatted
-                expenseAmount.setText(formatted)
-                expenseAmount.setSelection(formatted.length)
-
-//            expenseAmount.addTextChangedListener(this)
-            }
-        }
-
-        // TODO: refactor into a helper function, for DRY
-        expenseAmountOthers.addTextChangedListener{
-            val s = it.toString()
-            if (s != "" && s != expenseAmountOthersTextCurrent) {
-//            expenseAmountOthers.removeTextChangedListener(this)
-
-                val cleanString: String = s.replace("$", "")
-                    .replace(".", "")
-                    .replace(",", "")
-
-                val parsed = cleanString.toDouble()
-                var formatted: String = NumberFormat.getCurrencyInstance().format(parsed / 100)
-                formatted = formatted.drop(1) // drop leading $
-
-                expenseAmountOthersTextCurrent = formatted
-                expenseAmountOthers.setText(formatted)
-                expenseAmountOthers.setSelection(formatted.length)
-
-//            expenseAmountOthers.addTextChangedListener(this)
             }
         }
 
