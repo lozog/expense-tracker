@@ -11,7 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentExpenseBinding
@@ -29,7 +29,7 @@ class ExpenseFragment : Fragment() {
     private var _binding: FragmentExpenseBinding? = null
     private val binding get() = _binding!!
     private lateinit var mainActivity: MainActivity
-    private val sheetsViewModel: SheetsViewModel by viewModels {
+    private val sheetsViewModel: SheetsViewModel by activityViewModels {
         SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
     }
     private lateinit var expenseRow: ExpenseRow

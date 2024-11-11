@@ -1,17 +1,16 @@
 package com.lozog.expensetracker
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.*
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.services.drive.model.File
 import com.google.api.services.sheets.v4.model.Sheet
+import com.lozog.expensetracker.util.Event
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.NotSignedInException
 import kotlinx.coroutines.*
 import java.io.IOException
-
 
 class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
@@ -26,6 +25,9 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val error = MutableLiveData<UserRecoverableAuthIOException>()
     val spreadsheets = MutableLiveData<List<File>>()
     val sheets = MutableLiveData<List<Sheet>>()
+
+    private val _errorEvent = MutableLiveData<Event<String>>()
+    val errorEvent: LiveData<Event<String>> get() = _errorEvent
 
     fun setStatusText(signInStatus: String) {
         statusText.value = signInStatus
@@ -65,22 +67,15 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     }
 
     fun getRecentExpenseHistory() {
-        setStatus(SheetsStatus.IN_PROGRESS)
-        viewModelScope.launch (Dispatchers.IO) {
+        viewModelScope.launch {
             try {
-                withTimeout(10000) {
-                    sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+                withContext(Dispatchers.IO) {
+                    withTimeout(10000) {
+                        sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+                    }
                 }
             } catch (e: Exception) {
-                Log.d(TAG, e.toString())
-                withContext(Dispatchers.Main) {
-                    Log.d(TAG, "setting status text")
-                    setStatusText(e.toString()) // TODO: this doesn't work
-                }
-            }
-
-            withContext(Dispatchers.Main) {
-                setStatus(SheetsStatus.DONE)
+                _errorEvent.value = Event(e.message ?: "Something went wrong")
             }
         }
     }

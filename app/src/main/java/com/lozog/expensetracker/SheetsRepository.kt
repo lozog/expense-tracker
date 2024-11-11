@@ -225,7 +225,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         if (janColumnPref == null) {
             Log.d(TAG, "fetchCategorySpendingAsync - no January Column")
-            return@async "no January Column"
+            throw Exception("fetchCategorySpendingAsync - no January Column")
         }
 
         val curMonthColumn = (janColumnPref.first().code + Calendar.getInstance().get(Calendar.MONTH)).toChar()
@@ -260,12 +260,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no internet")
-            throw Exception("fetchExpenseRowsFromSheetAsync - no internet")
+            throw Exception("no internet")
         }
 
         if (application.spreadsheetService == null) {
             Log.d(TAG, "fetchExpenseRowsFromSheetAsync - no spreadsheetService")
-            throw CancellationException("fetchExpenseRowsFromSheetAsync - no spreadsheetService")
+            throw CancellationException("no spreadsheetService")
         }
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)

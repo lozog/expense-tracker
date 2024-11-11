@@ -5,19 +5,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
-import com.lozog.expensetracker.util.SheetsStatus
 
 class HistoryFragment: Fragment() {
     companion object {
@@ -25,7 +22,7 @@ class HistoryFragment: Fragment() {
     }
     private var _binding: FragmentHistoryBinding? = null
     private lateinit var mainActivity: MainActivity
-    private val sheetsViewModel: SheetsViewModel by viewModels {
+    private val sheetsViewModel: SheetsViewModel by activityViewModels {
         SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
     }
 
@@ -64,6 +61,12 @@ class HistoryFragment: Fragment() {
         statusText = binding.statusText
         sheetsViewModel.statusText.observe(viewLifecycleOwner) {
             statusText.text = it
+        }
+
+        sheetsViewModel.errorEvent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
         }
 
         addNewRowButton = binding.addNewRowButton

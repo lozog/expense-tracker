@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentSetupBinding
@@ -21,7 +21,7 @@ class SetupFragment : Fragment() {
         private const val TAG = "EXPENSE_TRACKER SETUP_FRAGMENT"
     }
 
-    private val sheetsViewModel: SheetsViewModel by viewModels {
+    private val sheetsViewModel: SheetsViewModel by activityViewModels {
         SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
     }
 
