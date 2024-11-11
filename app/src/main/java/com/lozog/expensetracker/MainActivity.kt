@@ -112,7 +112,6 @@ class MainActivity : AppCompatActivity() {
         // each view passed here will be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_new_expense,
                 R.id.navigation_history,
                 R.id.navigation_settings,
                 R.id.navigation_account
@@ -193,16 +192,7 @@ class MainActivity : AppCompatActivity() {
             putInt("notification_id", notificationId)
         }
 
-        // Create the fragment and set its arguments
-        val expenseFragment = ExpenseFragment().apply {
-            arguments = bundle
-        }
-
-        // Replace the current fragment with ExpenseFragment
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.nav_host_fragment_activity_main, expenseFragment)
-            .addToBackStack(null)
-            .commit()
+        navController.navigate(R.id.navigation_new_expense, bundle)
     }
 
     private fun onActivityResult(requestCode: Int, result: ActivityResult) {
