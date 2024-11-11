@@ -93,18 +93,18 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Make a ping call to google to test for internet connectivity
      */
     private suspend fun checkInternetConnectivity(): Boolean = suspendCancellableCoroutine { continuation ->
-//        Log.d(TAG, "checkInternetConnectivity")
+        Log.d(TAG, "checkInternetConnectivity")
 
         val queue = Volley.newRequestQueue(application)
 
         val stringRequest = StringRequest(
             VolleyRequest.Method.GET, "https://google.com/",
             {
-//                Log.d(TAG, "found internet!")
+                Log.d(TAG, "found internet!")
                 continuation.resumeWith(Result.success(true)) // Internet is available
             },
             { error: VolleyError? ->
-//                Log.d(TAG, "no internet :(")
+                Log.d(TAG, "no internet :(")
                 Log.e(TAG, error?.message ?: "Unknown error")
                 continuation.resumeWith(Result.success(false)) // No internet connection
             })
@@ -116,7 +116,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Throws if there is no internet connection or the spreadsheetService isn't set up
      */
     private suspend fun checkSpreadsheetConnection() = withContext(Dispatchers.IO) {
-//        Log.d(TAG, "checkSpreadsheetConnection")
+        Log.d(TAG, "checkSpreadsheetConnection")
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "no internet")
