@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -186,6 +187,12 @@ class ExpenseFragment : Fragment() {
             }
         }
 
+        sheetsViewModel.errorEvent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         sheetsViewModel.statusText.observe(viewLifecycleOwner) {
             expenseStatusText.text = it
         }
@@ -230,6 +237,7 @@ class ExpenseFragment : Fragment() {
         return id == 0
     }
 
+    // TODO: rename upsertExpense
     private fun updateExpense(view: View) {
         mainActivity.hideKeyboard(view)
 
@@ -272,11 +280,6 @@ class ExpenseFragment : Fragment() {
             )
         }
 
-        try {
-           sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
-        } catch (e: Exception) {
-            Log.d(TAG, "exception: $e")
-            sheetsViewModel.setStatusText(e.toString())
-        }
+        sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
     }
 }

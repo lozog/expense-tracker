@@ -225,6 +225,7 @@ class MainActivity : AppCompatActivity() {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
+        // TODO: replace Snackbar
         if (spreadsheetId == null) {
             Snackbar.make(findViewById(R.id.nav_host_fragment_activity_main), getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()

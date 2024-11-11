@@ -191,6 +191,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     /**
      * Wraps sendExpenseRowAsync by inserting expenseRow into DB and checking for connection to spreadsheet service
+     * TODO: this is kind of confusing, can you consolidate them?
      */
     fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         Log.d(TAG, "addExpenseRowAsync")
@@ -242,7 +243,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         val spentSoFar = data[0][0]
 
-        return@async "$spentSoFar"
+        return@async "$spentSoFar".trim()
     }
 
     /**

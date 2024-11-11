@@ -84,25 +84,30 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         expenseRow: ExpenseRow
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
-        viewModelScope.launch (Dispatchers.IO) {
+        viewModelScope.launch {
             Log.d(TAG, "addExpenseRowToSheetAsync")
-            var statusText: String
-
             try {
                 // create the expense row
-                sheetsRepository.addExpenseRowAsync(expenseRow).await()
+                withContext(Dispatchers.IO) {
+                    sheetsRepository.addExpenseRowAsync(expenseRow).await()
 
-                // fetch up to date spending for category
-                val spentSoFar = sheetsRepository
-                    .fetchCategorySpendingAsync(expenseRow.expenseCategoryValue)
-                    .await()
-                statusText = "$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}"
+                    // fetch up to date spending for category
+                    val spentSoFar = sheetsRepository
+                        .fetchCategorySpendingAsync(expenseRow.expenseCategoryValue)
+                        .await()
 
-                // fetch up to date recent history
-                sheetsRepository.fetchExpenseRowsFromSheetAsync()
+                    // TODO: kinda going crazy with the contexts here
+                    withContext(Dispatchers.Main) {
+                        _errorEvent.value = Event("$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}")
+                    }
+
+                    // fetch up to date recent history
+                    sheetsRepository.fetchExpenseRowsFromSheetAsync()
+                }
+
 
             } catch (e: Exception) {
-                statusText = "exception: ${e.message}"
+                _errorEvent.value = Event(e.message ?: "Something went wrong")
             }
 
             // TODO: catch these errors
@@ -118,10 +123,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 ////                Log.d(TAG, getString(R.string.status_not_signed_in))
 //                statusText = "not signed in"
 //            }
-
-
             withContext(Dispatchers.Main) {
-                setStatusText(statusText)
                 setStatus(SheetsStatus.DONE)
             }
         }
