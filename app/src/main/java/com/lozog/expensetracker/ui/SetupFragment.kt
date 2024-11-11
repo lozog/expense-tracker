@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
@@ -164,6 +165,12 @@ class SetupFragment : Fragment() {
                 SheetsStatus.IN_PROGRESS -> statusText.text = "loading..."
                 SheetsStatus.DONE -> statusText.text = "done"
                 else -> statusText.text = "error"
+            }
+        }
+
+        sheetsViewModel.toastEvent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }
 
