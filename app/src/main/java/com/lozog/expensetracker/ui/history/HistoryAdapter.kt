@@ -15,7 +15,7 @@ import java.text.NumberFormat
 
 class HistoryAdapter(
     private val recentHistory: List<ExpenseRow>,
-    private val onItemClicked: (ExpenseRow) -> Unit
+    private val onItemClicked: (ExpenseRow) -> Unit // TODO: rename onClickDelete or sth
 ): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     companion object {
         private const val TAG = "EXPENSE_TRACKER HISTORY_ADAPTER"

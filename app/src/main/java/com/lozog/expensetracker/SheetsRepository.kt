@@ -115,7 +115,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     /*
      * Throws if there is no internet connection or the spreadsheetService isn't set up
      */
-    private fun checkSpreadsheetConnection() = suspend {
+    private suspend fun checkSpreadsheetConnection() = withContext(Dispatchers.IO) {
+//        Log.d(TAG, "checkSpreadsheetConnection")
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "no internet")

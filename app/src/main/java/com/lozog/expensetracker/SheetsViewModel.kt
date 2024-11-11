@@ -130,15 +130,12 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     }
 
     fun deleteRowAsync(expenseId: Int) {
-        viewModelScope.launch (Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 sheetsRepository.deleteRowAsync(expenseId).await()
                 sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
-
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    setStatusText("no internet")
-                }
+                _errorEvent.value = Event(e.message ?: "Something went wrong")
             }
         }
     }
