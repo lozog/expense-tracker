@@ -8,9 +8,7 @@ import com.google.api.services.sheets.v4.model.Sheet
 import com.lozog.expensetracker.util.Event
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
-import com.lozog.expensetracker.util.NotSignedInException
 import kotlinx.coroutines.*
-import java.io.IOException
 
 class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
@@ -26,8 +24,8 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     val spreadsheets = MutableLiveData<List<File>>()
     val sheets = MutableLiveData<List<Sheet>>()
 
-    private val _errorEvent = MutableLiveData<Event<String>>()
-    val errorEvent: LiveData<Event<String>> get() = _errorEvent
+    private val _toastEvent = MutableLiveData<Event<String>>()
+    val toastEvent: LiveData<Event<String>> get() = _toastEvent
 
     fun setStatusText(signInStatus: String) {
         statusText.value = signInStatus
@@ -75,7 +73,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                     }
                 }
             } catch (e: Exception) {
-                _errorEvent.value = Event(e.message ?: "Something went wrong")
+                _toastEvent.value = Event(e.message ?: "Something went wrong")
             }
         }
     }
@@ -98,7 +96,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
                     // TODO: kinda going crazy with the contexts here
                     withContext(Dispatchers.Main) {
-                        _errorEvent.value = Event("$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}")
+                        _toastEvent.value = Event("$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}")
                     }
 
                     // fetch up to date recent history
@@ -107,7 +105,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
 
             } catch (e: Exception) {
-                _errorEvent.value = Event(e.message ?: "Something went wrong")
+                _toastEvent.value = Event(e.message ?: "Something went wrong")
             }
 
             // TODO: catch these errors
@@ -135,11 +133,12 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 sheetsRepository.deleteRowAsync(expenseId).await()
                 sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
             } catch (e: Exception) {
-                _errorEvent.value = Event(e.message ?: "Something went wrong")
+                _toastEvent.value = Event(e.message ?: "Something went wrong")
             }
         }
     }
 
+    // TODO: add Toasts to SetupFragment
     fun fetchSpreadsheets() {
         setStatus(SheetsStatus.IN_PROGRESS)
         viewModelScope.launch (Dispatchers.IO) {

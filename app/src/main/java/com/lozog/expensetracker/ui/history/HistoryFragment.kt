@@ -63,7 +63,7 @@ class HistoryFragment: Fragment() {
             statusText.text = it
         }
 
-        sheetsViewModel.errorEvent.observe(viewLifecycleOwner) { event ->
+        sheetsViewModel.toastEvent.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { message ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
