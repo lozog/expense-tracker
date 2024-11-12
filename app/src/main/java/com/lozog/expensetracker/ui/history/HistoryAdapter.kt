@@ -18,7 +18,7 @@ class HistoryAdapter(
     private val onClickDeleteRow: (ExpenseRow) -> Unit
 ): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
     companion object {
-        private const val TAG = "EXPENSE_TRACKER HISTORY_ADAPTER"
+        private const val TAG = "EXPENSE_TRACKER HistoryAdapter"
     }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val deleteButton: Button = view.findViewById(R.id.deleteButton)

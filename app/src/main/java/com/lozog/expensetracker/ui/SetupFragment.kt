@@ -19,7 +19,7 @@ import com.lozog.expensetracker.util.SheetsStatus
 
 class SetupFragment : Fragment() {
     companion object {
-        private const val TAG = "EXPENSE_TRACKER SETUP_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER SetupFragment"
     }
 
     private val sheetsViewModel: SheetsViewModel by activityViewModels {

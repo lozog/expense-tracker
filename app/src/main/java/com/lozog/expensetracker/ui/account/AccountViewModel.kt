@@ -7,7 +7,7 @@ class AccountViewModel : ViewModel() {
     val signInStatus = MutableLiveData<String>()
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER ACCOUNT_VIEW_MODEL"
+        private const val TAG = "EXPENSE_TRACKER AccountViewModel"
     }
 
     fun setSignInStatus(newSignInStatus: String) {

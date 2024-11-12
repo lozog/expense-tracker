@@ -32,7 +32,7 @@ class AccountFragment : Fragment() {
     private lateinit var accountInfo: TextView
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER ACCOUNT_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER AccountFragment"
     }
 
     override fun onCreateView(

@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
 
 class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
-        private const val TAG = "EXPENSE_TRACKER SHEETS_VIEW_MODEL"
+        private const val TAG = "EXPENSE_TRACKER SheetsViewModel"
     }
 
     var recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.getRecentHistory()

@@ -18,7 +18,7 @@ import com.lozog.expensetracker.databinding.FragmentHistoryBinding
 
 class HistoryFragment: Fragment() {
     companion object {
-        private const val TAG = "EXPENSE_TRACKER HISTORY_FRAGMENT"
+        private const val TAG = "EXPENSE_TRACKER HistoryFragment"
     }
     private var _binding: FragmentHistoryBinding? = null
     private lateinit var mainActivity: MainActivity

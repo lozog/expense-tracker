@@ -32,7 +32,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     private val coroutineScope = CoroutineScope(Dispatchers.IO + parentJob)
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER SHEETS_REPOSITORY"
+        private const val TAG = "EXPENSE_TRACKER SheetsRepository"
 
         private const val SHEETS_VALUE_INPUT_OPTION = "USER_ENTERED"
         private const val SHEETS_INSERT_DATA_OPTION = "INSERT_ROWS"
@@ -143,6 +143,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Upserts an ExpenseRow into the spreadsheet
      */
     private fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
+        Log.d(TAG, "sendExpenseRowAsync")
+
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val row: Int // row number in sheet
@@ -151,6 +153,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
          if (expenseRow.row == 0) {
              // if new row, call spreadsheet service to get an up-to-date row count
              isNewRow = true
+
+             // TODO: break out into helper
              row = application.spreadsheetService!!
                 .spreadsheets()
                 .values()
@@ -160,7 +164,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
                 .size + 1
         } else {
             row = expenseRow.row
-         }
+        }
 
         val expenseTotal = "=(\$D$row - \$E$row)*IF(NOT(ISBLANK(\$I$row)), \$I$row, 1)"
         expenseRow.expenseTotal = expenseTotal
@@ -170,7 +174,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         requestBody.setValues(rowData)
 
         if (isNewRow) {
-            // Log.d(TAG, "inserting a new row")
+//             Log.d(TAG, "inserting a new row")
 
             // insert new row
             application.spreadsheetService!!
@@ -183,7 +187,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
             expenseRow.row = row
         } else {
-            // Log.d(TAG, "updating row $row - $expenseRow")
+//             Log.d(TAG, "updating row $row - $expenseRow")
 
             // update existing row
             application.spreadsheetService!!
@@ -195,6 +199,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         expenseRow.syncStatus = ExpenseRow.STATUS_DONE
+//        Log.d(TAG, "done")
         expenseRowDao.update(expenseRow)
     }
 

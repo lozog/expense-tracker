@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var startForRequestAuthorizationResult: ActivityResultLauncher<Intent>
 
     companion object {
-        private const val TAG = "EXPENSE_TRACKER MAIN_ACTIVITY"
+        private const val TAG = "EXPENSE_TRACKER MainActivity"
 
         /********** GOOGLE STATUS CODES **********/
         const val RC_SIGN_IN: Int = 0
