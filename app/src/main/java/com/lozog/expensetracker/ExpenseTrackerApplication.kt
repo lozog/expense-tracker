@@ -23,8 +23,8 @@ class ExpenseTrackerApplication : Application() {
     var spreadsheetService: Sheets? = null
     var driveService: Drive? = null
 
-    private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
-    private var SCOPES = listOf(
+    private var jsonFactory: JsonFactory = JacksonFactory.getDefaultInstance()
+    private var googleScopes = listOf(
         SheetsScopes.SPREADSHEETS,
         DriveScopes.DRIVE_METADATA_READONLY
     )
@@ -51,15 +51,15 @@ class ExpenseTrackerApplication : Application() {
         Log.d(TAG, "Application - signed into account: ${account.email}")
 
         val httpTransport = NetHttpTransport()
-        val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
+        val credential = GoogleAccountCredential.usingOAuth2(this, googleScopes)
         credential.selectedAccount = account.account
 
         val spreadsheetService: Sheets = Sheets.Builder(httpTransport,
-            JSON_FACTORY, credential)
+            jsonFactory, credential)
             .setApplicationName(getString(R.string.app_name))
             .build()
 
-        val driveService: Drive = Drive.Builder(httpTransport, JSON_FACTORY, credential)
+        val driveService: Drive = Drive.Builder(httpTransport, jsonFactory, credential)
             .setApplicationName(getString(R.string.app_name))
             .build()
 

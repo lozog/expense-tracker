@@ -61,12 +61,6 @@ class MainActivity : AppCompatActivity() {
         const val RC_SIGN_IN: Int = 0
         const val RC_REQUEST_AUTHORIZATION: Int = 1
 
-        private var JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
-        private var SCOPES = listOf(
-            SheetsScopes.SPREADSHEETS,
-            DriveScopes.DRIVE_METADATA_READONLY
-        )
-
         const val QUEUED_REQUEST_NOTIFICATION_CHANNEL_ID = "queued_request"
     }
 
