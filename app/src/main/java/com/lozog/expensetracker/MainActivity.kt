@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -31,18 +30,12 @@ import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
-import com.lozog.expensetracker.ui.ExpenseFragment
 import com.lozog.expensetracker.ui.account.AccountViewModel
-import com.lozog.expensetracker.ui.history.HistoryFragment
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 class MainActivity : AppCompatActivity() {
@@ -81,10 +74,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        (applicationContext as ExpenseTrackerApplication).sheetsRepository.setPreferences(sharedPreferences)
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -142,19 +131,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.action_bar, menu)
         return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        // TODO: just check GoogleSheetsInterface.googleAccount != null?
-        val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
-
-        if (account != null) {
-            onSignInSuccess(account)
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -296,35 +272,11 @@ class MainActivity : AppCompatActivity() {
             val account: GoogleSignInAccount? = completedTask.getResult(ApiException::class.java)
             account ?: return
 
-            onSignInSuccess(account)
+            (application as ExpenseTrackerApplication).onSignInSuccess(account)
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.d(TAG, "signInResult: failed. code: ${e.statusCode}")
         }
-    }
-
-    private fun onSignInSuccess(account: GoogleSignInAccount) {
-        Log.d(TAG, "signed into account: ${account.email}")
-
-        val httpTransport = NetHttpTransport()
-        val credential = GoogleAccountCredential.usingOAuth2(this, SCOPES)
-        credential.selectedAccount = account.account
-
-        // get sheet service object
-        val spreadsheetService: Sheets = Sheets.Builder(httpTransport, JSON_FACTORY, credential)
-            .setApplicationName(getString(R.string.app_name))
-            .build()
-
-        val driveService: Drive = Drive.Builder(httpTransport, JSON_FACTORY, credential)
-            .setApplicationName(getString(R.string.app_name))
-            .build()
-
-        (applicationContext as ExpenseTrackerApplication).googleAccount = account
-        (applicationContext as ExpenseTrackerApplication).spreadsheetService = spreadsheetService
-        (applicationContext as ExpenseTrackerApplication).driveService = driveService
-
-        val accountViewModel: AccountViewModel by viewModels()
-        accountViewModel.setSignInStatus("signed into account: ${account.email}") // TODO: don't put UI string into the viewmodel
     }
 }
