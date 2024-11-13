@@ -36,13 +36,14 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 class MainActivity : AppCompatActivity() {
 
+    private val expenseTrackerApplication: ExpenseTrackerApplication
+        get() = application as ExpenseTrackerApplication
     private lateinit var binding: MainActivityBinding
     private lateinit var navController: NavController
-
     private lateinit var bottomNav: BottomNavigationView
 
     private val sheetsViewModel: SheetsViewModel by viewModels {
-        SheetsViewModelFactory((this.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+        SheetsViewModelFactory(expenseTrackerApplication.sheetsRepository)
     }
 
     /********** GOOGLE SIGN-IN **********/
@@ -227,9 +228,9 @@ class MainActivity : AppCompatActivity() {
                         val accountViewModel: AccountViewModel by viewModels()
                         accountViewModel.setSignInStatus("not signed in")
 
-                        (applicationContext as ExpenseTrackerApplication).googleAccount = null
-                        (applicationContext as ExpenseTrackerApplication).spreadsheetService = null
-                        (applicationContext as ExpenseTrackerApplication).driveService = null
+                        expenseTrackerApplication.googleAccount = null
+                        expenseTrackerApplication.spreadsheetService = null
+                        expenseTrackerApplication.driveService = null
                     }
             }
         }
@@ -240,7 +241,7 @@ class MainActivity : AppCompatActivity() {
             val account: GoogleSignInAccount? = completedTask.getResult(ApiException::class.java)
             account ?: return
 
-            (application as ExpenseTrackerApplication).onSignInSuccess(account)
+            expenseTrackerApplication.onSignInSuccess(account)
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
