@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +29,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.lozog.expensetracker.databinding.MainActivityBinding // generated based on xml file name
 import com.lozog.expensetracker.ui.account.AccountViewModel
@@ -192,16 +192,13 @@ class MainActivity : AppCompatActivity() {
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
-        // TODO: replace Snackbar
         if (spreadsheetId == null) {
-            Snackbar.make(findViewById(R.id.nav_host_fragment_activity_main), getString(R.string.form_no_spreadsheet_id), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            Toast.makeText(this, getString(R.string.form_no_spreadsheet_id), Toast.LENGTH_SHORT).show()
             return
         }
 
         if (sheetName == null) {
-            Snackbar.make(findViewById(R.id.nav_host_fragment_activity_main), getString(R.string.form_no_data_sheet_name), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            Toast.makeText(this, getString(R.string.form_no_data_sheet_name), Toast.LENGTH_SHORT).show()
             return
         }
 
