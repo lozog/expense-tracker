@@ -37,6 +37,10 @@ class ExpenseTrackerApplication : Application() {
         super.onCreate()
         Log.d(TAG, "onCreate")
 
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        this.sheetsRepository.setPreferences(sharedPreferences)
+
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         // TODO: just check GoogleSheetsInterface.googleAccount != null?
@@ -66,9 +70,5 @@ class ExpenseTrackerApplication : Application() {
         this.googleAccount = account
         this.spreadsheetService = spreadsheetService
         this.driveService = driveService
-
-        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        this.sheetsRepository.setPreferences(sharedPreferences)
     }
 }
