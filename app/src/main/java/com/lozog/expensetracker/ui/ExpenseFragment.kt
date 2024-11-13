@@ -12,17 +12,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentExpenseBinding
+import com.lozog.expensetracker.util.KeyboardManager
 import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import kotlinx.android.synthetic.main.fragment_expense.*
-import kotlinx.android.synthetic.main.fragment_expense.view.expenseAmount
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -169,8 +167,7 @@ class ExpenseFragment : Fragment() {
             expenseStatusText.text = it
         }
 
-        expenseItem.requestFocus()
-        mainActivity.showKeyboard(expenseItem)
+        KeyboardManager.showKeyboard(expenseItem)
 
         return root
     }
@@ -210,7 +207,7 @@ class ExpenseFragment : Fragment() {
     }
 
     private fun upsertExpense(view: View) {
-        mainActivity.hideKeyboard(view)
+        KeyboardManager.hideKeyboard(view)
 
         if (!validateInput()) {
             sheetsViewModel.resetView()

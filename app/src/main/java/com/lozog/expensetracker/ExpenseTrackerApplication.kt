@@ -35,7 +35,7 @@ class ExpenseTrackerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "onCreate")
+//        Log.d(TAG, "onCreate")
 
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -52,7 +52,7 @@ class ExpenseTrackerApplication : Application() {
     }
 
     fun onSignInSuccess(account: GoogleSignInAccount) {
-        Log.d(TAG, "Application - signed into account: ${account.email}")
+        Log.d(TAG, "signed into account: ${account.email}")
 
         val httpTransport = NetHttpTransport()
         val credential = GoogleAccountCredential.usingOAuth2(this, googleScopes)

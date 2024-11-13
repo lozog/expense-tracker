@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -17,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import com.lozog.expensetracker.util.KeyboardManager
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -61,6 +63,8 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
                 }
                 .show()
         }
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
     }
 
     private fun requestOverlayPermission() {
@@ -74,11 +78,13 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
         val amount = intent.getStringExtra("amount") ?: ""
         val notificationId = intent.getIntExtra("notification_id", -1)
 
-        val textInput = findViewById<EditText>(R.id.text_input)
+        val expenseItem = findViewById<EditText>(R.id.text_input)
         val dropdown = findViewById<Spinner>(R.id.dropdown)
         val submitButton = findViewById<Button>(R.id.submit_button)
         val amountView = findViewById<TextView>(R.id.expense_amount)
         amountView.text = "$$amount"
+
+        KeyboardManager.showKeyboard(expenseItem)
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val categoriesPrefs = sharedPreferences.getString("categories", null)?: ""
@@ -86,7 +92,7 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
         dropdown.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
 
         submitButton.setOnClickListener {
-            val inputText = textInput.text.toString()
+            val inputText = expenseItem.text.toString()
             val selectedOption = dropdown.selectedItem.toString()
 
             val sheetsRepository = (applicationContext as ExpenseTrackerApplication).sheetsRepository
