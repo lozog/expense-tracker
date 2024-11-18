@@ -117,6 +117,8 @@ class MainActivity : AppCompatActivity() {
         startForRequestAuthorizationResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             onActivityResult(RC_REQUEST_AUTHORIZATION, result)
         }
+
+        updateHistory()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
