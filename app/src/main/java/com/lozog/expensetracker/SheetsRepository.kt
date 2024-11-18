@@ -95,18 +95,18 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Make a ping call to google to test for internet connectivity
      */
     private suspend fun checkInternetConnectivity(): Boolean = suspendCancellableCoroutine { continuation ->
-        Log.d(TAG, "checkInternetConnectivity")
+//        Log.d(TAG, "checkInternetConnectivity")
 
         val queue = Volley.newRequestQueue(application)
 
         val request = StringRequest(
             VolleyRequest.Method.GET, "https://google.com/",
             {
-                Log.d(TAG, "found internet!")
+//                Log.d(TAG, "found internet!")
                 continuation.resumeWith(Result.success(true)) // Internet is available
             },
             { error: VolleyError? ->
-                Log.d(TAG, "no internet :(")
+//                Log.d(TAG, "no internet :(")
                 Log.e(TAG, error?.message ?: "Unknown error")
                 continuation.resumeWith(Result.success(false)) // No internet connection
             })
@@ -124,7 +124,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Throws if there is no internet connection or the spreadsheetService isn't set up
      */
     private suspend fun checkSpreadsheetConnection() = withContext(Dispatchers.IO) {
-        Log.d(TAG, "checkSpreadsheetConnection")
+//        Log.d(TAG, "checkSpreadsheetConnection")
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "no internet")
@@ -228,6 +228,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     fun fetchCategorySpendingAsync(
         expenseCategoryValue: String
     ): Deferred<String> = coroutineScope.async {
+        Log.d(TAG, "fetchCategorySpendingAsync")
         checkSpreadsheetConnection()
 
         val janColumnPref = sharedPreferences.getString("month_column", null)
@@ -294,6 +295,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Deletes expense row at given row number from spreadsheet and local DB
      */
     fun deleteRowAsync(expenseId: Int) = coroutineScope.async {
+        Log.d(TAG, "deleteRowAsync")
         val expenseRow = expenseRowDao.getById(expenseId).first()
         val row = expenseRow.row
 
@@ -352,9 +354,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Fetches all sheets within the given spreadsheet
      */
     fun fetchSheetsAsync(spreadsheetId: String): Deferred<List<Sheet>> = coroutineScope.async {
+        Log.d(TAG, "fetchSheetsAsync")
         checkSpreadsheetConnection()
-
-        Log.d(TAG, "fetchSheets")
 
         val sheets = application.spreadsheetService!!
             .spreadsheets()
