@@ -51,12 +51,12 @@ class HistoryAdapter(
         val numberFormat = NumberFormat.getCurrencyInstance()
         numberFormat.maximumFractionDigits = 2
 
-        // TODO: calculate expenseTotal correctly regardless of sync status
-        try {
-            viewHolder.expenseTotalTextView.text = numberFormat.format(expenseRow.expenseTotal.toFloat())
-        } catch (e: Exception) {
-            viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
+        if (position == 0) {
+            Log.d(TAG, "looking at first item: ${expenseRow.expenseAmount}, ${expenseRow.expenseAmountOthers}, ${expenseRow.exchangeRate}")
         }
+
+        val expenseAmountFinal = ((expenseRow.expenseAmount.toFloatOrNull() ?: 0.0f) - (expenseRow.expenseAmountOthers.toFloatOrNull() ?: 0.0f)) * (expenseRow.exchangeRate.toFloatOrNull() ?: 1.0f)
+        viewHolder.expenseTotalTextView.text = numberFormat.format(expenseAmountFinal)
 
         val shouldShowSyncIcon = expenseRow.syncStatus == ExpenseRow.STATUS_PENDING
         viewHolder.syncIcon.visibility = if (shouldShowSyncIcon) View.VISIBLE else View.GONE
