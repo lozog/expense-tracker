@@ -17,6 +17,7 @@ import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.Request as SheetsRequest
 import com.google.api.services.sheets.v4.model.Sheet
 import com.google.api.services.sheets.v4.model.ValueRange
+import com.lozog.expensetracker.util.CalendarHelper
 import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
@@ -238,43 +239,27 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     /**
-     * Given a category, fetches the amount spent in that category so far this month
-     * TODO: instead of querying the sheet, guesstimate by using local data
+     * Given a category, returns the amount spent in that category so far this month
+     * based on local data
      */
-    fun fetchCategorySpendingAsync(
+    fun getCategorySpending(
         expenseCategoryValue: String
-    ): Deferred<String> = coroutineScope.async {
-        Log.d(TAG, "fetchCategorySpendingAsync")
-        checkSpreadsheetConnection()
+    ): Float {
+        Log.d(TAG, "fetchCategorySpendingLocalAsync")
+        val curMonth = Calendar.getInstance().get(Calendar.MONTH)
 
-        val janColumnPref = sharedPreferences.getString("month_column", null)
+        val expenses = expenseRowDao.getExpensesByCategory(expenseCategoryValue)
+        // find expenses of current month, add them to total
 
-        if (janColumnPref == null) {
-            Log.d(TAG, "fetchCategorySpendingAsync - no January Column")
-            throw Exception("fetchCategorySpendingAsync - no January Column")
+        var sum = 0.0f
+        expenses.forEach {
+            val expenseMonth = (CalendarHelper.parseDatestring(it.expenseDate)?.monthValue ?: 0) - 1
+
+            if (expenseMonth == curMonth) {
+                sum += it.expenseAmount.toFloatOrNull() ?: 0.0f
+            }
         }
-
-        val curMonthColumn = (janColumnPref.first().code + Calendar.getInstance().get(Calendar.MONTH)).toChar()
-        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
-
-        if (categoryCell == null) {
-            Log.e(TAG, "Category $expenseCategoryValue not found")
-            throw Exception("Category $expenseCategoryValue not found")
-        }
-
-        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-        val data = application.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .get(spreadsheetId, categorySpendingCell)
-            .execute()
-            .getValues()
-
-        val spentSoFar = data[0][0]
-
-        return@async "$spentSoFar".trim()
+        return sum
     }
 
     /**

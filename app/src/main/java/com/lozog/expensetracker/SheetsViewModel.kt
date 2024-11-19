@@ -10,6 +10,7 @@ import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.coroutines.*
+import java.text.NumberFormat
 
 class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
@@ -86,13 +87,14 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                     sheetsRepository.upsertExpenseRowAsync(expenseRow).await()
 
                     // fetch up to date spending for category
-                    val spentSoFar = sheetsRepository
-                        .fetchCategorySpendingAsync(expenseRow.expenseCategoryValue)
-                        .await()
+                    val spentSoFar = sheetsRepository.getCategorySpending(expenseRow.expenseCategoryValue)
+                    val numberFormat = NumberFormat.getCurrencyInstance()
+                    numberFormat.maximumFractionDigits = 2
+                    val spentSoFarFormatted = numberFormat.format(spentSoFar)
 
                     // TODO: kinda going crazy with the contexts here
                     withContext(Dispatchers.Main) {
-                        _toastEvent.value = Event("$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}")
+                        _toastEvent.value = Event("$spentSoFarFormatted spent so far in ${expenseRow.expenseCategoryValue}")
                     }
 
                     // fetch up to date recent history

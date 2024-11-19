@@ -13,9 +13,6 @@ class CalendarHelper {
                 DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
             )
 
-            // Desired output format
-            val outputFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH)
-
             // Attempt to parse using each formatter
             for (formatter in inputFormatters) {
                 try {
