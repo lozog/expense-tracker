@@ -6,14 +6,17 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentExpenseBinding
@@ -150,6 +153,7 @@ class ExpenseFragment : Fragment() {
             }
         }
 
+        setHasOptionsMenu(true)
 
         return root
     }
@@ -157,6 +161,22 @@ class ExpenseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         KeyboardManager.showKeyboard(expenseItem)
+
+        // Enable the action bar back button, since navigation_new_expense is the start destination in the nav
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.d(TAG, "item: $item")
+        return when (item.itemId) {
+            android.R.id.home -> {
+                findNavController().navigate(R.id.navigation_history)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun validateInput(): Boolean {

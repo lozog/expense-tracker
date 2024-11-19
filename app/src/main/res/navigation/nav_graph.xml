@@ -9,7 +9,11 @@
         android:id="@+id/navigation_new_expense"
         android:name="com.lozog.expensetracker.ui.ExpenseFragment"
         android:label="@string/nav_form"
-        tools:layout="@layout/fragment_expense"/>
+        tools:layout="@layout/fragment_expense">
+        <action
+            android:id="@+id/action_navigation_new_expense_to_navigation_history"
+            app:destination="@id/navigation_history" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_history"
@@ -31,6 +35,12 @@
     </fragment>
 
     <fragment
+        android:id="@+id/expenseFragment"
+        android:name="com.lozog.expensetracker.ui.ExpenseFragment"
+        android:label="@string/nav_detail"
+        tools:layout="@layout/fragment_expense" />
+
+    <fragment
         android:id="@+id/navigation_settings"
         android:name="com.lozog.expensetracker.ui.SettingsFragment"
         android:label="@string/nav_settings"
@@ -46,11 +56,6 @@
             app:destination="@id/setupFragment" />
     </fragment>
 
-    <fragment
-        android:id="@+id/expenseFragment"
-        android:name="com.lozog.expensetracker.ui.ExpenseFragment"
-        android:label="@string/nav_detail"
-        tools:layout="@layout/fragment_expense" />
     <fragment
         android:id="@+id/setupFragment"
         android:name="com.lozog.expensetracker.ui.SetupFragment"
