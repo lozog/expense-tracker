@@ -45,7 +45,6 @@ class ExpenseFragment : Fragment() {
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
     private lateinit var submitButton: Button
-    private lateinit var statusTextView: TextView
 
     private var notificationId: Int = -1
 
@@ -68,7 +67,6 @@ class ExpenseFragment : Fragment() {
         mainActivity = activity as MainActivity
         val root: View = binding.root
 
-        statusTextView = binding.expenseStatusText
         expenseDate = binding.expenseDate
         expenseItem = binding.expenseItem
         expenseCategory = binding.expenseCategory
@@ -150,10 +148,6 @@ class ExpenseFragment : Fragment() {
             event.getContentIfNotHandled()?.let { message ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
-        }
-
-        sheetsViewModel.statusText.observe(viewLifecycleOwner) {
-            expenseStatusText.text = it
         }
 
         KeyboardManager.showKeyboard(expenseItem)

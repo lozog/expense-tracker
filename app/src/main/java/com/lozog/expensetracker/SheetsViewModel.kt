@@ -19,7 +19,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     var recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.getRecentHistory()
 
     val status = MutableLiveData<SheetsStatus>()
-    val statusText = MutableLiveData<String>()
     val detailExpenseRow = MutableLiveData<ExpenseRow>()
     val error = MutableLiveData<UserRecoverableAuthIOException>()
     val spreadsheets = MutableLiveData<List<File>>()
@@ -27,10 +26,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     private val _toastEvent = MutableLiveData<Event<String>>()
     val toastEvent: LiveData<Event<String>> get() = _toastEvent
-
-    fun setStatusText(signInStatus: String) {
-        statusText.value = signInStatus
-    }
 
     private fun setStatus(status: SheetsStatus) {
         this.status.value = status

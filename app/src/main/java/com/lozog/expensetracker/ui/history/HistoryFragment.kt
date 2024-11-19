@@ -30,7 +30,6 @@ class HistoryFragment: Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private lateinit var statusText: TextView
     private lateinit var addNewRowButton: FloatingActionButton
     private lateinit var recentHistoryView: RecyclerView
     private var historyAdapter = HistoryAdapter(listOf()) { }
@@ -56,11 +55,6 @@ class HistoryFragment: Fragment() {
                 sheetsViewModel.deleteRowAsync(expenseRow.id)
             }
             recentHistoryView.adapter = historyAdapter
-        }
-
-        statusText = binding.statusText
-        sheetsViewModel.statusText.observe(viewLifecycleOwner) {
-            statusText.text = it
         }
 
         sheetsViewModel.toastEvent.observe(viewLifecycleOwner) { event ->
