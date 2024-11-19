@@ -2,16 +2,24 @@ package com.lozog.expensetracker.ui.history
 
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
@@ -71,6 +79,77 @@ class HistoryFragment: Fragment() {
         }
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val barChart = view.findViewById<BarChart>(R.id.bar_chart)
+
+        // Sample data
+        // TODO: use category spending data
+        val categories = listOf("Food", "Travel", "Shopping", "Bills")
+        val actualAmounts = listOf(50f, 200f, 150f, 300f)
+        val targetAmounts = listOf(100f, 180f, 130f, 250f)
+
+        // Create bar entries for actual amounts
+        val actualEntries = actualAmounts.mapIndexed { index, value ->
+            BarEntry(index.toFloat(), value)
+        }
+
+        // Create bar entries for target amounts
+        val targetEntries = targetAmounts.mapIndexed { index, value ->
+            BarEntry(index.toFloat(), value)
+        }
+
+        // Create datasets
+        val actualDataSet = BarDataSet(actualEntries, "Actual")
+        actualDataSet.color = ColorTemplate.COLORFUL_COLORS[0]
+        actualDataSet.setColor(ColorTemplate.COLORFUL_COLORS[0], 128) // Semi-transparent
+
+        val targetDataSet = BarDataSet(targetEntries, "Target")
+        targetDataSet.color = ColorTemplate.COLORFUL_COLORS[1]
+        targetDataSet.setColor(ColorTemplate.COLORFUL_COLORS[1], 128) // Semi-transparent
+
+        // Combine data into BarData
+        val data = BarData(actualDataSet, targetDataSet)
+        data.barWidth = 0.4f // Adjust bar width
+
+        // get colour for the text
+        val typedValue = TypedValue()
+        val theme = view.context.theme
+        theme.resolveAttribute(android.R.attr.textColorHint, typedValue, true)
+        val textColorHint = if (typedValue.resourceId != 0) {
+            ContextCompat.getColor(view.context, typedValue.resourceId) // Resolve the resource ID
+        } else {
+            typedValue.data // Use the raw color value if no resource ID
+        }
+
+        data.setValueTextColor(textColorHint)
+        data.setValueTextSize(12f)
+
+        // Configure chart
+        barChart.data = data
+        barChart.description.isEnabled = false
+        barChart.setFitBars(true)
+
+        // Configure X-axis labels
+        val xAxis = barChart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.valueFormatter = IndexAxisValueFormatter(categories)
+        xAxis.granularity = 1f
+        xAxis.setDrawGridLines(false)
+        xAxis.textColor = textColorHint
+
+        // Configure Y-axis
+        barChart.axisLeft.setDrawGridLines(true)
+        barChart.axisLeft.textColor = textColorHint
+        barChart.axisRight.isEnabled = false
+
+        barChart.legend.textColor = textColorHint
+
+        // Refresh chart
+        barChart.invalidate()
     }
 
     override fun onDestroyView() {
