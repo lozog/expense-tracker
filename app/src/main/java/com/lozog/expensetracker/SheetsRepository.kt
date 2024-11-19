@@ -145,6 +145,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     private fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         Log.d(TAG, "sendExpenseRowAsync")
 
+        checkSpreadsheetConnection()
+
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val row: Int // row number in sheet
@@ -229,9 +231,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
             expenseRow.id = expenseRowId.toInt()
             Log.d(TAG, "inserted into db with id $expenseRowId")
+        } else {
+            expenseRowDao.update(expenseRow)
         }
-
-        checkSpreadsheetConnection()
 
         sendExpenseRowAsync(expenseRow).await()
     }
