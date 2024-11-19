@@ -98,13 +98,11 @@ class HistoryFragment: Fragment() {
 //        val actualAmounts = listOf(50f, 200f, 150f, 300f)
 //        val targetAmounts = listOf(100f, 180f, 130f, 250f)
 
-            // TODO: ignore fixed categories in a more robust way
-            val ignoredKeys = setOf("mortgage", "condo fees", "property tax")
+            val keysToShow = setOf("Groceries", "Dining Out", "Drinks", "Material Items", "Entertainment")
 
             val sortedCategories = categorySpending.entries
-                .filter { it.key !in ignoredKeys } // Filter out ignored keys
+                .filter { it.key in keysToShow }
                 .sortedByDescending { it.value }  // Sort by amount in descending order
-                .take(5)                          // Take the top 5 categories
 
             // Extract the sorted keys (categories) and values (amounts)
             val categories = sortedCategories.map { it.key }
