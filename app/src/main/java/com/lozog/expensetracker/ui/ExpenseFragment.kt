@@ -169,7 +169,6 @@ class ExpenseFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d(TAG, "item: $item")
         return when (item.itemId) {
             android.R.id.home -> {
                 findNavController().navigate(R.id.navigation_history)

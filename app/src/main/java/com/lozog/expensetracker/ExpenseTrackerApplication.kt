@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -90,6 +91,10 @@ class ExpenseTrackerApplication : Application() {
             .setConstraints(constraints)
             .build()
 
-        WorkManager.getInstance(context).enqueue(workRequest)
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "NetworkAvailableWorker",
+            ExistingPeriodicWorkPolicy.KEEP, // Ensures only one instance runs
+            workRequest
+        )
     }
 }
