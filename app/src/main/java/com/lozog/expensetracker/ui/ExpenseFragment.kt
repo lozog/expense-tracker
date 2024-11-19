@@ -150,9 +150,13 @@ class ExpenseFragment : Fragment() {
             }
         }
 
-        KeyboardManager.showKeyboard(expenseItem)
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        KeyboardManager.showKeyboard(expenseItem)
     }
 
     private fun validateInput(): Boolean {
