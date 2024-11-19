@@ -280,7 +280,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
             if (expenseMonth != curMonth) continue
             val amount = expenseRow.expenseAmount.toFloatOrNull() ?: 0.0f
-            categorySums[expenseRow.expenseCategoryValue] = categorySums.getOrPut(expenseRow.expenseCategoryValue) { 0f } + amount
+            categorySums[expenseRow.expenseCategoryValue.lowercase()] = categorySums.getOrPut(expenseRow.expenseCategoryValue.lowercase()) { 0f } + amount
         }
 
         return categorySums

@@ -98,38 +98,44 @@ class HistoryFragment: Fragment() {
 //        val actualAmounts = listOf(50f, 200f, 150f, 300f)
 //        val targetAmounts = listOf(100f, 180f, 130f, 250f)
 
-            val keysToShow = setOf("Groceries", "Dining Out", "Drinks", "Material Items", "Entertainment")
+            val keysToShow = listOf("Groceries", "Dining Out", "Drinks", "Material Items", "Entertainment")
+                .map { it.lowercase() } // Convert to lowercase for case-insensitive comparison
+                .toList()
+
+            Log.d(TAG, "keysToShow: $keysToShow")
 
             val sortedCategories = categorySpending.entries
-                .filter { it.key in keysToShow }
+                .filter { it.key.lowercase() in keysToShow }
                 .sortedByDescending { it.value }  // Sort by amount in descending order
+            Log.d(TAG, "sortedCategories: $sortedCategories")
 
             // Extract the sorted keys (categories) and values (amounts)
-            val categories = sortedCategories.map { it.key }
+            val categories = sortedCategories.map { it.key.lowercase() }
             val actualAmounts = sortedCategories.map { it.value }
+            val targetAmounts = listOf(322f, 543f, 239f, 272f, 190f)
+            Log.d(TAG, "categories: $categories")
 
             // Create bar entries for actual amounts
             val actualEntries = actualAmounts.mapIndexed { index, value ->
                 BarEntry(index.toFloat(), value)
             }
 
-//        // Create bar entries for target amounts
-//        val targetEntries = targetAmounts.mapIndexed { index, value ->
-//            BarEntry(index.toFloat(), value)
-//        }
+            // Create bar entries for target amounts
+            val targetEntries = targetAmounts.mapIndexed { index, value ->
+                BarEntry(index.toFloat(), value)
+            }
 
             // Create datasets
             val actualDataSet = BarDataSet(actualEntries, "Actual")
             actualDataSet.color = ColorTemplate.COLORFUL_COLORS[0]
 //            actualDataSet.setColor(ColorTemplate.COLORFUL_COLORS[0], 128) // Semi-transparent
 
-//        val targetDataSet = BarDataSet(targetEntries, "Target")
-//        targetDataSet.color = ColorTemplate.COLORFUL_COLORS[1]
-//        targetDataSet.setColor(ColorTemplate.COLORFUL_COLORS[1], 128) // Semi-transparent
+            val targetDataSet = BarDataSet(targetEntries, "Target")
+            targetDataSet.color = ColorTemplate.COLORFUL_COLORS[1]
+            targetDataSet.setColor(ColorTemplate.COLORFUL_COLORS[1], 128) // Semi-transparent
 
             // Combine data into BarData
-//        val data = BarData(actualDataSet, targetDataSet)
-            val data = BarData(actualDataSet)
+            val data = BarData(actualDataSet, targetDataSet)
             data.barWidth = 0.4f // Adjust bar width
 
             // get colour for the text
@@ -167,7 +173,7 @@ class HistoryFragment: Fragment() {
             barChart.axisRight.isEnabled = false
 
             barChart.legend.textColor = textColorHint
-            barChart.legend.isEnabled = false
+//            barChart.legend.isEnabled = false
 
             // Refresh chart
             barChart.invalidate()
