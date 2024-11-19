@@ -51,10 +51,6 @@ class HistoryAdapter(
         val numberFormat = NumberFormat.getCurrencyInstance()
         numberFormat.maximumFractionDigits = 2
 
-        if (position == 0) {
-            Log.d(TAG, "looking at first item: ${expenseRow.expenseAmount}, ${expenseRow.expenseAmountOthers}, ${expenseRow.exchangeRate}")
-        }
-
         val expenseAmountFinal = ((expenseRow.expenseAmount.toFloatOrNull() ?: 0.0f) - (expenseRow.expenseAmountOthers.toFloatOrNull() ?: 0.0f)) * (expenseRow.exchangeRate.toFloatOrNull() ?: 1.0f)
         viewHolder.expenseTotalTextView.text = numberFormat.format(expenseAmountFinal)
 
