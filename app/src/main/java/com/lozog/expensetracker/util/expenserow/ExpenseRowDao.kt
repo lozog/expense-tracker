@@ -20,6 +20,9 @@ interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE `expense_category_value`=(:category)")
     fun getExpensesByCategory(category: String): List<ExpenseRow>
 
+    @Query("SELECT * FROM expenseRow WHERE `sync_status`!=(:syncStatusDeleted)")
+    suspend fun getAllExpenseRows(syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): List<ExpenseRow>
+
     @Update(onConflict=OnConflictStrategy.REPLACE)
     fun update(expenseRow: ExpenseRow): Int
 
