@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +28,7 @@ class HistoryAdapter(
         val expenseTotalTextView: TextView = view.findViewById(R.id.historyExpenseTotal)
         val expenseCategoryTextView: TextView = view.findViewById(R.id.historyExpenseCategory)
         val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
+        val syncIcon: ImageView = view.findViewById(R.id.syncIcon)
     }
 
     // Create new views (invoked by the layout manager)
@@ -49,11 +51,15 @@ class HistoryAdapter(
         val numberFormat = NumberFormat.getCurrencyInstance()
         numberFormat.maximumFractionDigits = 2
 
+        // TODO: calculate expenseTotal correctly regardless of sync status
         try {
             viewHolder.expenseTotalTextView.text = numberFormat.format(expenseRow.expenseTotal.toFloat())
         } catch (e: Exception) {
             viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
         }
+
+        val shouldShowSyncIcon = expenseRow.syncStatus == ExpenseRow.STATUS_PENDING
+        viewHolder.syncIcon.visibility = if (shouldShowSyncIcon) View.VISIBLE else View.GONE
 
         viewHolder.itemView.setOnClickListener {
 //            Log.d(TAG, "clicked row ${expenseRow.row}")

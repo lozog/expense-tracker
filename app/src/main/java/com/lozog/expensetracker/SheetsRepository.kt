@@ -238,6 +238,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
     /**
      * Given a category, fetches the amount spent in that category so far this month
+     * TODO: instead of querying the sheet, guesstimate by using local data
      */
     fun fetchCategorySpendingAsync(
         expenseCategoryValue: String
