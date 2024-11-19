@@ -220,11 +220,10 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     /**
-     * Wraps sendExpenseRowAsync by inserting expenseRow into DB and checking for connection to spreadsheet service
-     * TODO: this is kind of confusing, can you consolidate them?
+     * Wraps sendExpenseRowAsync by upserting expenseRow into DB and checking for connection to spreadsheet service
      */
-    fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
-        Log.d(TAG, "addExpenseRowAsync")
+    fun upsertExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
+        Log.d(TAG, "upsertExpenseRowAsync")
 
         if (expenseRow.id == 0) { // not in DB
             val expenseRowId = expenseRowDao.insert(expenseRow)

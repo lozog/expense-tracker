@@ -18,7 +18,6 @@ import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentExpenseBinding
 import com.lozog.expensetracker.util.KeyboardManager
-import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import kotlinx.android.synthetic.main.fragment_expense.*
 import java.text.SimpleDateFormat
@@ -139,21 +138,11 @@ class ExpenseFragment : Fragment() {
 
         submitButton.setOnClickListener { view ->
             upsertExpense(view)
-        }
 
-        sheetsViewModel.status.observe(viewLifecycleOwner) {
-            when (it) {
-                SheetsStatus.IN_PROGRESS -> submitButton.text =
-                    getString(R.string.button_expense_submitting)
+            Toast.makeText(requireContext(), "Added expense", Toast.LENGTH_SHORT).show()
 
-                SheetsStatus.DONE -> {
-                    if (isNewExpenseRow()) {
-                        clearInputs()
-                    }
-                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
-                }
-
-                null -> submitButton.text = getString(R.string.button_expense_submit)
+            if (isNewExpenseRow()) {
+                clearInputs()
             }
         }
 

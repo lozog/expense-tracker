@@ -112,7 +112,7 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
                 ExpenseRow.STATUS_PENDING
             )
 
-            sheetsRepository.addExpenseRowAsync(expenseRow)
+            sheetsRepository.upsertExpenseRowAsync(expenseRow)
 
             // clear the notification
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

@@ -88,7 +88,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             try {
                 // create the expense row
                 withContext(Dispatchers.IO) {
-                    sheetsRepository.addExpenseRowAsync(expenseRow).await()
+                    sheetsRepository.upsertExpenseRowAsync(expenseRow).await()
 
                     // fetch up to date spending for category
                     val spentSoFar = sheetsRepository
@@ -129,11 +129,16 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     fun deleteRowAsync(expenseId: Int) {
         viewModelScope.launch {
             try {
-                sheetsRepository.deleteRowAsync(expenseId).await()
+                withTimeout(10000) {
+                    sheetsRepository.deleteRowAsync(expenseId).await()
+                }
                 sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
                 _toastEvent.value = Event("Deleted row with id $expenseId")
             } catch (e: NoInternetException) {
+                _toastEvent.value = Event(e.message ?: "NoInternetException")
+            } catch (e: Exception) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
+
             }
         }
     }
