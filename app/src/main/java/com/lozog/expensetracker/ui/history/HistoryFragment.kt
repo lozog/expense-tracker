@@ -89,31 +89,22 @@ class HistoryFragment: Fragment() {
 
         val barChart = view.findViewById<BarChart>(R.id.bar_chart)
 
-        // for each category, get spending
         lifecycleScope.launch {
             val categorySpending =
                 (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository.getAllCategorySpending()
-
-
-//        val actualAmounts = listOf(50f, 200f, 150f, 300f)
-//        val targetAmounts = listOf(100f, 180f, 130f, 250f)
 
             val keysToShow = listOf("Groceries", "Dining Out", "Drinks", "Material Items", "Entertainment")
                 .map { it.lowercase() } // Convert to lowercase for case-insensitive comparison
                 .toList()
 
-            Log.d(TAG, "keysToShow: $keysToShow")
-
             val sortedCategories = categorySpending.entries
                 .filter { it.key.lowercase() in keysToShow }
                 .sortedByDescending { it.value }  // Sort by amount in descending order
-            Log.d(TAG, "sortedCategories: $sortedCategories")
 
             // Extract the sorted keys (categories) and values (amounts)
             val categories = sortedCategories.map { it.key.lowercase() }
             val actualAmounts = sortedCategories.map { it.value }
             val targetAmounts = listOf(322f, 543f, 239f, 272f, 190f)
-            Log.d(TAG, "categories: $categories")
 
             // Create bar entries for actual amounts
             val actualEntries = actualAmounts.mapIndexed { index, value ->
@@ -130,9 +121,9 @@ class HistoryFragment: Fragment() {
             actualDataSet.color = ColorTemplate.COLORFUL_COLORS[0]
 //            actualDataSet.setColor(ColorTemplate.COLORFUL_COLORS[0], 128) // Semi-transparent
 
-            val targetDataSet = BarDataSet(targetEntries, "Target")
+            val targetDataSet = BarDataSet(targetEntries, "Average")
             targetDataSet.color = ColorTemplate.COLORFUL_COLORS[1]
-            targetDataSet.setColor(ColorTemplate.COLORFUL_COLORS[1], 128) // Semi-transparent
+            targetDataSet.setColor(ColorTemplate.COLORFUL_COLORS[2], 64) // Semi-transparent
 
             // Combine data into BarData
             val data = BarData(actualDataSet, targetDataSet)
