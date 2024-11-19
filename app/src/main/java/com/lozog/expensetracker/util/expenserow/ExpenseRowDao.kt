@@ -8,10 +8,10 @@ interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusDone) ORDER BY `row` DESC LIMIT (:historyLength)")
     fun getExpenseRows(historyLength: Int, syncStatusDone: String = ExpenseRow.STATUS_DONE): LiveData<List<ExpenseRow>>
 
-    @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending)")
+    @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `id` DESC")
     fun getPendingExpenseRowsLiveData(syncStatusPending: String = ExpenseRow.STATUS_PENDING): LiveData<List<ExpenseRow>>
 
-    @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending)")
+    @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `row` DESC")
     suspend fun getPendingExpenseRows(syncStatusPending: String = ExpenseRow.STATUS_PENDING): List<ExpenseRow>
 
     @Query("SELECT * FROM expenseRow WHERE `id`=(:id)")
