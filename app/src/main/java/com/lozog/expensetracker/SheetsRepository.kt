@@ -67,7 +67,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     fun getRecentHistory(): LiveData<List<ExpenseRow>> {
         val res = MediatorLiveData<List<ExpenseRow>>()
 
-        val pendingExpenses = expenseRowDao.getAllPendingExpenseRows()
+        val pendingExpenses = expenseRowDao.getPendingExpenseRowsLiveData()
         val syncedExpenses = expenseRowDao.getExpenseRows(sharedPreferences.getString("history_length", "5")!!.toInt())
 
         res.addSource(syncedExpenses) { filteredList ->
@@ -204,6 +204,20 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     /**
+     * sends all pending ExpenseRows to the sheet
+     */
+    fun sendPendingExpenseRowsAsync() = coroutineScope.async {
+        val pendingExpenseRows = expenseRowDao.getPendingExpenseRows()
+        coroutineScope {
+            pendingExpenseRows.map { expense ->
+                async(Dispatchers.IO) {
+                    sendExpenseRowAsync(expense)
+                }
+            }.awaitAll()
+        }
+    }
+
+    /**
      * Wraps sendExpenseRowAsync by inserting expenseRow into DB and checking for connection to spreadsheet service
      * TODO: this is kind of confusing, can you consolidate them?
      */
@@ -271,6 +285,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
+
+        sendPendingExpenseRowsAsync().await()
 
         val values = application
             .spreadsheetService!!

@@ -1,8 +1,13 @@
 package com.lozog.expensetracker
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.preference.PreferenceManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -13,7 +18,9 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
+import com.lozog.expensetracker.util.NetworkAvailableWorker
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDB
+import java.util.concurrent.TimeUnit
 
 class ExpenseTrackerApplication : Application() {
 
@@ -49,6 +56,8 @@ class ExpenseTrackerApplication : Application() {
         if (account != null) {
             onSignInSuccess(account)
         }
+
+        setupNetworkWorker(this)
     }
 
     fun onSignInSuccess(account: GoogleSignInAccount) {
@@ -70,5 +79,17 @@ class ExpenseTrackerApplication : Application() {
         this.googleAccount = account
         this.spreadsheetService = spreadsheetService
         this.driveService = driveService
+    }
+
+    private fun setupNetworkWorker(context: Context) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val workRequest = PeriodicWorkRequestBuilder<NetworkAvailableWorker>(15, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(workRequest)
     }
 }
