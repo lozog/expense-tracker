@@ -6,12 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.lozog.expensetracker.R
+import com.lozog.expensetracker.util.CalendarHelper
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import java.text.NumberFormat
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class HistoryAdapter(
     private val recentHistory: List<ExpenseRow>,
@@ -27,6 +31,7 @@ class HistoryAdapter(
         val expenseTotalTextView: TextView = view.findViewById(R.id.historyExpenseTotal)
         val expenseCategoryTextView: TextView = view.findViewById(R.id.historyExpenseCategory)
         val expenseDateTextView: TextView = view.findViewById(R.id.historyExpenseDate)
+        val syncIcon: ImageView = view.findViewById(R.id.syncIcon)
     }
 
     // Create new views (invoked by the layout manager)
@@ -44,16 +49,19 @@ class HistoryAdapter(
 
         viewHolder.expenseItemTextView.text = expenseRow.expenseItem
         viewHolder.expenseCategoryTextView.text = expenseRow.expenseCategoryValue
-        viewHolder.expenseDateTextView.text = expenseRow.expenseDate.dropLast(6) // removes ", YYYY" from datestring
 
         val numberFormat = NumberFormat.getCurrencyInstance()
         numberFormat.maximumFractionDigits = 2
 
-        try {
-            viewHolder.expenseTotalTextView.text = numberFormat.format(expenseRow.expenseTotal.toFloat())
-        } catch (e: Exception) {
-            viewHolder.expenseTotalTextView.text = expenseRow.expenseTotal
-        }
+        val expenseAmountFinal = ((expenseRow.expenseAmount.toFloatOrNull() ?: 0.0f) - (expenseRow.expenseAmountOthers.toFloatOrNull() ?: 0.0f)) * (expenseRow.exchangeRate.toFloatOrNull() ?: 1.0f)
+        viewHolder.expenseTotalTextView.text = numberFormat.format(expenseAmountFinal)
+
+        val shouldShowSyncIcon = expenseRow.syncStatus == ExpenseRow.STATUS_PENDING
+        viewHolder.syncIcon.visibility = if (shouldShowSyncIcon) View.VISIBLE else View.GONE
+
+        val dateFormat = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH)
+        val expenseDateFormatted = CalendarHelper.parseDatestring(expenseRow.expenseDate)?.format(dateFormat) ?: "--"
+        viewHolder.expenseDateTextView.text = expenseDateFormatted
 
         viewHolder.itemView.setOnClickListener {
 //            Log.d(TAG, "clicked row ${expenseRow.row}")

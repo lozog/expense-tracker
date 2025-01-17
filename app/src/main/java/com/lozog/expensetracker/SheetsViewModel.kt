@@ -10,6 +10,7 @@ import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.coroutines.*
+import java.text.NumberFormat
 
 class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
     companion object {
@@ -19,7 +20,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     var recentHistory: LiveData<List<ExpenseRow>> = sheetsRepository.getRecentHistory()
 
     val status = MutableLiveData<SheetsStatus>()
-    val statusText = MutableLiveData<String>()
     val detailExpenseRow = MutableLiveData<ExpenseRow>()
     val error = MutableLiveData<UserRecoverableAuthIOException>()
     val spreadsheets = MutableLiveData<List<File>>()
@@ -27,10 +27,6 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
     private val _toastEvent = MutableLiveData<Event<String>>()
     val toastEvent: LiveData<Event<String>> get() = _toastEvent
-
-    fun setStatusText(signInStatus: String) {
-        statusText.value = signInStatus
-    }
 
     private fun setStatus(status: SheetsStatus) {
         this.status.value = status
@@ -88,16 +84,17 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             try {
                 // create the expense row
                 withContext(Dispatchers.IO) {
-                    sheetsRepository.addExpenseRowAsync(expenseRow).await()
+                    sheetsRepository.upsertExpenseRowAsync(expenseRow).await()
 
                     // fetch up to date spending for category
-                    val spentSoFar = sheetsRepository
-                        .fetchCategorySpendingAsync(expenseRow.expenseCategoryValue)
-                        .await()
+                    val spentSoFar = sheetsRepository.getCategorySpending(expenseRow.expenseCategoryValue)
+                    val numberFormat = NumberFormat.getCurrencyInstance()
+                    numberFormat.maximumFractionDigits = 2
+                    val spentSoFarFormatted = numberFormat.format(spentSoFar)
 
                     // TODO: kinda going crazy with the contexts here
                     withContext(Dispatchers.Main) {
-                        _toastEvent.value = Event("$spentSoFar spent so far in ${expenseRow.expenseCategoryValue}")
+                        _toastEvent.value = Event("$spentSoFarFormatted spent so far in ${expenseRow.expenseCategoryValue}")
                     }
 
                     // fetch up to date recent history
@@ -129,11 +126,16 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     fun deleteRowAsync(expenseId: Int) {
         viewModelScope.launch {
             try {
-                sheetsRepository.deleteRowAsync(expenseId).await()
+                withTimeout(10000) {
+                    sheetsRepository.deleteRowAsync(expenseId).await()
+                }
                 sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
                 _toastEvent.value = Event("Deleted row with id $expenseId")
             } catch (e: NoInternetException) {
+                _toastEvent.value = Event(e.message ?: "NoInternetException")
+            } catch (e: Exception) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
+
             }
         }
     }

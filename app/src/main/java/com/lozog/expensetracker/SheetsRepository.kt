@@ -17,6 +17,7 @@ import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.Request as SheetsRequest
 import com.google.api.services.sheets.v4.model.Sheet
 import com.google.api.services.sheets.v4.model.ValueRange
+import com.lozog.expensetracker.util.CalendarHelper
 import com.lozog.expensetracker.util.NoInternetException
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDao
@@ -67,7 +68,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     fun getRecentHistory(): LiveData<List<ExpenseRow>> {
         val res = MediatorLiveData<List<ExpenseRow>>()
 
-        val pendingExpenses = expenseRowDao.getAllPendingExpenseRows()
+        val pendingExpenses = expenseRowDao.getPendingExpenseRowsLiveData()
         val syncedExpenses = expenseRowDao.getExpenseRows(sharedPreferences.getString("history_length", "5")!!.toInt())
 
         res.addSource(syncedExpenses) { filteredList ->
@@ -145,6 +146,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     private fun sendExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
         Log.d(TAG, "sendExpenseRowAsync")
 
+        checkSpreadsheetConnection()
+
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val row: Int // row number in sheet
@@ -204,61 +207,83 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     /**
-     * Wraps sendExpenseRowAsync by inserting expenseRow into DB and checking for connection to spreadsheet service
-     * TODO: this is kind of confusing, can you consolidate them?
+     * sends all pending ExpenseRows to the sheet
      */
-    fun addExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
-        Log.d(TAG, "addExpenseRowAsync")
+    fun sendPendingExpenseRowsAsync() = coroutineScope.async {
+        val pendingExpenseRows = expenseRowDao.getPendingExpenseRows()
+        coroutineScope {
+            pendingExpenseRows.map { expense ->
+                async(Dispatchers.IO) {
+                    sendExpenseRowAsync(expense)
+                }
+            }.awaitAll()
+        }
+    }
+
+    /**
+     * Wraps sendExpenseRowAsync by upserting expenseRow into DB and checking for connection to spreadsheet service
+     */
+    fun upsertExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
+        Log.d(TAG, "upsertExpenseRowAsync")
 
         if (expenseRow.id == 0) { // not in DB
             val expenseRowId = expenseRowDao.insert(expenseRow)
 
             expenseRow.id = expenseRowId.toInt()
             Log.d(TAG, "inserted into db with id $expenseRowId")
+        } else {
+            expenseRowDao.update(expenseRow)
         }
-
-        checkSpreadsheetConnection()
 
         sendExpenseRowAsync(expenseRow).await()
     }
 
     /**
-     * Given a category, fetches the amount spent in that category so far this month
+     * Given a category, returns the amount spent in that category so far this month
+     * based on local data
      */
-    fun fetchCategorySpendingAsync(
+    fun getCategorySpending(
         expenseCategoryValue: String
-    ): Deferred<String> = coroutineScope.async {
-        Log.d(TAG, "fetchCategorySpendingAsync")
-        checkSpreadsheetConnection()
+    ): Float {
+        Log.d(TAG, "getCategorySpending")
+        val curMonth = Calendar.getInstance().get(Calendar.MONTH)
 
-        val janColumnPref = sharedPreferences.getString("month_column", null)
+        val expenses = expenseRowDao.getExpensesByCategory(expenseCategoryValue)
+        // find expenses of current month, add them to total
 
-        if (janColumnPref == null) {
-            Log.d(TAG, "fetchCategorySpendingAsync - no January Column")
-            throw Exception("fetchCategorySpendingAsync - no January Column")
+        var sum = 0.0f
+        expenses.forEach {
+            val expenseMonth = (CalendarHelper.parseDatestring(it.expenseDate)?.monthValue ?: 0) - 1
+
+            if (expenseMonth == curMonth) {
+                sum += it.expenseAmount.toFloatOrNull() ?: 0.0f
+            }
+        }
+        return sum
+    }
+
+    /**
+     * Returns a map (category -> amount) of all category spending totals
+     */
+    suspend fun getAllCategorySpending(): MutableMap<String, Float> {
+        Log.d(TAG, "getAllCategorySpending")
+        val curMonth = Calendar.getInstance().get(Calendar.MONTH)
+
+        val expenses = withContext(Dispatchers.IO) {
+            expenseRowDao.getAllExpenseRows()
         }
 
-        val curMonthColumn = (janColumnPref.first().code + Calendar.getInstance().get(Calendar.MONTH)).toChar()
-        val categoryCell = CATEGORY_ROW_MAP[expenseCategoryValue]
-        val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
-        val overviewSheetName = sharedPreferences.getString("overview_sheet_name", null)
+        val categorySums = mutableMapOf<String, Float>()
 
-        if (categoryCell == null) {
-            Log.e(TAG, "Category $expenseCategoryValue not found")
-            throw Exception("Category $expenseCategoryValue not found")
+        for (expenseRow in expenses) {
+            val expenseMonth = (CalendarHelper.parseDatestring(expenseRow.expenseDate)?.monthValue ?: 0) - 1
+
+            if (expenseMonth != curMonth) continue
+            val amount = expenseRow.expenseAmount.toFloatOrNull() ?: 0.0f
+            categorySums[expenseRow.expenseCategoryValue.lowercase()] = categorySums.getOrPut(expenseRow.expenseCategoryValue.lowercase()) { 0f } + amount
         }
 
-        val categorySpendingCell = "'$overviewSheetName'!$curMonthColumn$categoryCell"
-        val data = application.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .get(spreadsheetId, categorySpendingCell)
-            .execute()
-            .getValues()
-
-        val spentSoFar = data[0][0]
-
-        return@async "$spentSoFar".trim()
+        return categorySums
     }
 
     /**
@@ -271,6 +296,8 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
+
+        sendPendingExpenseRowsAsync().await()
 
         val values = application
             .spreadsheetService!!

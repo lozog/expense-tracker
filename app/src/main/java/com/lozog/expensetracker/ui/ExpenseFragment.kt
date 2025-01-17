@@ -6,19 +6,21 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentExpenseBinding
 import com.lozog.expensetracker.util.KeyboardManager
-import com.lozog.expensetracker.util.SheetsStatus
 import com.lozog.expensetracker.util.expenserow.ExpenseRow
 import kotlinx.android.synthetic.main.fragment_expense.*
 import java.text.SimpleDateFormat
@@ -46,7 +48,6 @@ class ExpenseFragment : Fragment() {
     private lateinit var currencyLabel: EditText
     private lateinit var currencyExchangeRate: EditText
     private lateinit var submitButton: Button
-    private lateinit var statusTextView: TextView
 
     private var notificationId: Int = -1
 
@@ -69,7 +70,6 @@ class ExpenseFragment : Fragment() {
         mainActivity = activity as MainActivity
         val root: View = binding.root
 
-        statusTextView = binding.expenseStatusText
         expenseDate = binding.expenseDate
         expenseItem = binding.expenseItem
         expenseCategory = binding.expenseCategory
@@ -139,21 +139,11 @@ class ExpenseFragment : Fragment() {
 
         submitButton.setOnClickListener { view ->
             upsertExpense(view)
-        }
 
-        sheetsViewModel.status.observe(viewLifecycleOwner) {
-            when (it) {
-                SheetsStatus.IN_PROGRESS -> submitButton.text =
-                    getString(R.string.button_expense_submitting)
+            Toast.makeText(requireContext(), "Added expense", Toast.LENGTH_SHORT).show()
 
-                SheetsStatus.DONE -> {
-                    if (isNewExpenseRow()) {
-                        clearInputs()
-                    }
-                    expenseSubmitButton.text = getString(R.string.button_expense_submit)
-                }
-
-                null -> submitButton.text = getString(R.string.button_expense_submit)
+            if (isNewExpenseRow()) {
+                clearInputs()
             }
         }
 
@@ -163,13 +153,29 @@ class ExpenseFragment : Fragment() {
             }
         }
 
-        sheetsViewModel.statusText.observe(viewLifecycleOwner) {
-            expenseStatusText.text = it
-        }
-
-        KeyboardManager.showKeyboard(expenseItem)
+        setHasOptionsMenu(true)
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        KeyboardManager.showKeyboard(expenseItem)
+
+        // Enable the action bar back button, since navigation_new_expense is the start destination in the nav
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                findNavController().navigate(R.id.navigation_history)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun validateInput(): Boolean {
