@@ -1,6 +1,5 @@
 package com.lozog.expensetracker.ui.history
 
-import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -64,14 +63,14 @@ class HistoryAdapter(
         viewHolder.expenseDateTextView.text = expenseDateFormatted
 
         viewHolder.itemView.setOnClickListener {
-//            Log.d(TAG, "clicked row ${expenseRow.row}")
             val action = HistoryFragmentDirections.actionNavigationHistoryToExpenseFragment(expenseRow.id)
             it.findNavController().navigate(action)
         }
 
         if (position % 2 == 1) {
-            // TODO: get colour from theme
-            viewHolder.itemView.setBackgroundColor(Color.parseColor("#404040"))
+            viewHolder.itemView.setBackgroundColor(viewHolder.itemView.context.resources.getColor(R.color.colorSecondaryRow, null))
+        } else {
+            viewHolder.itemView.setBackgroundColor(0)
         }
 
         viewHolder.deleteButton.setOnClickListener {

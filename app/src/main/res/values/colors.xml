@@ -4,5 +4,6 @@
     <color name="colorPrimaryDark">#00690A</color>
     <color name="colorAccent">#ff3678</color>
     <color name="colorAccentDark">#B31447</color>
+    <color name="colorSecondaryRow">#404040</color>
 </resources>
 <!-- could also try using grey for the actionbar -->
