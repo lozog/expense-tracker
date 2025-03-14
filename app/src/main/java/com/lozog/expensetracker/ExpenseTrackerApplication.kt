@@ -1,13 +1,12 @@
 package com.lozog.expensetracker
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -21,7 +20,6 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.lozog.expensetracker.util.NetworkAvailableWorker
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDB
-import java.util.concurrent.TimeUnit
 
 class ExpenseTrackerApplication : Application() {
 
@@ -58,7 +56,7 @@ class ExpenseTrackerApplication : Application() {
             onSignInSuccess(account)
         }
 
-        setupNetworkWorker(this)
+        setupNetworkWorker()
     }
 
     fun onSignInSuccess(account: GoogleSignInAccount) {
@@ -82,19 +80,31 @@ class ExpenseTrackerApplication : Application() {
         this.driveService = driveService
     }
 
-    private fun setupNetworkWorker(context: Context) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+    fun setupNetworkWorker() {
+        val workManager = WorkManager.getInstance(this)
 
-        val workRequest = PeriodicWorkRequestBuilder<NetworkAvailableWorker>(15, TimeUnit.MINUTES)
-            .setConstraints(constraints)
-            .build()
+        workManager.getWorkInfosForUniqueWork("NetworkAvailableWorker")
+            .get()
+            .let { workInfos ->
+                if (workInfos.isEmpty() || workInfos.any { it.state.isFinished }) {
+                    Log.d(TAG, "Scheduling NetworkAvailableWorker")
 
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "NetworkAvailableWorker",
-            ExistingPeriodicWorkPolicy.KEEP, // Ensures only one instance runs
-            workRequest
-        )
+                    val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+
+                    val workRequest = OneTimeWorkRequestBuilder<NetworkAvailableWorker>()
+                        .setConstraints(constraints)
+                        .build()
+
+                    workManager.enqueueUniqueWork(
+                        "NetworkAvailableWorker",
+                        ExistingWorkPolicy.REPLACE, // Ensures only one instance runs
+                        workRequest
+                    )
+                } else {
+                    Log.d(TAG, "NetworkAvailableWorker already scheduled, skipping setup.")
+                }
+            }
     }
 }

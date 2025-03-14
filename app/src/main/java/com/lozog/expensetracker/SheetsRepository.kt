@@ -129,6 +129,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "no internet")
+            application.setupNetworkWorker()
             throw NoInternetException()
         }
 
