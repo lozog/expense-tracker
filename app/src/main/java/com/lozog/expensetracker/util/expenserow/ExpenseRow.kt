@@ -25,6 +25,7 @@ data class ExpenseRow(
         const val STATUS_DONE = "DONE" // TODO: maybe a better word would be "synced"
         const val STATUS_DELETED = "DELETED"
         const val STATUS_PENDING = "PENDING"
+        const val STATUS_SYNCING = "SYNCING"
     }
 
     constructor(input: List<Any>) : this(

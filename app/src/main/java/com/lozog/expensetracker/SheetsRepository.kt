@@ -148,6 +148,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         checkSpreadsheetConnection()
 
+        expenseRow.syncStatus = ExpenseRow.STATUS_SYNCING
+        expenseRowDao.update(expenseRow)
+
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val row: Int // row number in sheet
