@@ -39,6 +39,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.lozog.expensetracker'
 }
 
 // several dependencies are stuck at versions which allow for targetSdkVersion 29
