@@ -157,7 +157,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val row: Int // row number in sheet
         var isNewRow = false
 
-        val idRange = "$sheetName!A2:A"
+        val idRange = "$sheetName!AJ:J"
         val existingIds = application.spreadsheetService!!
             .spreadsheets()
             .values()
@@ -178,21 +178,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             isNewRow = true
             row = existingIds.size + 2 // same logic
         }
-//         if (expenseRow.row == 0) {
-//             // if new row, call spreadsheet service to get an up-to-date row count
-//             isNewRow = true
-//
-//             // TODO: break out into helper
-//             row = application.spreadsheetService!!
-//                .spreadsheets()
-//                .values()
-//                .get(spreadsheetId, sheetName)
-//                .execute()
-//                .getValues()
-//                .size + 1
-//        } else {
-//            row = expenseRow.row
-//        }
 
         val expenseTotal = "=(\$D$row - \$E$row)*IF(NOT(ISBLANK(\$I$row)), \$I$row, 1)"
         expenseRow.expenseTotal = expenseTotal
@@ -202,8 +187,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         requestBody.setValues(rowData)
 
         if (isNewRow) {
-//             Log.d(TAG, "inserting a new row")
-
             // insert new row
             application.spreadsheetService!!
                 .spreadsheets()
@@ -227,7 +210,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         }
 
         expenseRow.syncStatus = ExpenseRow.STATUS_DONE
-//        Log.d(TAG, "done")
         expenseRowDao.update(expenseRow)
     }
 
