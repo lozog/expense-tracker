@@ -155,9 +155,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
         val row: Int // row number in sheet
-        var isNewRow = false
+        val idColumn = "J"
 
-        val idRange = "$sheetName!AJ:J"
+        val idRange = "$sheetName!A$idColumn:$idColumn"
         val existingIds = application.spreadsheetService!!
             .spreadsheets()
             .values()
@@ -169,14 +169,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         val existingRowIndex = existingIds.indexOf(expenseRow.submissionId)
         if (existingRowIndex >= 0) {
-            // Already exists; set row and skip appending
-            expenseRow.row = existingRowIndex + 2 // +2 to account for 0-indexing + header
-            isNewRow = false
-            row = existingRowIndex + 2
+            // row already exists
+            row = existingRowIndex + 1
+            expenseRow.row = row
         } else {
             // Doesn't exist; treat as new
-            isNewRow = true
-            row = existingIds.size + 2 // same logic
+            row = existingIds.size + 1
         }
 
         val expenseTotal = "=(\$D$row - \$E$row)*IF(NOT(ISBLANK(\$I$row)), \$I$row, 1)"
@@ -186,28 +184,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val requestBody = ValueRange()
         requestBody.setValues(rowData)
 
-        if (isNewRow) {
-            // insert new row
-            application.spreadsheetService!!
-                .spreadsheets()
-                .values()
-                .append(spreadsheetId, sheetName, requestBody)
-                .setValueInputOption(SHEETS_VALUE_INPUT_OPTION)
-                .setInsertDataOption(SHEETS_INSERT_DATA_OPTION)
-                .execute()
-
-            expenseRow.row = row
-        } else {
-//             Log.d(TAG, "updating row $row - $expenseRow")
-
-            // update existing row
-            application.spreadsheetService!!
-                .spreadsheets()
-                .values()
-                .update(spreadsheetId, "'$sheetName'!$row:$row", requestBody)
-                .setValueInputOption(SHEETS_VALUE_INPUT_OPTION)
-                .execute()
-        }
+        application.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .update(spreadsheetId, "'$sheetName'!$row:$row", requestBody)
+            .setValueInputOption(SHEETS_VALUE_INPUT_OPTION)
+            .execute()
 
         expenseRow.syncStatus = ExpenseRow.STATUS_DONE
         expenseRowDao.update(expenseRow)
