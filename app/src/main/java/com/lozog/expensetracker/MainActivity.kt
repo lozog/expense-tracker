@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         updateHistory()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.action_bar, menu)
         return super.onCreateOptionsMenu(menu)
     }

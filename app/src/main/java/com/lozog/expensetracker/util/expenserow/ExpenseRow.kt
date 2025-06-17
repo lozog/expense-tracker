@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.work.Data
 import androidx.work.workDataOf
+import java.util.UUID
 
 @Entity
 data class ExpenseRow(
@@ -20,6 +21,7 @@ data class ExpenseRow(
     @ColumnInfo(name = "sync_status") var syncStatus: String = STATUS_DONE,
     @ColumnInfo(name = "row") var row: Int = 0,
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @ColumnInfo(name = "submission_id") var submissionId: String = UUID.randomUUID().toString(),
     ) {
     companion object {
         const val STATUS_DONE = "DONE" // TODO: maybe a better word would be "synced"
@@ -51,7 +53,8 @@ data class ExpenseRow(
             expenseTotal,
             expenseNotes,
             currency,
-            exchangeRate
+            exchangeRate,
+            submissionId,
         )
     }
 }

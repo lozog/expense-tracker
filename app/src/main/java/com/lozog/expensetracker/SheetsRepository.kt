@@ -157,21 +157,42 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val row: Int // row number in sheet
         var isNewRow = false
 
-         if (expenseRow.row == 0) {
-             // if new row, call spreadsheet service to get an up-to-date row count
-             isNewRow = true
+        val idRange = "$sheetName!A2:A"
+        val existingIds = application.spreadsheetService!!
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId, idRange)
+            .execute()
+            .getValues()
+            ?.mapNotNull { it.firstOrNull()?.toString() }
+            ?: emptyList()
 
-             // TODO: break out into helper
-             row = application.spreadsheetService!!
-                .spreadsheets()
-                .values()
-                .get(spreadsheetId, sheetName)
-                .execute()
-                .getValues()
-                .size + 1
+        val existingRowIndex = existingIds.indexOf(expenseRow.submissionId)
+        if (existingRowIndex >= 0) {
+            // Already exists; set row and skip appending
+            expenseRow.row = existingRowIndex + 2 // +2 to account for 0-indexing + header
+            isNewRow = false
+            row = existingRowIndex + 2
         } else {
-            row = expenseRow.row
+            // Doesn't exist; treat as new
+            isNewRow = true
+            row = existingIds.size + 2 // same logic
         }
+//         if (expenseRow.row == 0) {
+//             // if new row, call spreadsheet service to get an up-to-date row count
+//             isNewRow = true
+//
+//             // TODO: break out into helper
+//             row = application.spreadsheetService!!
+//                .spreadsheets()
+//                .values()
+//                .get(spreadsheetId, sheetName)
+//                .execute()
+//                .getValues()
+//                .size + 1
+//        } else {
+//            row = expenseRow.row
+//        }
 
         val expenseTotal = "=(\$D$row - \$E$row)*IF(NOT(ISBLANK(\$I$row)), \$I$row, 1)"
         expenseRow.expenseTotal = expenseTotal
