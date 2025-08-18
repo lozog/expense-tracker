@@ -17,6 +17,9 @@ interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE `id`=(:id)")
     fun getById(id: Int): List<ExpenseRow>
 
+    @Query("SELECT * FROM expenseRow WHERE `submission_id`=(:submissionId) LIMIT 1")
+    fun getBySubmissionId(submissionId: String): List<ExpenseRow>
+
     @Query("SELECT * FROM expenseRow WHERE `expense_category_value`=(:category)")
     fun getExpensesByCategory(category: String): List<ExpenseRow>
 
@@ -32,6 +35,42 @@ interface ExpenseRowDao {
     @Query("UPDATE expenseRow SET sync_status=(:syncStatusDeleted) WHERE `row`=(:row)")
     fun setDeletedByRow(row: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Int
 
+    @Query("UPDATE expenseRow SET sync_status=(:syncStatusDeleted) WHERE `sync_status`=(:syncStatusDone)")
+    fun setAllDoneToDeleted(
+        syncStatusDone: String = ExpenseRow.STATUS_DONE,
+        syncStatusDeleted: String = ExpenseRow.STATUS_DELETED
+    ): Int
+
+    @Query("""
+        UPDATE expenseRow SET
+            expense_date = :expenseDate,
+            expense_item = :expenseItem,
+            expense_category_value = :expenseCategoryValue,
+            expense_amount = :expenseAmount,
+            expense_amount_others = :expenseAmountOthers,
+            expense_total = :expenseTotal,
+            expense_notes = :expenseNotes,
+            currency = :currency,
+            exchange_rate = :exchangeRate,
+            sync_status = :syncStatus,
+            `row` = :row
+        WHERE submission_id = :submissionId
+    """)
+    fun updateBySubmissionId(
+        expenseDate: String,
+        expenseItem: String,
+        expenseCategoryValue: String,
+        expenseAmount: String,
+        expenseAmountOthers: String,
+        expenseTotal: String,
+        expenseNotes: String,
+        currency: String,
+        exchangeRate: String,
+        syncStatus: String,
+        row: Int,
+        submissionId: String,
+    ): Int
+
     @Insert
     fun insert(expenseRow: ExpenseRow): Long
 
@@ -44,6 +83,11 @@ interface ExpenseRowDao {
     @Query("DELETE FROM expenseRow WHERE sync_status=(:syncStatusDone) OR sync_status=(:syncStatusDeleted)")
     fun deleteAllDone(
         syncStatusDone: String = ExpenseRow.STATUS_DONE,
+        syncStatusDeleted: String = ExpenseRow.STATUS_DELETED
+    )
+
+    @Query("DELETE FROM expenseRow WHERE sync_status=(:syncStatusDeleted)")
+    fun removeDeleted(
         syncStatusDeleted: String = ExpenseRow.STATUS_DELETED
     )
 
