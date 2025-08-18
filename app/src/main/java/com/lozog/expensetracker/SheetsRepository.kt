@@ -304,6 +304,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             expenseRow.row = i + 1
             expenseRow.syncStatus = ExpenseRow.STATUS_DONE
         }
+//        Log.d(TAG, "got all expenses: ${allExpensesFromSheet.size}")
         expenseRowDao.deleteAllDoneAndInsertMany(allExpensesFromSheet)
     }
 

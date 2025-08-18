@@ -140,6 +140,8 @@ class ExpenseFragment : Fragment() {
         submitButton.setOnClickListener { view ->
             upsertExpense(view)
 
+            // TODO: change text if it was a new row or updated
+            // and also, it should wait for success or failure from all the other things
             Toast.makeText(requireContext(), "Added expense", Toast.LENGTH_SHORT).show()
 
             if (isNewExpenseRow()) {

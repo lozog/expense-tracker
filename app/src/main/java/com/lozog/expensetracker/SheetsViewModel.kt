@@ -102,6 +102,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 }
             } catch (e: NoInternetException) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
+                // TODO: persist this error somewhere
             }
 
             // TODO: catch these errors
