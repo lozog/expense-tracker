@@ -31,15 +31,16 @@ data class ExpenseRow(
     }
 
     constructor(input: List<Any>) : this(
-        input.getOrElse(0) { "" }.toString(),
-        input.getOrElse(1) { "" }.toString(),
-        input.getOrElse(2) { "" }.toString(),
-        input.getOrElse(3) { "" }.toString(),
-        input.getOrElse(4) { "" }.toString(),
-        input.getOrElse(5) { "" }.toString(),
-        input.getOrElse(6) { "" }.toString(),
-        input.getOrElse(7) { "" }.toString(),
-        input.getOrElse(8) { "" }.toString(),
+        expenseDate=input.getOrElse(0) { "" }.toString(),
+        expenseItem=input.getOrElse(1) { "" }.toString(),
+        expenseCategoryValue=input.getOrElse(2) { "" }.toString(),
+        expenseAmount=input.getOrElse(3) { "" }.toString(),
+        expenseAmountOthers=input.getOrElse(4) { "" }.toString(),
+        expenseTotal=input.getOrElse(5) { "" }.toString(),
+        expenseNotes=input.getOrElse(6) { "" }.toString(),
+        currency=input.getOrElse(7) { "" }.toString(),
+        exchangeRate=input.getOrElse(8) { "" }.toString(),
+        submissionId=input.getOrElse(9) { "" }.toString(),
     )
 
     // return as a List, to be sent to the spreadsheet
