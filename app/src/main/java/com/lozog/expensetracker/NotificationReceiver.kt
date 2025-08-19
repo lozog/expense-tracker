@@ -29,7 +29,7 @@ class NotificationReceiver : BroadcastReceiver() {
         // Perform the desired action with the notification text
         Log.d(TAG, "Received: $notificationText")
 
-        val regex = "(\\d){1,7}\\.\\d\\d".toRegex() // matches 12.00, 120.00, 1200.00, etc
+        val regex = "(\\d){1,3},?((\\d){1,3})?\\.\\d\\d".toRegex() // matches 1.00, 10.00, 100.00, 1000.00 or 1,000.00, up to 999,999.99
         val matchResult = regex.find(notificationText) ?: return
         val match = matchResult.value
 

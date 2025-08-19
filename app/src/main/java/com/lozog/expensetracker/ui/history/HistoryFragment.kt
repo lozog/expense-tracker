@@ -93,6 +93,7 @@ class HistoryFragment: Fragment() {
             val categorySpending =
                 (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository.getAllCategorySpending()
 
+            // TODO move these to a setting
             val keysToShow = listOf("Groceries", "Dining Out", "Drinks", "Material Items", "Entertainment")
                 .map { it.lowercase() } // Convert to lowercase for case-insensitive comparison
                 .toList()
@@ -104,7 +105,7 @@ class HistoryFragment: Fragment() {
             // Extract the sorted keys (categories) and values (amounts)
             val categories = sortedCategories.map { it.key.lowercase() }
             val actualAmounts = sortedCategories.map { it.value }
-            val targetAmounts = listOf(322f, 543f, 239f, 272f, 190f)
+            val targetAmounts = listOf(322f, 543f, 239f, 272f, 190f) // TODO read these dynamically
 
             // Create bar entries for actual amounts
             val actualEntries = actualAmounts.mapIndexed { index, value ->

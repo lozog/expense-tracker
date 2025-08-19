@@ -361,6 +361,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         var numDeleted = expenseRowDao.deleteAllNotIn(submissionIds)
         numDeleted += expenseRowDao.removeDeleted()
         Log.d(TAG, "$numDeleted were deleted")
+        Log.d(TAG, "fetchExpenseRowsFromSheetAsync done")
     }
 
     private fun isValidUuid(input: String?): Boolean {
