@@ -131,6 +131,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                     sheetsRepository.deleteRowAsync(expenseId).await()
                 }
                 sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+                // TODO: delete by submissionid
                 _toastEvent.value = Event("Deleted row with id $expenseId")
             } catch (e: NoInternetException) {
                 _toastEvent.value = Event(e.message ?: "NoInternetException")

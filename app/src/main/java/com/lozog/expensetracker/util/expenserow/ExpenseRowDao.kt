@@ -6,13 +6,19 @@ import androidx.room.*
 @Dao
 interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusDone) ORDER BY `row` DESC LIMIT (:historyLength)")
-    fun getExpenseRows(historyLength: Int, syncStatusDone: String = ExpenseRow.STATUS_DONE): LiveData<List<ExpenseRow>>
+    fun getExpenseRows(
+        historyLength: Int,
+        syncStatusDone: String = ExpenseRow.STATUS_DONE
+    ): LiveData<List<ExpenseRow>>
 
     @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `id` DESC")
     fun getPendingExpenseRowsLiveData(syncStatusPending: String = ExpenseRow.STATUS_PENDING): LiveData<List<ExpenseRow>>
 
     @Query("SELECT * FROM expenseRow WHERE sync_status=(:syncStatusPending) ORDER BY `row` DESC")
     suspend fun getPendingExpenseRows(syncStatusPending: String = ExpenseRow.STATUS_PENDING): List<ExpenseRow>
+
+    @Query("SELECT * FROM expenseRow")
+    suspend fun getAll(): List<ExpenseRow>
 
     @Query("SELECT * FROM expenseRow WHERE `id`=(:id)")
     fun getById(id: Int): List<ExpenseRow>
@@ -26,7 +32,7 @@ interface ExpenseRowDao {
     @Query("SELECT * FROM expenseRow WHERE `sync_status`!=(:syncStatusDeleted)")
     suspend fun getAllExpenseRows(syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): List<ExpenseRow>
 
-    @Update(onConflict=OnConflictStrategy.REPLACE)
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(expenseRow: ExpenseRow): Int
 
     @Query("UPDATE expenseRow SET sync_status=(:syncStatusDeleted) WHERE `id`=(:id)")
@@ -41,7 +47,8 @@ interface ExpenseRowDao {
         syncStatusDeleted: String = ExpenseRow.STATUS_DELETED
     ): Int
 
-    @Query("""
+    @Query(
+        """
         UPDATE expenseRow SET
             expense_date = :expenseDate,
             expense_item = :expenseItem,
@@ -55,7 +62,8 @@ interface ExpenseRowDao {
             sync_status = :syncStatus,
             `row` = :row
         WHERE submission_id = :submissionId
-    """)
+    """
+    )
     fun updateBySubmissionId(
         expenseDate: String,
         expenseItem: String,
@@ -74,29 +82,14 @@ interface ExpenseRowDao {
     @Insert
     fun insert(expenseRow: ExpenseRow): Long
 
-    @Insert
-    fun insertMany(expenseRows: List<ExpenseRow>)
-
     @Delete
     fun delete(expenseRow: ExpenseRow)
-
-    @Query("DELETE FROM expenseRow WHERE sync_status=(:syncStatusDone) OR sync_status=(:syncStatusDeleted)")
-    fun deleteAllDone(
-        syncStatusDone: String = ExpenseRow.STATUS_DONE,
-        syncStatusDeleted: String = ExpenseRow.STATUS_DELETED
-    )
 
     @Query("DELETE FROM expenseRow WHERE sync_status=(:syncStatusDeleted)")
     fun removeDeleted(
         syncStatusDeleted: String = ExpenseRow.STATUS_DELETED
-    )
+    ): Int
 
-    @Transaction
-    fun deleteAllDoneAndInsertMany(expenseRows: List<ExpenseRow>) {
-        deleteAllDone()
-        insertMany(expenseRows)
-    }
-
-    @Query("DELETE FROM expenseRow")
-    fun deleteAll()
+    @Query("DELETE FROM expenseRow WHERE submission_id NOT IN (:submissionIds)")
+    suspend fun deleteAllNotIn(submissionIds: List<String>): Int
 }

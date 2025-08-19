@@ -145,7 +145,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Upserts an ExpenseRow into the spreadsheet
      */
     private fun sendExpenseRowAsync(expenseRow: ExpenseRow, rowToUse: Int? = null) = coroutineScope.async {
-        Log.d(TAG, "sendExpenseRowAsync")
+        Log.d(TAG, "sendExpenseRowAsync $rowToUse ${expenseRow.expenseItem}")
 
         checkSpreadsheetConnection()
 
@@ -202,6 +202,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * sends all pending ExpenseRows to the sheet
      */
     fun sendPendingExpenseRowsAsync() = coroutineScope.async {
+        Log.d(TAG, "sendPendingExpenseRowsAsync")
         val pendingExpenseRows = expenseRowDao.getPendingExpenseRows()
         coroutineScope {
             pendingExpenseRows.map { expense ->
@@ -209,6 +210,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
                     sendExpenseRowAsync(expense)
                 }
             }.awaitAll()
+            Log.d(TAG, "sendPendingExpenseRowsAsync done")
         }
     }
 
@@ -301,55 +303,67 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             .execute()
             .getValues()
 
-        // set all done to deleted, so we can clean up ones that no longer have a corresponding row in the sheet
-        expenseRowDao.setAllDoneToDeleted()
+
+        val expenseRowsInDb: List<ExpenseRow> = expenseRowDao.getAll()
+        val expenseRowsInDbBySubmissionId: Map<String, ExpenseRow> = expenseRowsInDb.associateBy { it.submissionId }
 
         val allExpensesFromSheet = rowsFromSheet.map { rowFromSheet -> ExpenseRow(rowFromSheet) }
-        allExpensesFromSheet.forEachIndexed {i, expenseRow ->
 
+        // Keep track of all submissionIds to keep
+        val submissionIds = allExpensesFromSheet.map { it.submissionId }.toMutableList()
+
+        allExpensesFromSheet.forEachIndexed {i, expenseRow ->
             expenseRow.row = i + 1
             expenseRow.syncStatus = ExpenseRow.STATUS_DONE
 
-            val foundExpenseRows = expenseRowDao.getBySubmissionId(expenseRow.submissionId)
+            val foundExpenseRow = expenseRowsInDbBySubmissionId[expenseRow.submissionId]
 
-            if (isValidUuid(expenseRow.submissionId) && foundExpenseRows.size == 1) {
-//                Log.d(TAG, "Existing row at ${expenseRow.row} - ${expenseRow.submissionId}")
-                expenseRowDao.updateBySubmissionId(
-                    expenseRow.expenseDate,
-                    expenseRow.expenseItem,
-                    expenseRow.expenseCategoryValue,
-                    expenseRow.expenseAmount,
-                    expenseRow.expenseAmountOthers,
-                    expenseRow.expenseTotal,
-                    expenseRow.expenseNotes,
-                    expenseRow.currency,
-                    expenseRow.exchangeRate,
-                    ExpenseRow.STATUS_DONE,
-                    expenseRow.row,
-                    expenseRow.submissionId
-                )
+            val existsInSheet = foundExpenseRow != null
+
+            if (existsInSheet && isValidUuid(expenseRow.submissionId)) {
+                if (foundExpenseRow != expenseRow) {
+                    Log.d(TAG, "Updating existing row at ${expenseRow.row} - ${expenseRow.submissionId}")
+                    expenseRowDao.updateBySubmissionId(
+                        expenseRow.expenseDate,
+                        expenseRow.expenseItem,
+                        expenseRow.expenseCategoryValue,
+                        expenseRow.expenseAmount,
+                        expenseRow.expenseAmountOthers,
+                        expenseRow.expenseTotal,
+                        expenseRow.expenseNotes,
+                        expenseRow.currency,
+                        expenseRow.exchangeRate,
+                        ExpenseRow.STATUS_DONE,
+                        expenseRow.row,
+                        expenseRow.submissionId
+                    )
+                }
             } else if (expenseRow.submissionId == "Id") {
 //                Log.d(TAG, "skipping Id row")
 
                 return@forEachIndexed
             } else {
 //                Log.d(TAG, "New row at ${expenseRow.row}, ${expenseRow.syncStatus}")
+                expenseRow.syncStatus = ExpenseRow.STATUS_DONE
 
-                expenseRow.submissionId = UUID.randomUUID().toString()
-//                expenseRow.syncStatus = ExpenseRow.STATUS_DONE
+                if (!isValidUuid(expenseRow.submissionId)) {
+                    expenseRow.submissionId = UUID.randomUUID().toString()
+
+                    // upsert to set the submissionId
+                    sendExpenseRowAsync(expenseRow, rowToUse = expenseRow.row).await()
+                }
+
                 expenseRowDao.insert(expenseRow)
-
-                // upsert to set the submissionId
-                // this will set the status to DONE
-                sendExpenseRowAsync(expenseRow, rowToUse = expenseRow.row).await()
+                submissionIds += expenseRow.submissionId
             }
         }
 
-        Log.d(TAG, "calling remove")
-        expenseRowDao.removeDeleted()
+        var numDeleted = expenseRowDao.deleteAllNotIn(submissionIds)
+        numDeleted += expenseRowDao.removeDeleted()
+        Log.d(TAG, "$numDeleted were deleted")
     }
 
-    fun isValidUuid(input: String?): Boolean {
+    private fun isValidUuid(input: String?): Boolean {
         if (input == null) return false
         return try {
             UUID.fromString(input)

@@ -58,4 +58,20 @@ data class ExpenseRow(
             submissionId,
         )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ExpenseRow) return false
+
+        return expenseDate == other.expenseDate &&
+                expenseItem == other.expenseItem &&
+                expenseCategoryValue == other.expenseCategoryValue &&
+                expenseAmount == other.expenseAmount &&
+                expenseAmountOthers == other.expenseAmountOthers &&
+                expenseTotal == other.expenseTotal &&
+                expenseNotes == other.expenseNotes &&
+                currency == other.currency &&
+                exchangeRate == other.exchangeRate &&
+                submissionId == other.submissionId
+    }
 }

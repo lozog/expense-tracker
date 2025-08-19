@@ -111,8 +111,6 @@ class HistoryFragment: Fragment() {
                 BarEntry(index.toFloat(), value)
             }
 
-            Log.d(TAG, "${actualAmounts}")
-
             // Create bar entries for target amounts
             val targetEntries = targetAmounts.mapIndexed { index, value ->
                 BarEntry(index.toFloat(), value)
