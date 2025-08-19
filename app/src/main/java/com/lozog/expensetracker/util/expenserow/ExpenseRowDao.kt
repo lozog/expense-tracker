@@ -33,7 +33,7 @@ interface ExpenseRowDao {
     suspend fun getAllExpenseRows(syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): List<ExpenseRow>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(expenseRow: ExpenseRow): Int
+    suspend fun update(expenseRow: ExpenseRow): Int
 
     @Query("UPDATE expenseRow SET sync_status=(:syncStatusDeleted) WHERE `id`=(:id)")
     fun setDeletedById(id: Int, syncStatusDeleted: String = ExpenseRow.STATUS_DELETED): Int
@@ -80,7 +80,7 @@ interface ExpenseRowDao {
     ): Int
 
     @Insert
-    fun insert(expenseRow: ExpenseRow): Long
+    suspend fun insert(expenseRow: ExpenseRow): Long
 
     @Delete
     fun delete(expenseRow: ExpenseRow)

@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.lozog.expensetracker.util.KeyboardManager
@@ -32,6 +33,8 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
 
     // Define the ActivityResultLauncher to handle the result
     private lateinit var overlayPermissionLauncher: ActivityResultLauncher<Intent>
+
+    private val viewModel: SheetsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,7 +115,7 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
                 ExpenseRow.STATUS_PENDING
             )
 
-            sheetsRepository.upsertExpenseRowAsync(expenseRow)
+            viewModel.addExpenseRowToSheetAsync(expenseRow)
 
             // clear the notification
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

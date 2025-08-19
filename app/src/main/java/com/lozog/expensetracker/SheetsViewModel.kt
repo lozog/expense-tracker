@@ -84,7 +84,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             try {
                 // create the expense row
                 withContext(Dispatchers.IO) {
-                    sheetsRepository.upsertExpenseRowAsync(expenseRow).await()
+                    sheetsRepository.upsertExpenseRow(expenseRow)
 
                     // fetch up to date spending for category
                     val spentSoFar = sheetsRepository.getCategorySpending(expenseRow.expenseCategoryValue)
@@ -103,6 +103,10 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             } catch (e: NoInternetException) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
                 // TODO: persist this error somewhere
+            } finally {
+                withContext(Dispatchers.Main) {
+                    setStatus(SheetsStatus.DONE)
+                }
             }
 
             // TODO: catch these errors
@@ -118,9 +122,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 ////                Log.d(TAG, getString(R.string.status_not_signed_in))
 //                statusText = "not signed in"
 //            }
-            withContext(Dispatchers.Main) {
-                setStatus(SheetsStatus.DONE)
-            }
+
         }
     }
 

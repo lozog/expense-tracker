@@ -144,10 +144,12 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     /**
      * Upserts an ExpenseRow into the spreadsheet
      */
-    private fun sendExpenseRowAsync(expenseRow: ExpenseRow, rowToUse: Int? = null) = coroutineScope.async {
+    private suspend fun sendExpenseRow(expenseRow: ExpenseRow, rowToUse: Int? = null)  {
         Log.d(TAG, "sendExpenseRowAsync $rowToUse ${expenseRow.expenseItem}")
 
-        checkSpreadsheetConnection()
+        withContext(Dispatchers.IO) {
+            checkSpreadsheetConnection()
+        }
 
         expenseRowDao.update(expenseRow)
 
@@ -160,23 +162,25 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             row = rowToUse
         } else {
             val idRange = "$sheetName!A$idColumn:$idColumn"
-            val existingIds = application.spreadsheetService!!
-                .spreadsheets()
-                .values()
-                .get(spreadsheetId, idRange)
-                .execute()
-                .getValues()
-                ?.mapNotNull { it.firstOrNull()?.toString() }
-                ?: emptyList()
+            withContext(Dispatchers.IO) {
+                val existingIds = application.spreadsheetService!!
+                    .spreadsheets()
+                    .values()
+                    .get(spreadsheetId, idRange)
+                    .execute()
+                    .getValues()
+                    ?.mapNotNull { it.firstOrNull()?.toString() }
+                    ?: emptyList()
 
-            val existingRowIndex = existingIds.indexOf(expenseRow.submissionId)
-            if (existingRowIndex >= 0) {
-                // row already exists
-                row = existingRowIndex + 1
-                expenseRow.row = row
-            } else {
-                // Doesn't exist; treat as new
-                row = existingIds.size + 1
+                val existingRowIndex = existingIds.indexOf(expenseRow.submissionId)
+                if (existingRowIndex >= 0) {
+                    // row already exists
+                    row = existingRowIndex + 1
+                    expenseRow.row = row
+                } else {
+                    // Doesn't exist; treat as new
+                    row = existingIds.size + 1
+                }
             }
         }
 
@@ -187,13 +191,14 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val requestBody = ValueRange()
         requestBody.setValues(rowData)
 
-        application.spreadsheetService!!
-            .spreadsheets()
-            .values()
-            .update(spreadsheetId, "'$sheetName'!$row:$row", requestBody)
-            .setValueInputOption(SHEETS_VALUE_INPUT_OPTION)
-            .execute()
-
+        withContext(Dispatchers.IO) {
+            application.spreadsheetService!!
+                .spreadsheets()
+                .values()
+                .update(spreadsheetId, "'$sheetName'!$row:$row", requestBody)
+                .setValueInputOption(SHEETS_VALUE_INPUT_OPTION)
+                .execute()
+        }
         expenseRow.syncStatus = ExpenseRow.STATUS_DONE
         expenseRowDao.update(expenseRow)
     }
@@ -207,7 +212,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         coroutineScope {
             pendingExpenseRows.map { expense ->
                 async(Dispatchers.IO) {
-                    sendExpenseRowAsync(expense)
+                    sendExpenseRow(expense)
                 }
             }.awaitAll()
             Log.d(TAG, "sendPendingExpenseRowsAsync done")
@@ -215,21 +220,22 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     /**
-     * Wraps sendExpenseRowAsync by upserting expenseRow into DB and checking for connection to spreadsheet service
+     * Wraps sendExpenseRow by upserting expenseRow into DB and checking for connection to spreadsheet service
      */
-    fun upsertExpenseRowAsync(expenseRow: ExpenseRow) = coroutineScope.async {
+    suspend fun upsertExpenseRow(expenseRow: ExpenseRow) {
         Log.d(TAG, "upsertExpenseRowAsync")
 
         if (expenseRow.id == 0) { // not in DB
             val expenseRowId = expenseRowDao.insert(expenseRow)
 
+            // TODO: we don't update after this assignment, so is it needed at all?
             expenseRow.id = expenseRowId.toInt()
             Log.d(TAG, "inserted into db with id $expenseRowId")
         } else {
             expenseRowDao.update(expenseRow)
         }
 
-        sendExpenseRowAsync(expenseRow).await()
+        sendExpenseRow(expenseRow)
     }
 
     /**
@@ -356,7 +362,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
                     expenseRow.submissionId = UUID.randomUUID().toString()
 
                     // upsert to set the submissionId
-                    sendExpenseRowAsync(expenseRow, rowToUse = expenseRow.row).await()
+                    sendExpenseRow(expenseRow, rowToUse = expenseRow.row)
                 }
 
                 expenseRowDao.insert(expenseRow)
