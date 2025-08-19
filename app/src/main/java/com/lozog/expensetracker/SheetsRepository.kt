@@ -257,11 +257,11 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     /**
-     * Returns a map (category -> amount) of all category spending totals
+     * Returns a map (category -> amount) of all category spending totals.
+     * Filters by month, if provided.
      */
-    suspend fun getAllCategorySpending(): MutableMap<String, Float> {
+    suspend fun getAllCategorySpending(month: Int?): MutableMap<String, Float> {
         Log.d(TAG, "getAllCategorySpending")
-        val curMonth = Calendar.getInstance().get(Calendar.MONTH)
 
         val expenses = withContext(Dispatchers.IO) {
             expenseRowDao.getAllExpenseRows()
@@ -272,7 +272,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         for (expenseRow in expenses) {
             val expenseMonth = (CalendarHelper.parseDatestring(expenseRow.expenseDate)?.monthValue ?: 0) - 1
 
-            if (expenseMonth != curMonth) continue
+            if (month != null && expenseMonth != month) continue
             val amount = expenseRow.expenseAmount.toFloatOrNull() ?: 0.0f
             categorySums[expenseRow.expenseCategoryValue.lowercase()] = categorySums.getOrPut(expenseRow.expenseCategoryValue.lowercase()) { 0f } + amount
         }

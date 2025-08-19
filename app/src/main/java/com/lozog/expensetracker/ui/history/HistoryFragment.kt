@@ -26,6 +26,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.lozog.expensetracker.*
 import com.lozog.expensetracker.databinding.FragmentHistoryBinding
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class HistoryFragment: Fragment() {
     companion object {
@@ -90,8 +91,9 @@ class HistoryFragment: Fragment() {
         val barChart = view.findViewById<BarChart>(R.id.bar_chart)
 
         lifecycleScope.launch {
+            val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
             val categorySpending =
-                (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository.getAllCategorySpending()
+                (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository.getAllCategorySpending(currentMonth)
 
             // TODO move these to a setting
             val keysToShow = listOf("Groceries", "Dining Out", "Drinks", "Material Items", "Entertainment")
