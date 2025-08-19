@@ -34,7 +34,9 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
     // Define the ActivityResultLauncher to handle the result
     private lateinit var overlayPermissionLauncher: ActivityResultLauncher<Intent>
 
-    private val viewModel: SheetsViewModel by viewModels()
+    private val sheetsViewModel: SheetsViewModel by viewModels {
+        SheetsViewModelFactory((applicationContext as ExpenseTrackerApplication).sheetsRepository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,8 +100,6 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
             val inputText = expenseItem.text.toString()
             val selectedOption = dropdown.selectedItem.toString()
 
-            val sheetsRepository = (applicationContext as ExpenseTrackerApplication).sheetsRepository
-
             Toast.makeText(this, "Submitted $inputText - $$amount", Toast.LENGTH_SHORT).show()
 
             val expenseRow = ExpenseRow(
@@ -115,7 +115,7 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
                 ExpenseRow.STATUS_PENDING
             )
 
-            viewModel.addExpenseRowToSheetAsync(expenseRow)
+            sheetsViewModel.addExpenseRowToSheetAsync(expenseRow)
 
             // clear the notification
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
