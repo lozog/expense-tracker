@@ -206,17 +206,15 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     /**
      * sends all pending ExpenseRows to the sheet
      */
-    fun sendPendingExpenseRowsAsync() = coroutineScope.async {
+    suspend fun sendPendingExpenseRows() = coroutineScope {
         Log.d(TAG, "sendPendingExpenseRowsAsync")
         val pendingExpenseRows = expenseRowDao.getPendingExpenseRows()
-        coroutineScope {
-            pendingExpenseRows.map { expense ->
-                async(Dispatchers.IO) {
-                    sendExpenseRow(expense)
-                }
-            }.awaitAll()
-            Log.d(TAG, "sendPendingExpenseRowsAsync done")
-        }
+        pendingExpenseRows.map { expenseRow ->
+            async {
+                sendExpenseRow(expenseRow)
+            }
+        }.awaitAll()
+        Log.d(TAG, "sendPendingExpenseRowsAsync done")
     }
 
     /**
@@ -303,7 +301,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val spreadsheetId = sharedPreferences.getString("google_spreadsheet_id", null)
         val sheetName = sharedPreferences.getString("data_sheet_name", null)
 
-        sendPendingExpenseRowsAsync().await()
+        sendPendingExpenseRows()
 
         val rowsFromSheet = application
             .spreadsheetService!!

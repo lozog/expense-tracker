@@ -8,6 +8,7 @@ import com.lozog.expensetracker.ExpenseTrackerApplication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class NetworkAvailableWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
@@ -18,14 +19,11 @@ class NetworkAvailableWorker(context: Context, workerParams: WorkerParameters) :
 
     override fun doWork(): Result {
         Log.d(TAG, "Network is now available!")
-        val appContext = applicationContext as ExpenseTrackerApplication
-
-        val job = CoroutineScope(Dispatchers.IO).launch {
-            appContext.sheetsRepository.sendPendingExpenseRowsAsync().await()
-        }
-
         return try {
-            job.invokeOnCompletion { Log.d(TAG, "Network worker completed") }
+            runBlocking {
+                (applicationContext as ExpenseTrackerApplication)
+                    .sheetsRepository.sendPendingExpenseRows()
+            }
             Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Network worker failed", e)
