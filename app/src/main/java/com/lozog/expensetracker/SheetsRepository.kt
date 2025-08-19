@@ -281,10 +281,16 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     }
 
     /**
-     * Fetches all expense rows from the sheet, then replaces local DB with fetched rows
+     * Syncs the local DB with the remote sheet, which is the source of truth.
+     *
+     * 1. Sends all pending rows to the sheet
+     * 2. Fetches all rows from sheet
+     * 3. For every row in the sheet, ensure an associated row exists in local DB
+     * 4. If not, create it. Send submissionId to the sheet.
+     * 5. Delete any rows in local DB that didn't have an associated row in the DB or has been soft-deleted
      */
-    fun fetchExpenseRowsFromSheetAsync() = coroutineScope.async {
-        Log.d(TAG, "fetchExpenseRowsFromSheetAsync")
+    fun syncExpenseRowsAsync() = coroutineScope.async {
+        Log.d(TAG, "syncExpenseRowsAsync")
 
         checkSpreadsheetConnection()
 
@@ -361,7 +367,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         var numDeleted = expenseRowDao.deleteAllNotIn(submissionIds)
         numDeleted += expenseRowDao.removeDeleted()
         Log.d(TAG, "$numDeleted were deleted")
-        Log.d(TAG, "fetchExpenseRowsFromSheetAsync done")
+        Log.d(TAG, "syncExpenseRowsAsync done")
     }
 
     private fun isValidUuid(input: String?): Boolean {

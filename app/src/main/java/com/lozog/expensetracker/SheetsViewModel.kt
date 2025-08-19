@@ -66,7 +66,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
             try {
                 withContext(Dispatchers.IO) {
                     withTimeout(10000) {
-                        sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+                        sheetsRepository.syncExpenseRowsAsync().await()
                     }
                 }
             } catch (e: NoInternetException) {
@@ -98,7 +98,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                     }
 
                     // fetch up to date recent history
-                    sheetsRepository.fetchExpenseRowsFromSheetAsync()
+                    sheetsRepository.syncExpenseRowsAsync()
                 }
             } catch (e: NoInternetException) {
                 _toastEvent.value = Event(e.message ?: "Something went wrong")
@@ -130,7 +130,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
                 withTimeout(10000) {
                     sheetsRepository.deleteRowAsync(expenseId).await()
                 }
-                sheetsRepository.fetchExpenseRowsFromSheetAsync().await()
+                sheetsRepository.syncExpenseRowsAsync().await()
                 // TODO: delete by submissionid
                 _toastEvent.value = Event("Deleted row with id $expenseId")
             } catch (e: NoInternetException) {
