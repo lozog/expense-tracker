@@ -2,32 +2,32 @@ package com.lozog.expensetracker.util
 
 import android.content.Context
 import android.util.Log
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.lozog.expensetracker.ExpenseTrackerApplication
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class NetworkAvailableWorker(context: Context, workerParams: WorkerParameters) :
-    Worker(context, workerParams) {
+    CoroutineWorker(context, workerParams) {
 
     companion object {
         private const val TAG = "EXPENSE_TRACKER NetworkAvailableWorker"
+        const val UNIQUE_NAME = "NetworkAvailableWorker"
     }
 
-    override fun doWork(): Result {
-        Log.d(TAG, "Network is now available!")
+    override suspend fun doWork(): Result {
+        Log.d(TAG, "doWork (attempt=${runAttemptCount + 1})")
+
         return try {
-            runBlocking {
-                (applicationContext as ExpenseTrackerApplication)
-                    .sheetsRepository.sendPendingExpenseRows()
-            }
+            val app = applicationContext as ExpenseTrackerApplication
+            // Your sequential sender throws only for transient errors.
+            app.sheetsRepository.syncExpenseRowsAsync()
+
+            Log.d(TAG, "Success")
             Result.success()
-        } catch (e: Exception) {
-            Log.e(TAG, "Network worker failed", e)
-            Result.retry() // Retry if something went wrong
+        } catch (t: Throwable) {
+            Log.e(TAG, "Failure -> retry", t)
+            // Transient error path; permanent errors should be handled in the repo
+            Result.retry()
         }
     }
 }

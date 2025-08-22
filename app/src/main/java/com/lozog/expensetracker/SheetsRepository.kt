@@ -129,7 +129,6 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
         val hasInternetConnection = checkInternetConnectivity()
         if (!hasInternetConnection) {
             Log.d(TAG, "no internet")
-            application.setupNetworkWorker()
             throw NoInternetException()
         }
 
@@ -206,15 +205,23 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
     /**
      * sends all pending ExpenseRows to the sheet
      */
-    suspend fun sendPendingExpenseRows() = coroutineScope {
-        Log.d(TAG, "sendPendingExpenseRowsAsync")
+    private suspend fun sendPendingExpenseRows() = withContext(Dispatchers.IO) {
+        Log.d(TAG, "sendPendingExpenseRows")
         val pendingExpenseRows = expenseRowDao.getPendingExpenseRows()
-        pendingExpenseRows.map { expenseRow ->
-            async {
-                sendExpenseRow(expenseRow)
+
+        for (row in pendingExpenseRows) {
+            ensureActive()
+            try {
+//                expenseRowDao.markSyncInProgress(row.id)
+                sendExpenseRow(row)
+//                expenseRowDao.markSynced(row.id)
+            } catch (e: Throwable) {
+//                expenseRowDao.markPending(row.id, e.message ?: "error")
+                // throw so WorkManager retries later; already-synced rows won't repeat
+                throw e
             }
-        }.awaitAll()
-        Log.d(TAG, "sendPendingExpenseRowsAsync done")
+        }
+        Log.d(TAG, "sendPendingExpenseRows done")
     }
 
     /**
@@ -293,7 +300,7 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * 4. If not, create it. Send submissionId to the sheet.
      * 5. Delete any rows in local DB that didn't have an associated row in the DB or has been soft-deleted
      */
-    fun syncExpenseRowsAsync() = coroutineScope.async {
+    suspend fun syncExpenseRowsAsync() = withContext(Dispatchers.IO) {
         Log.d(TAG, "syncExpenseRowsAsync")
 
         checkSpreadsheetConnection()
@@ -370,7 +377,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
 
         var numDeleted = expenseRowDao.deleteAllNotIn(submissionIds)
         numDeleted += expenseRowDao.removeDeleted()
-        Log.d(TAG, "$numDeleted were deleted")
+        if (numDeleted > 0) {
+            Log.d(TAG, "Deleted $numDeleted rows from local DB")
+        }
         Log.d(TAG, "syncExpenseRowsAsync done")
     }
 

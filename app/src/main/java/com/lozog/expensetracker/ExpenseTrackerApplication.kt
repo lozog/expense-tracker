@@ -3,10 +3,13 @@ package com.lozog.expensetracker
 import android.app.Application
 import android.util.Log
 import androidx.preference.PreferenceManager
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -20,6 +23,7 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.lozog.expensetracker.util.NetworkAvailableWorker
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDB
+import java.util.concurrent.TimeUnit
 
 class ExpenseTrackerApplication : Application() {
 
@@ -37,13 +41,14 @@ class ExpenseTrackerApplication : Application() {
 
     companion object {
         private const val TAG = "EXPENSE_TRACKER ExpenseTrackerApplication"
+        private const val UNIQUE_NAME = NetworkAvailableWorker.UNIQUE_NAME
     }
 
     override fun onCreate() {
         super.onCreate()
 //        Log.d(TAG, "onCreate")
 
-        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false)
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         this.sheetsRepository.setPreferences(sharedPreferences)
 
@@ -56,7 +61,46 @@ class ExpenseTrackerApplication : Application() {
             onSignInSuccess(account)
         }
 
-        setupNetworkWorker()
+        setupPeriodicSync()
+        kickoffImmediateSync()
+    }
+
+    private fun setupPeriodicSync() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        // min interval is 15 minutes
+        val periodic = PeriodicWorkRequestBuilder<NetworkAvailableWorker>(
+            15, TimeUnit.MINUTES
+        )
+            .setConstraints(constraints)
+//            .setFlexInterval(5, TimeUnit.MINUTES) // flex lets Android choose the exact time within the window, helps batching
+            .addTag("NetworkSync")
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            NetworkAvailableWorker.UNIQUE_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,  // don’t reset if already scheduled
+            periodic
+        )
+    }
+
+    private fun kickoffImmediateSync() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val once = OneTimeWorkRequestBuilder<NetworkAvailableWorker>()
+            .setConstraints(constraints)
+            .addTag("NetworkSyncImmediate")
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "ImmediateNetworkSync",
+            ExistingWorkPolicy.KEEP,
+            once
+        )
     }
 
     fun onSignInSuccess(account: GoogleSignInAccount) {
@@ -78,33 +122,5 @@ class ExpenseTrackerApplication : Application() {
         this.googleAccount = account
         this.spreadsheetService = spreadsheetService
         this.driveService = driveService
-    }
-
-    fun setupNetworkWorker() {
-        val workManager = WorkManager.getInstance(this)
-
-        workManager.getWorkInfosForUniqueWork("NetworkAvailableWorker")
-            .get()
-            .let { workInfos ->
-                if (workInfos.isEmpty() || workInfos.any { it.state.isFinished }) {
-                    Log.d(TAG, "Scheduling NetworkAvailableWorker")
-
-                    val constraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
-
-                    val workRequest = OneTimeWorkRequestBuilder<NetworkAvailableWorker>()
-                        .setConstraints(constraints)
-                        .build()
-
-                    workManager.enqueueUniqueWork(
-                        "NetworkAvailableWorker",
-                        ExistingWorkPolicy.REPLACE, // Ensures only one instance runs
-                        workRequest
-                    )
-                } else {
-                    Log.d(TAG, "NetworkAvailableWorker already scheduled, skipping setup.")
-                }
-            }
     }
 }
