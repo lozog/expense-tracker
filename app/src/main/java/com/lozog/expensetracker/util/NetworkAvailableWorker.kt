@@ -20,7 +20,7 @@ class NetworkAvailableWorker(context: Context, workerParams: WorkerParameters) :
         return try {
             val app = applicationContext as ExpenseTrackerApplication
             // Your sequential sender throws only for transient errors.
-            app.sheetsRepository.syncExpenseRowsAsync()
+//            app.sheetsRepository.syncExpenseRowsAsync()
 
             Log.d(TAG, "Success")
             Result.success()

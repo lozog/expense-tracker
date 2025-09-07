@@ -62,7 +62,7 @@ class ExpenseTrackerApplication : Application() {
         }
 
         setupPeriodicSync()
-        kickoffImmediateSync()
+//        kickoffImmediateSync()
     }
 
     private fun setupPeriodicSync() {
