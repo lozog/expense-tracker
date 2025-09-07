@@ -333,11 +333,14 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
             expenseRow.row = i + 1
             expenseRow.syncStatus = ExpenseRow.STATUS_DONE
 
+//            Log.d(TAG, "${expenseRow.expenseItem} in sheet at row ${expenseRow.row} ")
+
             val foundExpenseRow = expenseRowsInDbBySubmissionId[expenseRow.submissionId]
 
             val existsInSheet = foundExpenseRow != null
 
             if (existsInSheet && isValidUuid(expenseRow.submissionId)) {
+//                Log.d(TAG, "found at id ${foundExpenseRow?.id}")
                 if (foundExpenseRow != expenseRow) {
                     Log.d(TAG, "Updating existing row at ${expenseRow.row} - ${expenseRow.submissionId}")
                     expenseRowDao.updateBySubmissionId(

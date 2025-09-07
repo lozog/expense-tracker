@@ -3,8 +3,6 @@ package com.lozog.expensetracker.util.expenserow
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.work.Data
-import androidx.work.workDataOf
 import java.util.UUID
 
 @Entity
@@ -72,6 +70,7 @@ data class ExpenseRow(
                 expenseNotes == other.expenseNotes &&
                 currency == other.currency &&
                 exchangeRate == other.exchangeRate &&
-                submissionId == other.submissionId
+                submissionId == other.submissionId &&
+                row == other.row
     }
 }
