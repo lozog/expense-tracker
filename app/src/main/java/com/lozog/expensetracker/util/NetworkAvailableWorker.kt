@@ -11,11 +11,12 @@ class NetworkAvailableWorker(context: Context, workerParams: WorkerParameters) :
 
     companion object {
         private const val TAG = "EXPENSE_TRACKER NetworkAvailableWorker"
-        const val UNIQUE_NAME = "NetworkAvailableWorker"
+        const val PERIODIC_UNIQUE = "PeriodicNetworkSync"
+        const val IMMEDIATE_UNIQUE = "ImmediateNetworkSync"
     }
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "doWork (attempt=${runAttemptCount + 1})")
+        Log.d(TAG, "doWork id=$id attempt=${runAttemptCount + 1}")
 
         return try {
             val app = applicationContext as ExpenseTrackerApplication

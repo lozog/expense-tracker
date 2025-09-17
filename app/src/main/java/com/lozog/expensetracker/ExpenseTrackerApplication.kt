@@ -3,7 +3,6 @@ package com.lozog.expensetracker
 import android.app.Application
 import android.util.Log
 import androidx.preference.PreferenceManager
-import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -23,6 +22,9 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.lozog.expensetracker.util.NetworkAvailableWorker
 import com.lozog.expensetracker.util.expenserow.ExpenseRowDB
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.util.concurrent.TimeUnit
 
 class ExpenseTrackerApplication : Application() {
@@ -41,11 +43,14 @@ class ExpenseTrackerApplication : Application() {
 
     companion object {
         private const val TAG = "EXPENSE_TRACKER ExpenseTrackerApplication"
-        private const val UNIQUE_NAME = NetworkAvailableWorker.UNIQUE_NAME
     }
 
     override fun onCreate() {
         super.onCreate()
+        if (!isDefaultProcess()) {
+            Log.d(TAG, "onCreate - detected non-default process")
+         return // prevents double scheduling
+        }
 //        Log.d(TAG, "onCreate")
 
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false)
@@ -61,8 +66,18 @@ class ExpenseTrackerApplication : Application() {
             onSignInSuccess(account)
         }
 
-        setupPeriodicSync()
+        // disabled these for now because there were job storms
+//        setupPeriodicSync()
 //        kickoffImmediateSync()
+    }
+
+    private fun isDefaultProcess(): Boolean {
+        val name = try {
+            getProcessName()
+        } catch (_: Throwable) {
+            null
+        }
+        return name == packageName
     }
 
     private fun setupPeriodicSync() {
@@ -80,7 +95,7 @@ class ExpenseTrackerApplication : Application() {
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            NetworkAvailableWorker.UNIQUE_NAME,
+            NetworkAvailableWorker.PERIODIC_UNIQUE,
             ExistingPeriodicWorkPolicy.KEEP,  // don’t reset if already scheduled
             periodic
         )
@@ -97,7 +112,7 @@ class ExpenseTrackerApplication : Application() {
             .build()
 
         WorkManager.getInstance(this).enqueueUniqueWork(
-            "ImmediateNetworkSync",
+            NetworkAvailableWorker.IMMEDIATE_UNIQUE,
             ExistingWorkPolicy.KEEP,
             once
         )
