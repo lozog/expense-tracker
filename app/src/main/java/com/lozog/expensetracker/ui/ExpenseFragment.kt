@@ -34,7 +34,10 @@ class ExpenseFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var mainActivity: MainActivity
     private val sheetsViewModel: SheetsViewModel by activityViewModels {
-        SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+        SheetsViewModelFactory(
+            (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository,
+            (context?.applicationContext as ExpenseTrackerApplication).applicationScope
+        )
     }
     private lateinit var expenseRow: ExpenseRow
 

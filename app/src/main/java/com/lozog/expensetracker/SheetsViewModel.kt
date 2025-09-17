@@ -12,7 +12,7 @@ import com.lozog.expensetracker.util.SheetsStatus
 import kotlinx.coroutines.*
 import java.text.NumberFormat
 
-class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewModel() {
+class SheetsViewModel(private val sheetsRepository: SheetsRepository, private val applicationScope: CoroutineScope) : ViewModel() {
     companion object {
         private const val TAG = "EXPENSE_TRACKER SheetsViewModel"
     }
@@ -79,7 +79,7 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
         expenseRow: ExpenseRow
     ) {
         setStatus(SheetsStatus.IN_PROGRESS)
-        viewModelScope.launch {
+        applicationScope.launch {
             Log.d(TAG, "addExpenseRowToSheetAsync")
             try {
                 // create the expense row
@@ -94,14 +94,14 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
 
                     // TODO: kinda going crazy with the contexts here
                     withContext(Dispatchers.Main) {
-                        _toastEvent.value = Event("$spentSoFarFormatted spent so far in ${expenseRow.expenseCategoryValue}")
+                        _toastEvent.postValue(Event("$spentSoFarFormatted spent so far in ${expenseRow.expenseCategoryValue}"))
                     }
 
                     // fetch up to date recent history
                     sheetsRepository.syncExpenseRowsAsync()
                 }
             } catch (e: NoInternetException) {
-                _toastEvent.value = Event(e.message ?: "Something went wrong")
+                _toastEvent.postValue( Event(e.message ?: "Something went wrong"))
                 // TODO: persist this error somewhere
             } finally {
                 withContext(Dispatchers.Main) {
@@ -193,11 +193,11 @@ class SheetsViewModel(private val sheetsRepository: SheetsRepository) : ViewMode
     }
 }
 
-class SheetsViewModelFactory(private val sheetsRepository: SheetsRepository) : ViewModelProvider.Factory {
+class SheetsViewModelFactory(private val sheetsRepository: SheetsRepository, private val applicationScope: CoroutineScope) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SheetsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SheetsViewModel(sheetsRepository) as T
+            return SheetsViewModel(sheetsRepository, applicationScope) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

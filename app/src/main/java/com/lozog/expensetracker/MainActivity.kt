@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNav: BottomNavigationView
 
     private val sheetsViewModel: SheetsViewModel by viewModels {
-        SheetsViewModelFactory(expenseTrackerApplication.sheetsRepository)
+        SheetsViewModelFactory(expenseTrackerApplication.sheetsRepository, expenseTrackerApplication.applicationScope)
     }
 
     /********** GOOGLE SIGN-IN **********/

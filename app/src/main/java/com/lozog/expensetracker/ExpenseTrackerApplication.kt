@@ -35,6 +35,8 @@ class ExpenseTrackerApplication : Application() {
     var spreadsheetService: Sheets? = null
     var driveService: Drive? = null
 
+    val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     private var jsonFactory: JsonFactory = JacksonFactory.getDefaultInstance()
     private var googleScopes = listOf(
         SheetsScopes.SPREADSHEETS,

@@ -23,7 +23,10 @@ class SetupFragment : Fragment() {
     }
 
     private val sheetsViewModel: SheetsViewModel by activityViewModels {
-        SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+        SheetsViewModelFactory(
+            (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository,
+            (context?.applicationContext as ExpenseTrackerApplication).applicationScope
+        )
     }
 
     private var _binding: FragmentSetupBinding? = null

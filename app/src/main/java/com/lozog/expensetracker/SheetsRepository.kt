@@ -144,11 +144,9 @@ class SheetsRepository(private val expenseRowDao: ExpenseRowDao, private val app
      * Upserts an ExpenseRow into the spreadsheet
      */
     private suspend fun sendExpenseRow(expenseRow: ExpenseRow, rowToUse: Int? = null)  {
-        Log.d(TAG, "sendExpenseRowAsync $rowToUse ${expenseRow.expenseItem}")
+        Log.d(TAG, "sendExpenseRow, row: $rowToUse, item: ${expenseRow.expenseItem}")
 
-        withContext(Dispatchers.IO) {
-            checkSpreadsheetConnection()
-        }
+        checkSpreadsheetConnection()
 
         expenseRowDao.update(expenseRow)
 

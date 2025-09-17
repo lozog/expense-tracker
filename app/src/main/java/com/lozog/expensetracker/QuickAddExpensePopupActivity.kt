@@ -35,7 +35,7 @@ class QuickAddExpensePopupActivity : AppCompatActivity() {
     private lateinit var overlayPermissionLauncher: ActivityResultLauncher<Intent>
 
     private val sheetsViewModel: SheetsViewModel by viewModels {
-        SheetsViewModelFactory((applicationContext as ExpenseTrackerApplication).sheetsRepository)
+        SheetsViewModelFactory((applicationContext as ExpenseTrackerApplication).sheetsRepository, (applicationContext as ExpenseTrackerApplication).applicationScope)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -35,7 +35,10 @@ class HistoryFragment: Fragment() {
     private var _binding: FragmentHistoryBinding? = null
     private lateinit var mainActivity: MainActivity
     private val sheetsViewModel: SheetsViewModel by activityViewModels {
-        SheetsViewModelFactory((context?.applicationContext as ExpenseTrackerApplication).sheetsRepository)
+        SheetsViewModelFactory(
+            (context?.applicationContext as ExpenseTrackerApplication).sheetsRepository,
+            (context?.applicationContext as ExpenseTrackerApplication).applicationScope
+            )
     }
 
     // This property is only valid between onCreateView and
